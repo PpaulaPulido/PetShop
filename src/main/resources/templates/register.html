@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrarse - PetLuz</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/register.css">
+</head>
+
+<body>
+    <!-- Fondo animado -->
+    <div class="background-animation">
+        <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+            <div class="shape shape-4"></div>
+        </div>
+        <div class="background-overlay"></div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="/">
+                    <i class="fas fa-paw"></i>
+                    <span>PetLuz</span>
+                </a>
+            </div>
+            <div class="nav-actions">
+                <a href="/auth/login" class="btn-login">Iniciar Sesión</a>
+                <a href="/auth/register" class="btn-register">Registrarse</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido principal -->
+    <div class="register-container">
+        <div class="register-card">
+            <div class="card-header">
+                <div class="logo-wrapper">
+                    <i class="fas fa-paw"></i>
+                </div>
+                <h1>Crear Cuenta</h1>
+                <p>Únete a PetLuz y descubre los mejores productos para tu mascota</p>
+            </div>
+
+            <form id="registerForm" class="register-form" novalidate>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName" class="form-label">
+                            <i class="fas fa-user"></i>
+                            Nombre *
+                        </label>
+                        <input type="text" class="form-control" id="firstName" name="firstName" required minlength="3" autocomplete="given-name">
+                        <div class="error-message" id="firstNameError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName" class="form-label">
+                            <i class="fas fa-user"></i>
+                            Apellido *
+                        </label>
+                        <input type="text" class="form-control" id="lastName" name="lastName" required minlength="3" autocomplete="family-name">
+                        <div class="error-message" id="lastNameError"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="form-label">
+                        <i class="fas fa-envelope"></i>
+                        Email *
+                    </label>
+                    <div class="input-with-validation">
+                        <input type="email" class="form-control" id="email" name="email" required autocomplete="email">
+                        <button type="button" class="validation-btn" id="checkEmail">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    </div>
+                    <div class="error-message" id="emailError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone" class="form-label">
+                        <i class="fas fa-phone"></i>
+                        Teléfono *
+                    </label>
+                    <div class="input-with-validation">
+                        <div class="phone-prefix">+57</div>
+                        <input type="tel" class="form-control" id="phone" name="phone" required maxlength="10" autocomplete="tel">
+                        <button type="button" class="validation-btn" id="checkPhone">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    </div>
+                    <div class="error-message" id="phoneError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">
+                        <i class="fas fa-lock"></i>
+                        Contraseña *
+                    </label>
+                    <input type="password" class="form-control" id="password" name="password" required minlength="8" autocomplete="new-password">
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="strength-bar"></div>
+                    </div>
+                    <div class="password-requirements">
+                        <ul>
+                            <li id="req-length">Mínimo 8 caracteres</li>
+                            <li id="req-uppercase">Una letra mayúscula</li>
+                            <li id="req-number">Un número</li>
+                            <li id="req-special">Un carácter especial (@$!%*?&)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword" class="form-label">
+                        <i class="fas fa-lock"></i>
+                        Confirmar Contraseña *
+                    </label>
+                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required autocomplete="new-password">
+                    <div class="error-message" id="confirmPasswordError"></div>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" class="form-checkbox" id="acceptTerms" name="acceptTerms" required>
+                    <label for="acceptTerms" class="checkbox-label">
+                        Acepto los <a href="/auth/term" class="terms-link">términos y condiciones</a>*
+                    </label>
+                    <div class="error-message" id="termsError"></div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <span class="btn-text">Crear Cuenta</span>
+                    <div class="btn-loader">
+                        <div class="loader-spinner"></div>
+                    </div>
+                </button>
+            </form>
+
+            <div class="login-link">
+                <p>¿Ya tienes una cuenta? <a href="/auth/login" class="link">Inicia Sesión</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificaciones -->
+    <div class="notification" id="successNotification">
+        <div class="notification-content success">
+            <i class="fas fa-check-circle"></i>
+            <span id="successMessage"></span>
+        </div>
+    </div>
+
+    <div class="notification" id="errorNotification">
+        <div class="notification-content error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span id="errorMessage"></span>
+        </div>
+    </div>
+
+    <script src="/js/validation.js"></script>
+    <script src="/js/register.js"></script>
+</body>
+
+</html>

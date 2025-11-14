@@ -9,7 +9,6 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -29,6 +28,7 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler; // Inyecta el handler
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
@@ -48,54 +48,60 @@ public class SecurityConfig {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
-            .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
             .authorizeHttpRequests(authz -> authz
-                // Rutas públicas - Página principal y recursos estáticos
+                // Rutas públicas - Vistas HTML
                 .requestMatchers(
                     "/",
                     "/index",
-                    "/index.html",
                     "/home",
+                    "/auth/**",
+                    "/register",
+                    "/login",
+                    "/about",
+                    "/contact",
+                    "/services",
+                    "/pets",
+                    "/products/**",
                     "/error",
-                    "/favicon.ico",
+                    "/favicon.ico"
+                ).permitAll()
+                
+                // Recursos estáticos
+                .requestMatchers(
                     "/css/**",
                     "/js/**",
                     "/images/**",
                     "/webjars/**",
-                    "/static/**",
-                    "/assets/**"
+                    "/static/**"
                 ).permitAll()
                 
                 // Endpoints públicos de API
                 .requestMatchers(
                     "/api/auth/**",
                     "/api/products/public/**",
-                    "/api/categories/**",
-                    "/api/public/**",
-                    "/v3/api-docs/**",
-                    "/swagger-ui/**",
-                    "/swagger-ui.html"
+                    "/api/categories/**"
                 ).permitAll()
                 
-                // Endpoints para usuarios autenticados
-                .requestMatchers(
-                    "/api/user/**",
-                    "/api/cart/**",
-                    "/api/orders/**",
-                    "/api/payments/**"
-                ).hasAnyRole("CUSTOMER", "SUPER_ADMIN")
-                
-                // Endpoints solo para SUPER_ADMIN
-                .requestMatchers(
-                    "/api/admin/**",
-                    "/api/users/**",
-                    "/api/products/admin/**",
-                    "/api/reports/**"
-                ).hasRole("SUPER_ADMIN")
+                // Rutas específicas por rol
+                .requestMatchers("/admin/**", "/api/admin/**").hasAnyRole("SYSTEM_ADMIN", "SUPER_ADMIN")
+                .requestMatchers("/manager/**").hasRole("MANAGER")
+                .requestMatchers("/user/**", "/api/user/**").hasAnyRole("CUSTOMER", "MANAGER", "SUPER_ADMIN", "SYSTEM_ADMIN")
                 
                 .anyRequest().authenticated()
+            )
+            .formLogin(form -> form
+                .loginPage("/auth/login")
+                .loginProcessingUrl("/auth/login")
+                .successHandler(customAuthenticationSuccessHandler) // Usa el handler inyectado
+                .failureUrl("/auth/login?error=true")
+                .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutUrl("/auth/logout")
+                .logoutSuccessUrl("/auth/login?logout=true")
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID")
+                .permitAll()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificación Enviada - PetLuz</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/verification-sent.css">
+</head>
+
+<body>
+    <!-- Fondo animado -->
+    <div class="background-animation">
+        <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+            <div class="shape shape-4"></div>
+        </div>
+        <div class="background-overlay"></div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="/">
+                    <i class="fas fa-paw"></i>
+                    <span>PetLuz</span>
+                </a>
+            </div>
+            <div class="nav-actions">
+                <a href="/auth/login" class="btn-login">Iniciar Sesión</a>
+                <a href="/auth/register" class="btn-register">Registrarse</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido principal -->
+    <div class="verification-container">
+        <div class="verification-card">
+            <div class="card-header">
+                <div class="logo-wrapper">
+                    <i class="fas fa-envelope-circle-check"></i>
+                </div>
+                <h1>Verificación Enviada</h1>
+                <p>Hemos enviado un enlace de verificación a tu email</p>
+            </div>
+
+            <div class="verification-content">
+                <div class="success-icon">
+                    <i class="fas fa-paper-plane"></i>
+                </div>
+                
+                <p class="verification-text">
+                    Por favor revisa tu bandeja de entrada y haz clic en el enlace para activar tu cuenta.
+                </p>
+
+                <div class="info-box">
+                    <div class="info-header">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Importante</strong>
+                    </div>
+                    <ul class="info-list">
+                        <li>
+                            <i class="fas fa-search"></i>
+                            Revisa tu carpeta de spam si no encuentras el email
+                        </li>
+                        <li>
+                            <i class="fas fa-clock"></i>
+                            El enlace expirará en 24 horas
+                        </li>
+                        <li>
+                            <i class="fas fa-lock"></i>
+                            No podrás iniciar sesión hasta que verifiques tu email
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="actions">
+                    <a href="/auth/login" class="btn-primary">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Ir al Login
+                    </a>
+                    <button class="btn-secondary" id="resendBtn">
+                        <i class="fas fa-redo"></i>
+                        Reenviar Email
+                    </button>
+                </div>
+
+                <!-- Mensajes de reenvío -->
+                <div class="message success-message" id="resendSuccess">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Email de verificación reenviado exitosamente.</span>
+                </div>
+
+                <div class="message error-message" id="resendError">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="resendErrorText"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificaciones -->
+    <div class="notification" id="successNotification">
+        <div class="notification-content success">
+            <i class="fas fa-check-circle"></i>
+            <span id="successMessage"></span>
+        </div>
+    </div>
+
+    <div class="notification" id="errorNotification">
+        <div class="notification-content error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span id="errorMessage"></span>
+        </div>
+    </div>
+
+    <script src="/js/verification-sent.js"></script>
+</body>
+
+</html>

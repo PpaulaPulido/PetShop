@@ -11,7 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -24,8 +24,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
+        // Verificar que el email esté verificado
         if (!user.getEmailVerified()) {
-            throw new UsernameNotFoundException("Email not verified for user: " + email);
+            throw new UsernameNotFoundException("Email no verificado para el usuario: " + email);
+        }
+
+        // Verificar que la cuenta esté activa
+        if (!user.getIsActive()) {
+            throw new UsernameNotFoundException("Cuenta desactivada para el usuario: " + email);
         }
 
         return new org.springframework.security.core.userdetails.User(
@@ -36,6 +42,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
     private Collection<? extends GrantedAuthority> getAuthorities(User user) {
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
     }
 }
