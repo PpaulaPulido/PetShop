@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            line-height: 1.6; 
+            color: #333; 
+            margin: 0;
+            padding: 0;
+        }
+        .container { 
+            max-width: 600px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            background: #ffffff;
+        }
+        .header { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            padding: 30px 20px; 
+            text-align: center; 
+            border-radius: 10px 10px 0 0;
+        }
+        .content { 
+            padding: 30px; 
+            background: #f9f9f9; 
+            border-radius: 0 0 10px 10px;
+        }
+        .button { 
+            display: inline-block; 
+            padding: 15px 30px; 
+            background: #667eea; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 5px; 
+            margin: 20px 0; 
+            font-weight: bold;
+        }
+        .footer { 
+            padding: 20px; 
+            text-align: center; 
+            font-size: 12px; 
+            color: #666; 
+            margin-top: 20px;
+        }
+        .code {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>¡Bienvenido a <span th:text="${appName}">PetShop</span>!</h1>
+        </div>
+        <div class="content">
+            <h2>Verifica tu dirección de email</h2>
+            <p>Hola <strong th:text="${user.firstName}">Usuario</strong>,</p>
+            <p>Gracias por registrarte en <span th:text="${appName}">PetShop</span>. Para completar tu registro y comenzar a usar nuestra plataforma, por favor verifica tu dirección de email haciendo clic en el botón de abajo:</p>
+            
+            <div style="text-align: center;">
+                <a th:href="${verificationUrl}" class="button">Verificar Email</a>
+            </div>
+            
+            <p>Si el botón no funciona, copia y pega el siguiente enlace en tu navegador:</p>
+            <div class="code" th:text="${verificationUrl}"></div>
+            
+            <p>Este enlace de verificación expirará en 24 horas.</p>
+            <p>Si no creaste una cuenta con <span th:text="${appName}">PetShop</span>, por favor ignora este email.</p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2024 <span th:text="${appName}">PetShop</span>. Todos los derechos reservados.</p>
+            <p>Este es un mensaje automático, por favor no respondas a este email.</p>
+        </div>
+    </div>
+</body>
+</html>

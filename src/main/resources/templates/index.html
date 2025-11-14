@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetLuz - Tu tienda de mascotas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/index.css">
+</head>
+
+<body>
+    <!-- Barra de Navegación -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="#home">PetLuz</a>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#home" class="nav-link">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#categories" class="nav-link">¿Qué vendemos?</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#tips" class="nav-link">Tips</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#how-work" class="nav-link">¿Cómo funciona?</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#advantages" class="nav-link">¿Por qué elegirnos?</a>
+                </li>
+            </ul>
+            <div class="nav-actions">
+                <button class="btn-login" id="loginBtn">Iniciar Sesión</button>
+                <button class="btn-register" id="registerBtn">Registrarse</button>
+                <div class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-background" id="heroBackground">
+            <img src="https://images.unsplash.com/photo-1450778869180-41d0601e046e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2086&q=80"
+                alt="Mascotas felices" class="hero-image">
+        </div>
+        <canvas class="particles-canvas" id="particlesCanvas"></canvas>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">Cuidamos a tu mejor amigo</h1>
+            <p class="hero-subtitle">Alimentos, juguetes y accesorios seleccionados para perros, gatos y pequeñas
+                mascotas.</p>
+            <div class="hero-buttons">
+                <button class="btn-primary" id="buyNowBtn">Comprar ahora</button>
+                <button class="btn-secondary" id="exploreCategoriesBtn">Explorar categorías</button>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <div class="scroll-arrow"></div>
+        </div>
+    </section>
+    <!-- Sección Qué Vendemos -->
+    <section class="section categories" id="categories">
+        <div class="container">
+            <h2 class="section-title">¿Qué vendemos?</h2>
+            <div class="categories-grid">
+                <div class="category-card" data-category="food">
+                    <div class="category-image">
+                        <img src="https://images.unsplash.com/photo-1589924691995-400dc9ecc119?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2071&q=80"
+                            alt="Alimentos para mascotas">
+                    </div>
+                    <h3>Alimentos</h3>
+                    <p>Nutrición balanceada para todas las edades</p>
+                </div>
+                <div class="category-card" data-category="accessories">
+                    <div class="category-image">
+                        <img src="https://images.unsplash.com/photo-1559056199-641a0ac8b55e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
+                            alt="Accesorios para mascotas">
+                    </div>
+                    <h3>Accesorios</h3>
+                    <p>Collares, correas y más</p>
+                </div>
+                <div class="category-card" data-category="toys">
+                    <div class="category-image">
+                        <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2069&q=80"
+                            alt="Juguetes para mascotas">
+                    </div>
+                    <h3>Juguetes</h3>
+                    <p>Diversión y entretenimiento</p>
+                </div>
+                <div class="category-card" data-category="hygiene">
+                    <div class="category-image">
+                        <img src="https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2071&q=80"
+                            alt="Productos de higiene para mascotas">
+                    </div>
+                    <h3>Higiene y cuidado</h3>
+                    <p>Productos para su bienestar</p>
+                </div>
+                <div class="category-card" data-category="health">
+                    <div class="category-image">
+                        <img src="https://images.unsplash.com/photo-1623099354893-9a1fbd0dbb3f?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                            alt="Productos de salud para mascotas">
+                    </div>
+                    <h3>Salud y suplementos</h3>
+                    <p>Vitaminas y cuidados médicos</p>
+                </div>
+                <div class="category-card" data-category="small-pets">
+                    <div class="category-image">
+                        <img src="https://images.unsplash.com/photo-1544513472-9dea22bc4a79?q=80&w=1329&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                            alt="Productos para mascotas pequeñas">
+                    </div>
+                    <h3>Pequeñas mascotas</h3>
+                    <p>Para conejos, hámsters y más</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección Tips de Cuidados -->
+    <section class="section tips" id="tips">
+        <div class="container">
+            <h2 class="section-title">Tips de Cuidados para Mascotas</h2>
+            <div class="tips-grid" id="tipsContainer">
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección Cómo Funciona -->
+    <section class="section process" id="how-work">
+        <div class="container">
+            <h2 class="section-title">¿Cómo funciona?</h2>
+            <div class="process-steps">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <h3>Explora</h3>
+                    <p>Navega por nuestras categorías y encuentra lo que necesitas</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <h3>Añade al carrito</h3>
+                    <p>Selecciona tus productos favoritos</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <h3>Recibe tu pedido</h3>
+                    <p>Entrega rápida en la puerta de tu casa</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección Ventajas -->
+    <section class="section advantages" id="advantages">
+        <div class="container">
+            <h2 class="section-title">¿Por qué elegirnos?</h2>
+            <div class="advantages-grid">
+                <div class="advantage-card">
+                    <div class="advantage-icon">📦</div>
+                    <h3>Stock en tiempo real</h3>
+                    <p>Siempre disponibilidad de productos</p>
+                </div>
+                <div class="advantage-card">
+                    <div class="advantage-icon">🚚</div>
+                    <h3>Envíos rápidos</h3>
+                    <p>Entrega en 24-48 horas</p>
+                </div>
+                <div class="advantage-card">
+                    <div class="advantage-icon">🧾</div>
+                    <h3>Factura PDF</h3>
+                    <p>Documentos fiscales incluidos</p>
+                </div>
+                <div class="advantage-card">
+                    <div class="advantage-icon">👨‍💼</div>
+                    <h3>Atención al cliente</h3>
+                    <p>Soporte 24/7 para tus consultas</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>PetLuz</h3>
+                    <p>Tu tienda de confianza para el cuidado de mascotas</p>
+                    <div class="social-links">
+                        <a href="#" aria-label="Facebook">📘</a>
+                        <a href="#" aria-label="Instagram">📷</a>
+                        <a href="#" aria-label="Twitter">🐦</a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Contacto</h4>
+                    <p>📧 info@petluz.com</p>
+                    <p>📞 +57 3114506070</p>
+                    <p>📍 Calle Mascotas 123, Madrid</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 PetLuz. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module" src="/js/app.js"></script>
+</body>
+
+</html>
