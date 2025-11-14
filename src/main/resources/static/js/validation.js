@@ -145,9 +145,9 @@ class FormValidator {
         }
     }
 
-    // ========== SISTEMA MEJORADO PARA DETECTAR TEXTO INCOHERENTE ==========
+    // ========== SISTEMA PARA DETECTAR TEXTO INCOHERENTE ==========
 
-    // Método principal para detectar texto sin sentido - MEJORADO
+    // Método principal para detectar texto sin sentido
     isIncoherentText(value, context = 'name') {
         if (value.length < 4) return false;
 
@@ -192,7 +192,7 @@ class FormValidator {
         return score >= 5; // Puntaje más alto requerido
     }
 
-    // 1. Detectar "caminatas" por el teclado - MEJORADO
+    // 1. Detectar "caminatas" por el teclado
     hasKeyboardWalking(value) {
         const keyboardLayouts = [
             // Teclado QWERTY
@@ -235,7 +235,30 @@ class FormValidator {
         return false;
     }
 
-    // 2. Detectar patrones de caracteres aleatorios - MEJORADO
+    isConsecutiveInRow(segment, row) {
+        if (segment.length < 3) return false;
+
+        // Buscar la posición de inicio del segmento en la fila
+        const startIndex = row.indexOf(segment[0]);
+        if (startIndex === -1) return false;
+
+        // Verificar si los siguientes caracteres son consecutivos en la fila
+        for (let i = 1; i < segment.length; i++) {
+            const expectedChar = row[startIndex + i];
+            if (expectedChar !== segment[i]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    isKeyboardSequenceInString(segment, layout) {
+        return layout.includes(segment) ||
+            layout.includes(segment.split('').reverse().join(''));
+    }
+
+    // 2. Detectar patrones de caracteres aleatorios 
     hasRandomCharacterPattern(value) {
         if (value.length < 8) return false; // Longitud mínima mayor
 
@@ -253,7 +276,7 @@ class FormValidator {
         return entropy > 3.8 && transitionScore < 0.2 && repetitiveScore > 0.5;
     }
 
-    // 3. Verificar balance vocal-consonante - MEJORADO
+    // 3. Verificar balance vocal-consonante
     lacksVowelConsonantBalance(value) {
         if (value.length < 6) return false; // Longitud mínima mayor
 
@@ -269,7 +292,110 @@ class FormValidator {
         return vowelRatio < 0.15 || vowelRatio > 0.85;
     }
 
-    // 5. Detector de "texto sin sentido" usando múltiples criterios - MEJORADO
+    // Calcular entropía de Shannon para medir aleatoriedad
+    calculateEntropy(value) {
+        if (!value || value.length === 0) return 0;
+
+        const charCount = {};
+        const length = value.length;
+
+        // Contar frecuencia de caracteres
+        for (let char of value) {
+            charCount[char] = (charCount[char] || 0) + 1;
+        }
+
+        // Calcular entropía
+        let entropy = 0;
+        for (let char in charCount) {
+            const probability = charCount[char] / length;
+            entropy -= probability * Math.log2(probability);
+        }
+
+        return entropy;
+    }
+
+    // Calcular score de transiciones entre vocales y consonantes
+    calculateTransitionScore(value) {
+        if (!value || value.length < 2) return 0;
+
+        let transitions = 0;
+        const vowels = 'aeiou';
+
+        for (let i = 1; i < value.length; i++) {
+            const prevIsVowel = vowels.includes(value[i - 1]);
+            const currIsVowel = vowels.includes(value[i]);
+
+            if (prevIsVowel !== currIsVowel) {
+                transitions++;
+            }
+        }
+
+        return transitions / (value.length - 1);
+    }
+
+    // Calcular score de patrones repetitivos
+    calculateRepetitiveScore(value) {
+        if (!value || value.length < 4) return 0;
+
+        let repetitiveCount = 0;
+        let totalPatterns = 0;
+
+        // Buscar patrones de 2-3 caracteres repetidos
+        for (let patternLength = 2; patternLength <= 3; patternLength++) {
+            for (let i = 0; i <= value.length - patternLength * 2; i++) {
+                totalPatterns++;
+                const pattern = value.substring(i, i + patternLength);
+                const nextSegment = value.substring(i + patternLength, i + patternLength * 2);
+
+                if (pattern === nextSegment) {
+                    repetitiveCount++;
+                }
+            }
+        }
+
+        return totalPatterns > 0 ? repetitiveCount / totalPatterns : 0;
+    }
+
+    // Detectar patrones de caracteres repetidos
+    hasRepeatedCharacterPatterns(value) {
+        if (value.length < 6) return false;
+
+        // Patrones como "aaaaaa", "ababab", "abcabc"
+        const patterns = [
+            /(.)\1{4,}/, // 5+ caracteres iguales consecutivos
+            /(..)\1{2,}/, // Patrón de 2 caracteres repetido 3+ veces
+            /(...)\1{1,}/, // Patrón de 3 caracteres repetido 2+ veces
+            /(....)\1{1,}/ // Patrón de 4 caracteres repetido 2+ veces
+        ];
+
+        return patterns.some(pattern => pattern.test(value));
+    }
+
+    validatePasswordMatch(value) {
+        const errorElement = document.getElementById('confirmPasswordError');
+        const inputElement = document.getElementById('confirmPassword');
+        const password = document.getElementById('password')?.value || '';
+
+        if (!errorElement || !inputElement) return false;
+
+        this.hideError(errorElement);
+        inputElement.classList.remove('invalid', 'valid');
+
+        if (!value.trim()) {
+            return false;
+        }
+
+        if (value !== password) {
+            this.showError(errorElement, 'Las contraseñas no coinciden');
+            inputElement.classList.add('invalid');
+            return false;
+        }
+
+        inputElement.classList.add('valid');
+        return true;
+    }
+
+    // 5. Detector de "texto sin sentido" usando múltiples criterios
     isGibberish(value) {
         if (value.length < 8) return false; // Longitud mínima mayor
 
@@ -297,7 +423,7 @@ class FormValidator {
 
     // ========== MÉTODOS DE VALIDACIÓN ACTUALIZADOS ==========
 
-    // Validación de nombre y apellido - MEJORADA
+    // Validación de nombre y apellido
     validateName(value, field) {
         const errorElement = document.getElementById(`${field}Error`);
         const inputElement = document.getElementById(field);
@@ -339,7 +465,7 @@ class FormValidator {
             return false;
         }
 
-        // NUEVA VALIDACIÓN MEJORADA: Detectar texto incoherente (solo para nombres)
+        // Detectar texto incoherente (solo para nombres)
         if (this.isIncoherentText(value, 'name')) {
             this.showError(errorElement, 'El texto parece no tener sentido coherente');
             inputElement.classList.add('invalid');
@@ -386,7 +512,7 @@ class FormValidator {
         return true;
     }
 
-    // Validación de email - MEJORADA
+    // Validación de email
     validateEmail(value, forceCheck = false) {
         const errorElement = document.getElementById('emailError');
         const inputElement = document.getElementById('email');
@@ -421,7 +547,7 @@ class FormValidator {
             return false;
         }
 
-        // NUEVA VALIDACIÓN MEJORADA: Detectar texto incoherente en la parte local del email
+        // Detectar texto incoherente en la parte local del email
         // Usar contexto 'email' para ser más permisivo
         if (localPart && this.isIncoherentText(localPart, 'email')) {
             this.showError(errorElement, 'La parte del email antes del @ parece no tener sentido');
@@ -532,7 +658,7 @@ class FormValidator {
         return true;
     }
 
-    // Validación de contraseña - MEJORADA
+    // Validación de contraseña
     validatePassword(value) {
         const inputElement = document.getElementById('password');
         const strengthBar = document.querySelector('.strength-bar');
@@ -553,14 +679,6 @@ class FormValidator {
         const hasUppercase = /[A-Z]/.test(value);
         const hasNumber = /\d/.test(value);
         const hasSpecial = /[@$!%*?&]/.test(value);
-
-        // NUEVA VALIDACIÓN MEJORADA: Detectar texto incoherente en contraseñas
-        if (this.isIncoherentText(value) && !this.isStrongPassword(value)) {
-            this.showPasswordError('La contraseña parece ser texto sin sentido y no es suficientemente segura');
-            inputElement.classList.add('invalid');
-            this.updatePasswordRequirements(hasMinLength, hasUppercase, hasNumber, hasSpecial);
-            return false;
-        }
 
         // Validar patrones comunes inseguros
         if (this.isCommonPassword(value)) {
@@ -663,30 +781,135 @@ class FormValidator {
         });
     }
 
-    // Validación de coincidencia de contraseñas
-    validatePasswordMatch(value) {
-        const errorElement = document.getElementById('confirmPasswordError');
-        const inputElement = document.getElementById('confirmPassword');
+    // Validación de contraseña - CORREGIDA
+    validatePassword(value) {
+        const inputElement = document.getElementById('password');
+        const strengthBar = document.querySelector('.strength-bar');
 
-        if (!errorElement || !inputElement) return false;
+        if (!inputElement) return false;
 
-        this.hideError(errorElement);
+        // Resetear estado
         inputElement.classList.remove('invalid', 'valid');
+        this.hidePasswordError();
 
         if (!value) {
+            if (strengthBar) strengthBar.className = 'strength-bar';
+            this.updatePasswordRequirements(false, false, false, false);
             return false;
         }
 
-        const password = document.getElementById('password')?.value;
+        // Verificar requisitos
+        const hasMinLength = value.length >= 8;
+        const hasUppercase = /[A-Z]/.test(value);
+        const hasNumber = /\d/.test(value);
+        const hasSpecial = /[@$!%*?&]/.test(value);
 
-        if (value !== password) {
-            this.showError(errorElement, 'Las contraseñas no coinciden');
+        // Mostrar errores específicos si no cumple requisitos
+        if (!hasMinLength) {
+            this.showPasswordError('La contraseña debe tener al menos 8 caracteres');
+            inputElement.classList.add('invalid');
+            this.updatePasswordRequirements(hasMinLength, hasUppercase, hasNumber, hasSpecial);
+            return false;
+        }
+
+        if (!hasUppercase) {
+            this.showPasswordError('La contraseña debe contener al menos una letra mayúscula');
+            inputElement.classList.add('invalid');
+            this.updatePasswordRequirements(hasMinLength, hasUppercase, hasNumber, hasSpecial);
+            return false;
+        }
+
+        if (!hasNumber) {
+            this.showPasswordError('La contraseña debe contener al menos un número');
+            inputElement.classList.add('invalid');
+            this.updatePasswordRequirements(hasMinLength, hasUppercase, hasNumber, hasSpecial);
+            return false;
+        }
+
+        if (!hasSpecial) {
+            this.showPasswordError('La contraseña debe contener al menos un carácter especial (@$!%*?&)');
+            inputElement.classList.add('invalid');
+            this.updatePasswordRequirements(hasMinLength, hasUppercase, hasNumber, hasSpecial);
+            return false;
+        }
+
+        // Validar patrones comunes inseguros
+        if (this.isCommonPassword(value)) {
+            this.showPasswordError('Esta contraseña es muy común y poco segura');
+            inputElement.classList.add('invalid');
+            this.updatePasswordRequirements(hasMinLength, hasUppercase, hasNumber, hasSpecial);
+            return false;
+        }
+
+        // Validar patrones repetitivos
+        if (this.hasRepetitivePattern(value)) {
+            this.showPasswordError('La contraseña contiene patrones repetitivos inseguros');
+            inputElement.classList.add('invalid');
+            this.updatePasswordRequirements(hasMinLength, hasUppercase, hasNumber, hasSpecial);
+            return false;
+        }
+
+        // Validar secuencias de teclado
+        if (this.isKeyboardSequence(value)) {
+            this.showPasswordError('La contraseña contiene secuencias de teclado inseguras');
+            inputElement.classList.add('invalid');
+            this.updatePasswordRequirements(hasMinLength, hasUppercase, hasNumber, hasSpecial);
+            return false;
+        }
+
+        // Actualizar indicadores visuales
+        this.updatePasswordRequirements(hasMinLength, hasUppercase, hasNumber, hasSpecial);
+
+        // Calcular fortaleza
+        const strength = [hasMinLength, hasUppercase, hasNumber, hasSpecial].filter(Boolean).length;
+
+        if (strengthBar) {
+            if (strength === 4) {
+                strengthBar.className = 'strength-bar strong';
+                inputElement.classList.add('valid');
+                return true;
+            } else if (strength >= 2) {
+                strengthBar.className = 'strength-bar medium';
+                inputElement.classList.add('valid'); // También válido si es medium o strong
+            } else {
+                strengthBar.className = 'strength-bar weak';
+                inputElement.classList.add('invalid');
+            }
+        }
+
+        // Si tiene al menos 8 caracteres pero le faltan otros requisitos
+        if (value.length > 0 && strength < 4) {
             inputElement.classList.add('invalid');
             return false;
         }
 
-        inputElement.classList.add('valid');
-        return true;
+        return strength === 4;
+    }
+
+    // Método para ocultar errores de contraseña
+    hidePasswordError() {
+        const errorElement = document.getElementById('passwordError');
+        if (errorElement) {
+            errorElement.textContent = '';
+            errorElement.classList.remove('show');
+        }
+    }
+
+    // Mostrar error de contraseña (crear elemento temporal si no existe)
+    showPasswordError(message) {
+        let errorElement = document.getElementById('passwordError');
+        if (!errorElement) {
+            errorElement = document.createElement('div');
+            errorElement.id = 'passwordError';
+            errorElement.className = 'error-message';
+            const passwordGroup = document.querySelector('.form-group');
+            if (passwordGroup) {
+                // Insertar después del input de contraseña
+                const passwordInput = document.getElementById('password');
+                passwordInput.parentNode.insertBefore(errorElement, passwordInput.nextSibling);
+            }
+        }
+        this.showError(errorElement, message);
     }
 
     // Validación de términos y condiciones

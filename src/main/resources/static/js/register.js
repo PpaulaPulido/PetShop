@@ -43,8 +43,9 @@ class RegisterForm {
         // Convertir el checkbox "on" a boolean
         data.acceptTerms = data.acceptTerms === 'on';
         
-        // Agregar prefijo al teléfono
-        data.phone = '+57' + data.phone;
+        // IMPORTANTE: El teléfono debe enviarse solo con los 10 dígitos
+        // Tu DTO espera el formato: "3001234567" sin +57
+        // El +57 se agrega en el servicio con normalizePhone()
         
         return data;
     }
@@ -53,41 +54,36 @@ class RegisterForm {
         this.setLoadingState(true);
 
         try {
-            // Simular envío a la API (reemplazar con llamada real)
-            const response = await this.simulateApiCall(data);
+            console.log('Enviando datos:', data); // Para debug
             
-            if (response.success) {
-                this.handleSuccess(response);
+            const response = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+            console.log('Respuesta del servidor:', result); // Para debug
+            
+            if (result.success) {
+                this.handleSuccess(result);
             } else {
-                this.handleError(response.error);
+                // Manejar errores de validación del servidor
+                if (result.errors) {
+                    const errorMessages = result.errors.map(error => error.defaultMessage).join(', ');
+                    this.handleError(`Errores de validación: ${errorMessages}`);
+                } else {
+                    this.handleError(result.error || 'Error en el registro');
+                }
             }
         } catch (error) {
+            console.error('Error de conexión:', error);
             this.handleError('Error de conexión. Por favor, intenta nuevamente.');
         } finally {
             this.setLoadingState(false);
         }
-    }
-
-    async simulateApiCall(data) {
-        // Simular llamada a la API
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                // Simular diferentes respuestas basadas en los datos
-                if (data.email.includes('error')) {
-                    resolve({
-                        success: false,
-                        error: 'El servidor encontró un error con los datos proporcionados'
-                    });
-                } else {
-                    resolve({
-                        success: true,
-                        message: '¡Cuenta creada exitosamente! Te hemos enviado un email de verificación.',
-                        email: data.email,
-                        userId: Math.random().toString(36).substr(2, 9)
-                    });
-                }
-            }, 2000);
-        });
     }
 
     handleSuccess(response) {
@@ -111,9 +107,11 @@ class RegisterForm {
         if (loading) {
             this.submitBtn.disabled = true;
             this.submitBtn.classList.add('loading');
+            this.submitBtn.querySelector('.btn-text').textContent = 'Registrando...';
         } else {
             this.submitBtn.disabled = false;
             this.submitBtn.classList.remove('loading');
+            this.submitBtn.querySelector('.btn-text').textContent = 'Crear Cuenta';
         }
     }
 

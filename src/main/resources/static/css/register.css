@@ -706,3 +706,21 @@ body {
         font-size: 0.8rem;
     }
 }
+
+.password-requirements li.valid {
+    color: var(--success);
+}
+
+.password-requirements li.valid::before {
+    content: '✓';
+    color: var(--success);
+}
+
+.password-requirements li:not(.valid) {
+    color: var(--gray);
+}
+
+.password-requirements li:not(.valid)::before {
+    content: '✗';
+    color: var(--error);
+}
