@@ -1,5 +1,6 @@
 package io.bootify.pet_shop.repositories;
 
+import io.bootify.pet_shop.models.Role;
 import io.bootify.pet_shop.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,14 +13,21 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
-
     Boolean existsByEmail(String email);
-
     Optional<User> findByVerificationToken(String verificationToken);
+    Optional<User> findByResetToken(String resetToken);
+    
+    List<User> findByRole(Role role);
+    List<User> findByIsActive(Boolean isActive);
+    
+    @Query("SELECT u FROM User u WHERE u.role IN :roles")
+    List<User> findByRoles(@Param("roles") List<Role> roles);
+    
+    @Query("SELECT COUNT(u) FROM User u WHERE u.role = :role AND u.isActive = true")
+    Long countActiveUsersByRole(@Param("role") Role role);
+    
+    List<User> findByAccountLockedTrue();
 
-    @Query("SELECT u FROM User u WHERE u.role = 'SUPER_ADMIN'")
-    List<User> findAllSuperAdmins();
-
-    @Query("SELECT u FROM User u WHERE u.emailVerified = :verified")
-    List<User> findByEmailVerified(@Param("verified") Boolean verified);
+    Optional<User> findByPhone(String phone);
+    Boolean existsByPhone(String phone);
 }

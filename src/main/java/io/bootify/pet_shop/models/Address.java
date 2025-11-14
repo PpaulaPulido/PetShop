@@ -1,6 +1,9 @@
 package io.bootify.pet_shop.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -8,6 +11,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "addresses")
+@Getter
+@Setter
 public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,26 +22,56 @@ public class Address {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false)
-    private String street;
+    // Información de la dirección
+    @NotBlank
+    @Column(name = "address_line1", nullable = false)
+    private String addressLine1; // Calle y número
 
-    @Column(nullable = false)
-    private String city;
+    @Column(name = "address_line2")
+    private String addressLine2; // Barrio, complemento
 
-    @Column(nullable = false)
-    private String state;
+    @Column(name = "landmark")
+    private String landmark; // Punto de referencia
 
+    @NotBlank
     @Column(nullable = false)
-    private String zipCode;
+    private String city; // Ciudad/Municipio
 
+    @NotBlank
+    @Column(name = "department", nullable = false)
+    private String department; // Departamento
+
+    @NotBlank
     @Column(nullable = false)
-    private String country;
+    private String country = "Colombia"; // Siempre Colombia
 
-    private String apartment;
+    @NotBlank
+    @Column(name = "zip_code", nullable = false)
+    private String zipCode; // Código postal
+
+    // Tipo de dirección
+    @Enumerated(EnumType.STRING)
+    @Column(name = "address_type", nullable = false)
+    private AddressType addressType = AddressType.HOME;
 
     @Column(name = "is_primary")
     private Boolean isPrimary = false;
 
+    @Column(name = "is_active")
+    private Boolean isActive = true;
+
+    // Información de contacto en esta dirección
+    @Column(name = "contact_name")
+    private String contactName;
+
+    @Column(name = "contact_phone")
+    private String contactPhone;
+
+    // Instrucciones de entrega
+    @Column(name = "delivery_instructions", length = 500)
+    private String deliveryInstructions;
+
+    // Auditoría
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -45,105 +80,29 @@ public class Address {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // Constructores, Getters y Setters
-    public Address() {
-    }
+    // Constructores
+    public Address() {}
 
-    public Address(User user, String street, String city, String state, String zipCode, String country) {
+    public Address(User user, String addressLine1, String city, String department, String zipCode) {
         this.user = user;
-        this.street = street;
+        this.addressLine1 = addressLine1;
         this.city = city;
-        this.state = state;
+        this.department = department;
         this.zipCode = zipCode;
-        this.country = country;
+        this.country = "Colombia";
     }
 
-    // Getters y Setters...
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public String getStreet() {
-        return street;
-    }
-
-    public void setStreet(String street) {
-        this.street = street;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-        this.state = state;
-    }
-
-    public String getZipCode() {
-        return zipCode;
-    }
-
-    public void setZipCode(String zipCode) {
-        this.zipCode = zipCode;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public String getApartment() {
-        return apartment;
-    }
-
-    public void setApartment(String apartment) {
-        this.apartment = apartment;
-    }
-
-    public Boolean getIsPrimary() {
-        return isPrimary;
-    }
-
-    public void setIsPrimary(Boolean isPrimary) {
-        this.isPrimary = isPrimary;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
+    // Método para obtener dirección completa
+    public String getFullAddress() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(addressLine1);
+        if (addressLine2 != null && !addressLine2.isEmpty()) {
+            sb.append(", ").append(addressLine2);
+        }
+        sb.append(", ").append(city);
+        sb.append(", ").append(department);
+        sb.append(", ").append(country);
+        sb.append(" - ").append(zipCode);
+        return sb.toString();
     }
 }
