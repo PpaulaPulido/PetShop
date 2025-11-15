@@ -16,6 +16,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import io.bootify.pet_shop.config.JwtAuthenticationFilter;
+import io.bootify.pet_shop.config.CustomAuthenticationSuccessHandler;
 
 import java.util.Arrays;
 
