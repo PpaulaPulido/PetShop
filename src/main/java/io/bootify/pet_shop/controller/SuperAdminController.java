@@ -1,4 +1,4 @@
-package io.bootify.pet_shop.controllers;
+package io.bootify.pet_shop.controller;
 
 import io.bootify.pet_shop.services.ReportService;
 import lombok.RequiredArgsConstructor;
@@ -43,5 +43,5 @@ public class SuperAdminController {
         model.addAttribute("pageTitle", "Gestión de Inventario - PetShop");
         return "super-admin/inventory";
     }
-    
+
 }
