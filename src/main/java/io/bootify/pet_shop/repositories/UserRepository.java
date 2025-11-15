@@ -30,4 +30,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByPhone(String phone);
     Boolean existsByPhone(String phone);
+
+    @Query("SELECT u FROM User u WHERE u.role != 'SYSTEM_ADMIN'")
+    List<User> findAllExceptSystemAdmin();
+
+    @Query("SELECT u FROM User u WHERE u.role != 'SYSTEM_ADMIN' AND u.isActive = :isActive")
+    List<User> findByIsActiveExceptSystemAdmin(@Param("isActive") Boolean isActive);
+
+    @Query("SELECT COUNT(u) FROM User u WHERE u.role = :role")
+    long countByRole(@Param("role") Role role);
+
 }

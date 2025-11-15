@@ -22,21 +22,17 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         
         String redirectUrl = determineTargetUrl(authorities);
-        
-        System.out.println("🔐 Usuario autenticado: " + authentication.getName());
-        System.out.println("🎯 Redirigiendo a: " + redirectUrl);
-        
         response.sendRedirect(redirectUrl);
     }
 
     private String determineTargetUrl(Collection<? extends GrantedAuthority> authorities) {
         // Verificar roles en orden de prioridad
         if (hasRole(authorities, Role.SYSTEM_ADMIN)) {
-            return "/admin/system-dashboard";
+            return "/system-admin/dashboard"; 
         } else if (hasRole(authorities, Role.SUPER_ADMIN)) {
-            return "/admin/dashboard";
+            return "/super-admin/dashboard"; 
         } else if (hasRole(authorities, Role.MANAGER)) {
-            return "/manager/dashboard";
+            return "/manager/dashboard"; 
         } else if (hasRole(authorities, Role.CUSTOMER)) {
             return "/user/dashboard";
         }

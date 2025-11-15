@@ -31,7 +31,8 @@ public class SecurityConfig {
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler; // Inyecta el handler
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
@@ -46,64 +47,68 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(authz -> authz
-                // Rutas públicas - Vistas HTML
-                .requestMatchers(
-                    "/",
-                    "/index",
-                    "/home",
-                    "/auth/**",
-                    "/register",
-                    "/login",
-                    "/about",
-                    "/contact",
-                    "/services",
-                    "/pets",
-                    "/products/**",
-                    "/error",
-                    "/favicon.ico"
-                ).permitAll()
-                
-                // Recursos estáticos
-                .requestMatchers(
-                    "/css/**",
-                    "/js/**",
-                    "/images/**",
-                    "/webjars/**",
-                    "/static/**"
-                ).permitAll()
-                
-                // Endpoints públicos de API
-                .requestMatchers(
-                    "/api/auth/**",
-                    "/api/products/public/**",
-                    "/api/categories/**"
-                ).permitAll()
-                
-                // Rutas específicas por rol
-                .requestMatchers("/admin/**", "/api/admin/**").hasAnyRole("SYSTEM_ADMIN", "SUPER_ADMIN")
-                .requestMatchers("/manager/**").hasRole("MANAGER")
-                .requestMatchers("/user/**", "/api/user/**").hasAnyRole("CUSTOMER", "MANAGER", "SUPER_ADMIN", "SYSTEM_ADMIN")
-                
-                .anyRequest().authenticated()
-            )
-            .formLogin(form -> form
-                .loginPage("/auth/login")
-                .loginProcessingUrl("/auth/login")
-                .successHandler(customAuthenticationSuccessHandler) // Usa el handler inyectado
-                .failureUrl("/auth/login?error=true")
-                .permitAll()
-            )
-            .logout(logout -> logout
-                .logoutUrl("/auth/logout")
-                .logoutSuccessUrl("/auth/login?logout=true")
-                .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID")
-                .permitAll()
-            )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(authz -> authz
+                        // Rutas públicas - Vistas HTML
+                        .requestMatchers(
+                                "/",
+                                "/index",
+                                "/home",
+                                "/auth/**",
+                                "/register",
+                                "/login",
+                                "/about",
+                                "/contact",
+                                "/services",
+                                "/pets",
+                                "/products/**",
+                                "/error",
+                                "/favicon.ico")
+                        .permitAll()
+
+                        // Recursos estáticos
+                        .requestMatchers(
+                                "/css/**",
+                                "/js/**",
+                                "/images/**",
+                                "/webjars/**",
+                                "/static/**")
+                        .permitAll()
+
+                        // Endpoints públicos de API
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/api/products/public/**",
+                                "/api/categories/**")
+                        .permitAll()
+
+                        // NUEVAS RUTAS ESPECÍFICAS
+                        .requestMatchers("/system-admin/**").hasRole("SYSTEM_ADMIN")
+                        .requestMatchers("/super-admin/**").hasRole("SUPER_ADMIN")
+                        .requestMatchers("/manager/**").hasRole("MANAGER")
+                        .requestMatchers("/user/**").hasRole("CUSTOMER")
+
+                        // APIs específicas
+                        .requestMatchers("/api/system-admin/**").hasRole("SYSTEM_ADMIN")
+                        .requestMatchers("/api/super-admin/**").hasRole("SUPER_ADMIN")
+                        .requestMatchers("/api/manager/**").hasRole("MANAGER")
+                        .requestMatchers("/api/user/**").hasRole("CUSTOMER")
+
+                        .anyRequest().authenticated())
+                .formLogin(form -> form
+                        .loginPage("/auth/login")
+                        .loginProcessingUrl("/auth/login")
+                        .successHandler(customAuthenticationSuccessHandler)
+                        .failureUrl("/auth/login?error=true")
+                        .permitAll())
+                .logout(logout -> logout
+                        .logoutUrl("/auth/logout")
+                        .logoutSuccessUrl("/auth/login?logout=true")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                        .permitAll())
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -115,7 +120,7 @@ public class SecurityConfig {
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
-        
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

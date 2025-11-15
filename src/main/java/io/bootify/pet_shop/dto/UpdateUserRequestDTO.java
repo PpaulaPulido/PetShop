@@ -1,5 +1,6 @@
 package io.bootify.pet_shop.dto;
 
+import io.bootify.pet_shop.models.Gender;
 import io.bootify.pet_shop.models.Role;
 import jakarta.validation.constraints.*;
 import lombok.Data;
@@ -21,12 +22,14 @@ public class UpdateUserRequestDTO {
 
     private String alternatePhone;
     private LocalDate dateOfBirth;
-    private String gender;
+    private Gender gender;
     
     @NotNull(message = "El rol es obligatorio")
     private Role role;
     
     private Boolean isActive;
+    private Boolean emailVerified;
+    private Boolean phoneVerified;
     private Boolean emailNotifications;
     private Boolean smsNotifications;
     private Boolean newsletterSubscription;

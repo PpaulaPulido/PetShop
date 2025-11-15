@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">Gestión de Usuarios - PetShop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .user-actions .btn {
+            margin: 2px;
+        }
+        .table-responsive {
+            max-height: 600px;
+        }
+        .filter-section {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .info-card {
+            border-left: 4px solid #007bff;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/system-admin/dashboard">
+                <i class="fas fa-paw"></i> PetShop - Sistema
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a href="/system-admin/dashboard" class="btn btn-outline-light me-2">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <span class="navbar-text text-light me-3">
+                    <i class="fas fa-user-shield"></i> SYSTEM_ADMIN
+                </span>
+                <a href="/auth/logout" class="btn btn-outline-light">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1><i class="fas fa-users-cog text-primary"></i> Gestión de Usuarios</h1>
+                <p class="lead">Administra los usuarios y sus roles en el sistema</p>
+            </div>
+        </div>
+
+        <!-- Filtros y Búsqueda -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="filter-section">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" id="searchInput" placeholder="Buscar por nombre o email...">
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="roleFilter">
+                                <option value="">Todos los roles</option>
+                                <option value="SUPER_ADMIN">Super Admin</option>
+                                <option value="MANAGER">Manager</option>
+                                <option value="CUSTOMER">Customer</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="statusFilter">
+                                <option value="">Todos los estados</option>
+                                <option value="active">Activos</option>
+                                <option value="inactive">Inactivos</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-primary w-100" onclick="loadUsers()">
+                                <i class="fas fa-filter"></i> Filtrar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <a href="/system-admin/users/create" class="btn btn-success">
+                    <i class="fas fa-user-plus"></i> Crear Nuevo Usuario
+                </a>
+                <button class="btn btn-outline-secondary" onclick="exportUsers()">
+                    <i class="fas fa-download"></i> Exportar
+                </button>
+                <div class="btn-group float-end">
+                    <button class="btn btn-outline-info" onclick="loadUsers()">
+                        <i class="fas fa-sync-alt"></i> Actualizar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de Usuarios -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-list"></i> Lista de Usuarios
+                            <span class="badge bg-primary ms-2" id="usersCount">0</span>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover" id="usersTable">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre Completo</th>
+                                        <th>Email</th>
+                                        <th>Teléfono</th>
+                                        <th>Rol</th>
+                                        <th>Estado</th>
+                                        <th>Email Verificado</th>
+                                        <th>Último Login</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody">
+                                    <tr>
+                                        <td colspan="9" class="text-center">
+                                            <div class="spinner-border" role="status">
+                                                <span class="visually-hidden">Cargando...</span>
+                                            </div>
+                                            <p class="mt-2">Cargando usuarios...</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para ver información completa del usuario -->
+    <div class="modal fade" id="viewUserModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-user-circle"></i> Información Completa del Usuario
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <!-- Información Básica -->
+                        <div class="col-md-6">
+                            <div class="card mb-3 info-card">
+                                <div class="card-header bg-light">
+                                    <h6 class="card-title mb-0">Información Básica</h6>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-sm table-borderless">
+                                        <tr>
+                                            <td><strong>ID:</strong></td>
+                                            <td id="viewUserId"></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Nombre:</strong></td>
+                                            <td id="viewFullName"></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Email:</strong></td>
+                                            <td id="viewEmail"></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Rol:</strong></td>
+                                            <td><span class="badge" id="viewRole"></span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Estado:</strong></td>
+                                            <td><span class="badge" id="viewStatus"></span></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Información de Contacto -->
+                        <div class="col-md-6">
+                            <div class="card mb-3 info-card">
+                                <div class="card-header bg-light">
+                                    <h6 class="card-title mb-0">Información de Contacto</h6>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-sm table-borderless">
+                                        <tr>
+                                            <td><strong>Teléfono:</strong></td>
+                                            <td id="viewPhone"></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Teléfono Alt:</strong></td>
+                                            <td id="viewAlternatePhone"></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Fecha Nacimiento:</strong></td>
+                                            <td id="viewDateOfBirth"></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Género:</strong></td>
+                                            <td id="viewGender"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Verificación y Seguridad -->
+                        <div class="col-md-6">
+                            <div class="card mb-3 info-card">
+                                <div class="card-header bg-light">
+                                    <h6 class="card-title mb-0">Verificación y Seguridad</h6>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-sm table-borderless">
+                                        <tr>
+                                            <td><strong>Email Verificado:</strong></td>
+                                            <td><span class="badge" id="viewEmailVerified"></span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Teléfono Verificado:</strong></td>
+                                            <td><span class="badge" id="viewPhoneVerified"></span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Intentos Fallidos:</strong></td>
+                                            <td id="viewFailedAttempts"></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Cuenta Bloqueada:</strong></td>
+                                            <td><span class="badge" id="viewAccountLocked"></span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Bloqueado Hasta:</strong></td>
+                                            <td id="viewLockedUntil"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Configuraciones y Auditoría -->
+                        <div class="col-md-6">
+                            <div class="card mb-3 info-card">
+                                <div class="card-header bg-light">
+                                    <h6 class="card-title mb-0">Configuraciones</h6>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-sm table-borderless">
+                                        <tr>
+                                            <td><strong>Notificaciones Email:</strong></td>
+                                            <td><span class="badge" id="viewEmailNotifications"></span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Notificaciones SMS:</strong></td>
+                                            <td><span class="badge" id="viewSmsNotifications"></span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Newsletter:</strong></td>
+                                            <td><span class="badge" id="viewNewsletter"></span></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="card info-card">
+                                <div class="card-header bg-light">
+                                    <h6 class="card-title mb-0">Auditoría</h6>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-sm table-borderless">
+                                        <tr>
+                                            <td><strong>Creado:</strong></td>
+                                            <td id="viewCreatedAt"></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Por:</strong></td>
+                                            <td id="viewCreatedBy"></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Actualizado:</strong></td>
+                                            <td id="viewUpdatedAt"></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Por:</strong></td>
+                                            <td id="viewUpdatedBy"></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Último Login:</strong></td>
+                                            <td id="viewLastLogin"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let allUsers = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUsers();
+        });
+
+        function loadUsers() {
+            fetch('/system-admin/api/users')
+                .then(response => response.json())
+                .then(users => {
+                    allUsers = users;
+                    applyFilters();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('usersTableBody').innerHTML = 
+                        '<tr><td colspan="9" class="text-center text-danger">Error al cargar usuarios</td></tr>';
+                });
+        }
+
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const roleFilter = document.getElementById('roleFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            let filteredUsers = allUsers.filter(user => {
+                const matchesSearch = user.fullName.toLowerCase().includes(searchTerm) || 
+                                    user.email.toLowerCase().includes(searchTerm);
+                const matchesRole = !roleFilter || user.role === roleFilter;
+                const matchesStatus = !statusFilter || 
+                                    (statusFilter === 'active' && user.isActive) ||
+                                    (statusFilter === 'inactive' && !user.isActive);
+                
+                return matchesSearch && matchesRole && matchesStatus;
+            });
+
+            displayUsers(filteredUsers);
+        }
+
+        function displayUsers(users) {
+            const tbody = document.getElementById('usersTableBody');
+            const countElement = document.getElementById('usersCount');
+            
+            countElement.textContent = users.length;
+            
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center">No se encontraron usuarios</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = '';
+            
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.id}</td>
+                    <td>
+                        <strong>${user.fullName}</strong>
+                    </td>
+                    <td>${user.email}</td>
+                    <td>${user.phone}</td>
+                    <td>
+                        <span class="badge bg-primary">${user.role}</span>
+                    </td>
+                    <td>
+                        <span class="badge ${user.isActive ? 'bg-success' : 'bg-danger'}">
+                            ${user.isActive ? 'Activo' : 'Inactivo'}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge ${user.emailVerified ? 'bg-success' : 'bg-secondary'}">
+                            ${user.emailVerified ? 'Sí' : 'No'}
+                        </span>
+                    </td>
+                    <td>${user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Nunca'}</td>
+                    <td class="user-actions">
+                        <!-- Botón para ver información completa -->
+                        <button class="btn btn-sm btn-info" onclick="viewUser(${user.id})" title="Ver Información">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <!-- Botón para editar -->
+                        <a href="/system-admin/users/edit/${user.id}" class="btn btn-sm btn-warning" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <!-- Botón para activar/desactivar -->
+                        <button class="btn btn-sm ${user.isActive ? 'btn-danger' : 'btn-success'}" 
+                                onclick="toggleUserStatus(${user.id})" 
+                                title="${user.isActive ? 'Desactivar' : 'Activar'}">
+                            <i class="fas ${user.isActive ? 'fa-ban' : 'fa-check'}"></i>
+                        </button>
+                        <!-- Botón para cambiar rol -->
+                        <button class="btn btn-sm btn-secondary" onclick="changeUserRole(${user.id})" title="Cambiar Rol">
+                            <i class="fas fa-user-tag"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function viewUser(id) {
+            fetch(`/system-admin/api/users/${id}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Usuario no encontrado');
+                    }
+                    return response.json();
+                })
+                .then(user => {
+                    console.log('Datos del usuario:', user); // Para debug
+
+                    // Llenar información básica
+                    document.getElementById('viewUserId').textContent = user.id;
+                    document.getElementById('viewFullName').textContent = user.fullName;
+                    document.getElementById('viewEmail').textContent = user.email;
+                    
+                    // Rol con color
+                    const roleBadge = document.getElementById('viewRole');
+                    roleBadge.textContent = user.role;
+                    roleBadge.className = 'badge bg-primary';
+                    
+                    // Estado
+                    const statusBadge = document.getElementById('viewStatus');
+                    statusBadge.textContent = user.isActive ? 'Activo' : 'Inactivo';
+                    statusBadge.className = user.isActive ? 'badge bg-success' : 'badge bg-danger';
+                    
+                    // Información de contacto
+                    document.getElementById('viewPhone').textContent = user.phone || 'No especificado';
+                    document.getElementById('viewAlternatePhone').textContent = user.alternatePhone || 'No especificado';
+                    document.getElementById('viewDateOfBirth').textContent = user.dateOfBirth ? 
+                        new Date(user.dateOfBirth).toLocaleDateString() : 'No especificado';
+                    document.getElementById('viewGender').textContent = user.gender ? 
+                        formatGender(user.gender) : 'No especificado';
+                    
+                    // Verificación y seguridad
+                    const emailVerifiedBadge = document.getElementById('viewEmailVerified');
+                    emailVerifiedBadge.textContent = user.emailVerified ? 'Sí' : 'No';
+                    emailVerifiedBadge.className = user.emailVerified ? 'badge bg-success' : 'badge bg-secondary';
+                    
+                    const phoneVerifiedBadge = document.getElementById('viewPhoneVerified');
+                    phoneVerifiedBadge.textContent = user.phoneVerified ? 'Sí' : 'No';
+                    phoneVerifiedBadge.className = user.phoneVerified ? 'badge bg-success' : 'badge bg-secondary';
+                    
+                    document.getElementById('viewFailedAttempts').textContent = user.failedLoginAttempts || 0;
+                    
+                    const accountLockedBadge = document.getElementById('viewAccountLocked');
+                    accountLockedBadge.textContent = user.accountLocked ? 'Sí' : 'No';
+                    accountLockedBadge.className = user.accountLocked ? 'badge bg-danger' : 'badge bg-success';
+                    
+                    document.getElementById('viewLockedUntil').textContent = user.lockedUntil ? 
+                        new Date(user.lockedUntil).toLocaleString() : 'No aplica';
+                    
+                    // Configuraciones
+                    const emailNotifBadge = document.getElementById('viewEmailNotifications');
+                    emailNotifBadge.textContent = user.emailNotifications ? 'Activado' : 'Desactivado';
+                    emailNotifBadge.className = user.emailNotifications ? 'badge bg-success' : 'badge bg-secondary';
+                    
+                    const smsNotifBadge = document.getElementById('viewSmsNotifications');
+                    smsNotifBadge.textContent = user.smsNotifications ? 'Activado' : 'Desactivado';
+                    smsNotifBadge.className = user.smsNotifications ? 'badge bg-success' : 'badge bg-secondary';
+                    
+                    const newsletterBadge = document.getElementById('viewNewsletter');
+                    newsletterBadge.textContent = user.newsletterSubscription ? 'Activado' : 'Desactivado';
+                    newsletterBadge.className = user.newsletterSubscription ? 'badge bg-success' : 'badge bg-secondary';
+                    
+                    // Auditoría
+                    document.getElementById('viewCreatedAt').textContent = user.createdAt ? 
+                        new Date(user.createdAt).toLocaleString() : 'No disponible';
+                    document.getElementById('viewCreatedBy').textContent = user.createdBy || 'Sistema';
+                    document.getElementById('viewUpdatedAt').textContent = user.updatedAt ? 
+                        new Date(user.updatedAt).toLocaleString() : 'No actualizado';
+                    document.getElementById('viewUpdatedBy').textContent = user.updatedBy || 'No actualizado';
+                    document.getElementById('viewLastLogin').textContent = user.lastLogin ? 
+                        new Date(user.lastLogin).toLocaleString() : 'Nunca';
+
+                    // Mostrar el modal
+                    const modal = new bootstrap.Modal(document.getElementById('viewUserModal'));
+                    modal.show();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al cargar información del usuario: ' + error.message);
+                });
+        }
+
+        function formatGender(gender) {
+            const genderMap = {
+                'MALE': 'Masculino',
+                'FEMALE': 'Femenino', 
+                'OTHER': 'Otro'
+            };
+            return genderMap[gender] || gender;
+        }
+
+        function toggleUserStatus(id) {
+            if (confirm('¿Estás seguro de que quieres cambiar el estado de este usuario?')) {
+                fetch(`/system-admin/api/users/${id}/toggle-status`, {
+                    method: 'PATCH'
+                })
+                .then(response => {
+                    if (response.ok) {
+                        loadUsers();
+                        alert('Estado del usuario actualizado correctamente');
+                    } else {
+                        alert('Error al cambiar el estado del usuario');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al cambiar el estado del usuario: ' + error.message);
+                });
+            }
+        }
+
+        function changeUserRole(id) {
+            const newRole = prompt('Ingrese el nuevo rol (SUPER_ADMIN, MANAGER, CUSTOMER):');
+            if (newRole && ['SUPER_ADMIN', 'MANAGER', 'CUSTOMER'].includes(newRole)) {
+                fetch(`/system-admin/api/users/${id}/role?newRole=${newRole}`, {
+                    method: 'PATCH'
+                })
+                .then(response => {
+                    if (response.ok) {
+                        loadUsers();
+                        alert('Rol del usuario actualizado correctamente');
+                    } else {
+                        alert('Error al cambiar el rol del usuario');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al cambiar el rol del usuario: ' + error.message);
+                });
+            } else if (newRole) {
+                alert('Rol inválido. Los roles válidos son: SUPER_ADMIN, MANAGER, CUSTOMER');
+            }
+        }
+
+        function exportUsers() {
+            alert('Funcionalidad de exportación en desarrollo');
+        }
+    </script>
+</body>
+</html>

@@ -10,40 +10,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/admin")
 public class AdminController {
 
-    @GetMapping("/system-dashboard")
-    @PreAuthorize("hasRole('SYSTEM_ADMIN')")
-    public String systemDashboard(Model model) {
-        model.addAttribute("pageTitle", "Panel de Sistema - PetShop");
-        model.addAttribute("userRole", "SYSTEM_ADMIN");
-        return "admin/system-dashboard";
+    @GetMapping("")
+    public String adminHome() {
+        // Redirigir según el rol del usuario
+        return "redirect:/admin/dashboard";
     }
 
     @GetMapping("/dashboard")
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'SYSTEM_ADMIN')")
+    @PreAuthorize("hasAnyRole('SYSTEM_ADMIN', 'SUPER_ADMIN', 'MANAGER')")
     public String adminDashboard(Model model) {
         model.addAttribute("pageTitle", "Panel de Administración - PetShop");
-        model.addAttribute("userRole", "SUPER_ADMIN");
         return "admin/dashboard";
     }
 
-    @GetMapping("/users")
-    @PreAuthorize("hasAnyRole('SYSTEM_ADMIN', 'SUPER_ADMIN')")
-    public String manageUsers(Model model) {
-        model.addAttribute("pageTitle", "Gestión de Usuarios - PetShop");
-        return "admin/users";
-    }
-
-    @GetMapping("/products")
-    @PreAuthorize("hasAnyRole('SYSTEM_ADMIN', 'SUPER_ADMIN')")
-    public String manageProducts(Model model) {
-        model.addAttribute("pageTitle", "Gestión de Productos - PetShop");
-        return "admin/products";
-    }
-
-    // Asegúrate de tener también la ruta básica de admin
-    @GetMapping("")
-    @PreAuthorize("hasAnyRole('SYSTEM_ADMIN', 'SUPER_ADMIN')")
-    public String adminHome() {
-        return "redirect:/admin/dashboard";
+    @GetMapping("/orders")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'MANAGER')")
+    public String manageOrders(Model model) {
+        model.addAttribute("pageTitle", "Gestión de Pedidos - PetShop");
+        return "admin/orders";
     }
 }

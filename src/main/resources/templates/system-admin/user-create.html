@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">Crear Usuario - PetShop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .required-field::after {
+            content: " *";
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/system-admin/dashboard">
+                <i class="fas fa-paw"></i> PetShop - Sistema
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a href="/system-admin/dashboard" class="btn btn-outline-light me-2">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="/system-admin/users" class="btn btn-outline-light me-2">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+                <span class="navbar-text text-light me-3">
+                    <i class="fas fa-user-shield"></i> SYSTEM_ADMIN
+                </span>
+                <a href="/auth/logout" class="btn btn-outline-light">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="form-container">
+            <!-- Header -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h1><i class="fas fa-user-plus text-success"></i> Crear Nuevo Usuario</h1>
+                    <p class="lead">Complete la información del nuevo usuario</p>
+                </div>
+            </div>
+
+            <!-- Formulario -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Información del Usuario</h5>
+                </div>
+                <div class="card-body">
+                    <form id="createUserForm">
+                        <!-- Información Básica -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="border-bottom pb-2">Información Básica</h6>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label required-field">Email</label>
+                                    <input type="email" class="form-control" id="email" required>
+                                    <div class="form-text">El email será usado para iniciar sesión</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="role" class="form-label required-field">Rol</label>
+                                    <select class="form-select" id="role" required>
+                                        <option value="">Seleccionar rol</option>
+                                        <option value="SUPER_ADMIN">Super Admin</option>
+                                        <option value="MANAGER">Manager</option>
+                                        <option value="CUSTOMER">Customer</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contraseña -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="border-bottom pb-2">Seguridad</h6>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="password" class="form-label required-field">Contraseña</label>
+                                    <input type="password" class="form-control" id="password" required minlength="8">
+                                    <div class="form-text">Mínimo 8 caracteres</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="confirmPassword" class="form-label required-field">Confirmar Contraseña</label>
+                                    <input type="password" class="form-control" id="confirmPassword" required>
+                                    <div class="form-text">Las contraseñas deben coincidir</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Información Personal -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="border-bottom pb-2">Información Personal</h6>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="firstName" class="form-label required-field">Nombre</label>
+                                    <input type="text" class="form-control" id="firstName" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="lastName" class="form-label required-field">Apellido</label>
+                                    <input type="text" class="form-control" id="lastName" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label required-field">Teléfono</label>
+                                    <input type="text" class="form-control" id="phone" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="alternatePhone" class="form-label">Teléfono Alternativo</label>
+                                    <input type="text" class="form-control" id="alternatePhone">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="dateOfBirth" class="form-label">Fecha de Nacimiento</label>
+                                    <input type="date" class="form-control" id="dateOfBirth">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="gender" class="form-label">Género</label>
+                                    <select class="form-select" id="gender">
+                                        <option value="">Seleccionar género</option>
+                                        <option value="MALE">Masculino</option>
+                                        <option value="FEMALE">Femenino</option>
+                                        <option value="OTHER">Otro</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Configuraciones -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="border-bottom pb-2">Configuraciones</h6>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="isActive" checked>
+                                    <label class="form-check-label" for="isActive">Usuario Activo</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                                    <label class="form-check-label" for="emailNotifications">Notificaciones por Email</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="smsNotifications">
+                                    <label class="form-check-label" for="smsNotifications">Notificaciones por SMS</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <a href="/system-admin/users" class="btn btn-secondary">
+                                        <i class="fas fa-times"></i> Cancelar
+                                    </a>
+                                    <button type="button" class="btn btn-success" onclick="createUser()">
+                                        <i class="fas fa-save"></i> Crear Usuario
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de éxito -->
+    <div class="modal fade" id="successModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">¡Éxito!</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Usuario creado exitosamente.</p>
+                    <p><strong>Contraseña asignada:</strong> <span id="assignedPassword"></span></p>
+                    <div class="alert alert-warning">
+                        <small>Guarde esta contraseña, no podrá verla nuevamente.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <a href="/system-admin/users" class="btn btn-primary">Ir a Lista de Usuarios</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function createUser() {
+            // Validar contraseñas
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                alert('Las contraseñas no coinciden');
+                return;
+            }
+
+            if (password.length < 8) {
+                alert('La contraseña debe tener al menos 8 caracteres');
+                return;
+            }
+
+            const userData = {
+                email: document.getElementById('email').value,
+                password: password,
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                phone: document.getElementById('phone').value,
+                alternatePhone: document.getElementById('alternatePhone').value,
+                dateOfBirth: document.getElementById('dateOfBirth').value,
+                gender: document.getElementById('gender').value,
+                role: document.getElementById('role').value,
+                isActive: document.getElementById('isActive').checked,
+                emailNotifications: document.getElementById('emailNotifications').checked,
+                smsNotifications: document.getElementById('smsNotifications').checked,
+                newsletterSubscription: true
+            };
+
+            fetch('/system-admin/api/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData)
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    return response.text().then(text => { throw new Error(text) });
+                }
+            })
+            .then(user => {
+                // Mostrar modal de éxito con la contraseña
+                document.getElementById('assignedPassword').textContent = password;
+                const modal = new bootstrap.Modal(document.getElementById('successModal'));
+                modal.show();
+            })
+            .catch(error => {
+                alert('Error al crear usuario: ' + error.message);
+            });
+        }
+
+        // Validación en tiempo real de contraseñas
+        document.getElementById('confirmPassword').addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = this.value;
+            
+            if (confirmPassword && password !== confirmPassword) {
+                this.classList.add('is-invalid');
+                this.classList.remove('is-valid');
+            } else if (confirmPassword) {
+                this.classList.add('is-valid');
+                this.classList.remove('is-invalid');
+            } else {
+                this.classList.remove('is-valid', 'is-invalid');
+            }
+        });
+    </script>
+</body>
+</html>
