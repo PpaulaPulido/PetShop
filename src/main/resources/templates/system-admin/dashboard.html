@@ -1,326 +1,187 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${pageTitle}">Panel de Sistema - PetShop</title>
+    <title>Panel de Sistema - PetLuz</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        .stat-card {
-            transition: transform 0.2s;
-            border: none;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-        .quick-action {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-        }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/base_system.css">
+    <link rel="stylesheet" href="/css/system_dashboard.css">
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/system-admin/dashboard">
-                <i class="fas fa-paw"></i> PetShop - Sistema
-            </a>
-            <div class="navbar-nav ms-auto">
-                <span class="navbar-text text-light me-3">
+    <nav class="navbar system-navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="/system-admin/dashboard">
+                    <i class="fas fa-paw"></i>
+                    <span>PetLuz Sistema</span>
+                </a>
+            </div>
+            <div class="nav-actions">
+                <span class="user-role">
                     <i class="fas fa-user-shield"></i> SYSTEM_ADMIN
                 </span>
-                <a href="/auth/logout" class="btn btn-outline-light">
+                <a href="/auth/logout" class="btn-logout">
                     <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
                 </a>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
-        <!-- Header -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <h1><i class="fas fa-cogs text-primary"></i> Panel de Administración del Sistema</h1>
+    <!-- Contenido principal -->
+    <div class="dashboard-container">
+        <div class="container-fluid">
+            <!-- Header -->
+            <div class="dashboard-header">
+                <h1><i class="fas fa-cogs"></i> Panel de Administración del Sistema</h1>
                 <p class="lead">Bienvenido al panel exclusivo de SYSTEM_ADMIN</p>
             </div>
-        </div>
 
-        <!-- Estadísticas Rápidas -->
-        <div class="row mb-4">
-            <div class="col-md-3 mb-3">
-                <div class="card stat-card text-center">
+            <!-- Estadísticas Rápidas -->
+            <div class="stats-grid">
+                <div class="stat-card">
                     <div class="card-body">
-                        <i class="fas fa-users fa-2x text-primary mb-2"></i>
-                        <h3 id="totalUsers">0</h3>
-                        <p class="card-text">Total Usuarios</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="card stat-card text-center">
-                    <div class="card-body">
-                        <i class="fas fa-user-check fa-2x text-success mb-2"></i>
-                        <h3 id="activeUsers">0</h3>
-                        <p class="card-text">Usuarios Activos</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="card stat-card text-center">
-                    <div class="card-body">
-                        <i class="fas fa-user-times fa-2x text-danger mb-2"></i>
-                        <h3 id="inactiveUsers">0</h3>
-                        <p class="card-text">Usuarios Inactivos</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="card stat-card text-center">
-                    <div class="card-body">
-                        <i class="fas fa-shield-alt fa-2x text-warning mb-2"></i>
-                        <h3 id="adminUsers">0</h3>
-                        <p class="card-text">Administradores</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Acciones Rápidas -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card quick-action">
-                    <div class="card-body text-center">
-                        <h4 class="card-title mb-3">Acciones Rápidas</h4>
-                        <div class="row">
-                            <div class="col-md-3 mb-2">
-                                <a href="/system-admin/users" class="btn btn-light btn-lg w-100">
-                                    <i class="fas fa-users-cog"></i><br>
-                                    Gestionar Usuarios
-                                </a>
-                            </div>
-                            <div class="col-md-3 mb-2">
-                                <button class="btn btn-light btn-lg w-100" onclick="showCreateUserModal()">
-                                    <i class="fas fa-user-plus"></i><br>
-                                    Crear Usuario
-                                </button>
-                            </div>
-                            <div class="col-md-3 mb-2">
-                                <button class="btn btn-light btn-lg w-100" onclick="loadUserReports()">
-                                    <i class="fas fa-chart-bar"></i><br>
-                                    Ver Reportes
-                                </button>
-                            </div>
-                            <div class="col-md-3 mb-2">
-                                <button class="btn btn-light btn-lg w-100" onclick="showSystemLogs()">
-                                    <i class="fas fa-clipboard-list"></i><br>
-                                    Logs del Sistema
-                                </button>
-                            </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
                         </div>
+                        <div class="stat-number" id="totalUsers">0</div>
+                        <div class="stat-label">Total Usuarios</div>
+                    </div>
+                    <div class="card-wave"></div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="card-body">
+                        <div class="stat-icon">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        <div class="stat-number" id="activeUsers">0</div>
+                        <div class="stat-label">Usuarios Activos</div>
+                    </div>
+                    <div class="card-wave"></div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="card-body">
+                        <div class="stat-icon">
+                            <i class="fas fa-user-times"></i>
+                        </div>
+                        <div class="stat-number" id="inactiveUsers">0</div>
+                        <div class="stat-label">Usuarios Inactivos</div>
+                    </div>
+                    <div class="card-wave"></div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="card-body">
+                        <div class="stat-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="stat-number" id="adminUsers">0</div>
+                        <div class="stat-label">Administradores</div>
+                    </div>
+                    <div class="card-wave"></div>
+                </div>
+            </div>
+
+            <!-- Acciones Rápidas -->
+            <div class="quick-actions-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-bolt"></i> Acciones Rápidas</h2>
+                </div>
+                <div class="quick-actions-grid">
+                    <a href="/system-admin/users" class="quick-action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-users-cog"></i>
+                        </div>
+                        <div class="action-content">
+                            <h3>Gestionar Usuarios</h3>
+                            <p>Administra todos los usuarios del sistema</p>
+                        </div>
+                        <div class="action-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </a>
+                    
+                    <a href="/system-admin/users/create" class="quick-action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div class="action-content">
+                            <h3>Crear Usuario</h3>
+                            <p>Agrega un nuevo usuario al sistema</p>
+                        </div>
+                        <div class="action-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </a>
+                    
+                    <div class="quick-action-card coming-soon">
+                        <div class="action-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div class="action-content">
+                            <h3>Reportes Avanzados</h3>
+                            <p>Próximamente - Análisis detallados</p>
+                        </div>
+                        <div class="coming-soon-badge">Próximamente</div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Usuarios Recientes -->
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-clock"></i> Usuarios Recientes
-                        </h5>
-                        <a href="/system-admin/users" class="btn btn-sm btn-primary">Ver Todos</a>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Nombre</th>
-                                        <th>Email</th>
-                                        <th>Rol</th>
-                                        <th>Estado</th>
-                                        <th>Último Login</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="recentUsersTable">
-                                    <!-- Los datos se cargarán via JavaScript -->
-                                    <tr>
-                                        <td colspan="5" class="text-center">
-                                            <div class="spinner-border spinner-border-sm" role="status">
-                                                <span class="visually-hidden">Cargando...</span>
-                                            </div>
-                                            Cargando usuarios...
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+            <!-- Usuarios Recientes -->
+            <div class="recent-users-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-clock"></i> Usuarios Recientes</h2>
+                    <a href="/system-admin/users" class="view-all-btn">Ver Todos</a>
+                </div>
+                <div class="users-grid" id="recentUsersGrid">
+                    <!-- Los usuarios se cargarán aquí via JavaScript -->
+                    <div class="loading-users">
+                        <div class="loader-spinner"></div>
+                        <p>Cargando usuarios...</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal para crear usuario rápido -->
-    <div class="modal fade" id="quickCreateUserModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Crear Usuario Rápido</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <!-- Footer -->
+    <footer class="footer" id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>PetLuz</h3>
+                    <p>Tu tienda de confianza para el cuidado de mascotas</p>
+                    <div class="social-links">
+                        <a href="#" aria-label="Facebook">📘</a>
+                        <a href="#" aria-label="Instagram">📷</a>
+                        <a href="#" aria-label="Twitter">🐦</a>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <form id="quickUserForm">
-                        <div class="mb-3">
-                            <label for="quickEmail" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="quickEmail" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="quickFirstName" class="form-label">Nombre</label>
-                            <input type="text" class="form-control" id="quickFirstName" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="quickLastName" class="form-label">Apellido</label>
-                            <input type="text" class="form-control" id="quickLastName" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="quickRole" class="form-label">Rol</label>
-                            <select class="form-select" id="quickRole" required>
-                                <option value="">Seleccionar rol</option>
-                                <option value="SUPER_ADMIN">Super Admin</option>
-                                <option value="MANAGER">Manager</option>
-                                <option value="CUSTOMER">Customer</option>
-                            </select>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" onclick="createQuickUser()">Crear Usuario</button>
+                <div class="footer-section">
+                    <h4>Contacto</h4>
+                    <p>📧 info@petluz.com</p>
+                    <p>📞 +57 3114506070</p>
+                    <p>📍 Calle Mascotas 123, Madrid</p>
                 </div>
             </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 PetLuz. Todos los derechos reservados.</p>
+            </div>
         </div>
-    </div>
+    </footer>
+
+    <!-- Canvas para partículas -->
+    <canvas id="particleCanvas" class="particle-canvas"></canvas>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Cargar estadísticas al iniciar
-        document.addEventListener('DOMContentLoaded', function() {
-            loadDashboardStats();
-            loadRecentUsers();
-        });
-
-        function loadDashboardStats() {
-            fetch('/system-admin/api/users')
-                .then(response => response.json())
-                .then(users => {
-                    const totalUsers = users.length;
-                    const activeUsers = users.filter(u => u.isActive).length;
-                    const inactiveUsers = totalUsers - activeUsers;
-                    const adminUsers = users.filter(u => u.role === 'SUPER_ADMIN').length;
-
-                    document.getElementById('totalUsers').textContent = totalUsers;
-                    document.getElementById('activeUsers').textContent = activeUsers;
-                    document.getElementById('inactiveUsers').textContent = inactiveUsers;
-                    document.getElementById('adminUsers').textContent = adminUsers;
-                })
-                .catch(error => console.error('Error:', error));
-        }
-
-        function loadRecentUsers() {
-            fetch('/system-admin/api/users')
-                .then(response => response.json())
-                .then(users => {
-                    const tbody = document.getElementById('recentUsersTable');
-                    tbody.innerHTML = '';
-
-                    // Ordenar por último login (los más recientes primero) y tomar los primeros 5
-                    const recentUsers = users
-                        .sort((a, b) => new Date(b.lastLogin || 0) - new Date(a.lastLogin || 0))
-                        .slice(0, 5);
-
-                    if (recentUsers.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="5" class="text-center">No hay usuarios registrados</td></tr>';
-                        return;
-                    }
-
-                    recentUsers.forEach(user => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${user.fullName}</td>
-                            <td>${user.email}</td>
-                            <td><span class="badge bg-primary">${user.role}</span></td>
-                            <td>
-                                <span class="badge ${user.isActive ? 'bg-success' : 'bg-danger'}">
-                                    ${user.isActive ? 'Activo' : 'Inactivo'}
-                                </span>
-                            </td>
-                            <td>${user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Nunca'}</td>
-                        `;
-                        tbody.appendChild(row);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('recentUsersTable').innerHTML = 
-                        '<tr><td colspan="5" class="text-center text-danger">Error al cargar usuarios</td></tr>';
-                });
-        }
-
-        function showCreateUserModal() {
-            const modal = new bootstrap.Modal(document.getElementById('quickCreateUserModal'));
-            modal.show();
-        }
-
-        function createQuickUser() {
-            const userData = {
-                email: document.getElementById('quickEmail').value,
-                firstName: document.getElementById('quickFirstName').value,
-                lastName: document.getElementById('quickLastName').value,
-                role: document.getElementById('quickRole').value,
-                phone: '0000000000', // Teléfono por defecto
-                password: 'TempPassword123!' // Contraseña temporal
-            };
-
-            fetch('/system-admin/api/users', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(userData)
-            })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    return response.text().then(text => { throw new Error(text) });
-                }
-            })
-            .then(() => {
-                bootstrap.Modal.getInstance(document.getElementById('quickCreateUserModal')).hide();
-                document.getElementById('quickUserForm').reset();
-                loadDashboardStats();
-                loadRecentUsers();
-                alert('Usuario creado exitosamente. La contraseña temporal es: TempPassword123!');
-            })
-            .catch(error => {
-                alert('Error al crear usuario: ' + error.message);
-            });
-        }
-
-        function loadUserReports() {
-            alert('Funcionalidad de reportes en desarrollo');
-        }
-
-        function showSystemLogs() {
-            alert('Funcionalidad de logs en desarrollo');
-        }
-    </script>
+    <script src="/js/animations.js"></script>
+    <script src="/js/system_dashboard.js"></script>
 </body>
 </html>
