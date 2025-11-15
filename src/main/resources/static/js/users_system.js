@@ -117,15 +117,15 @@ class UsersManager {
     animateCounter(elementId, targetValue) {
         const element = document.getElementById(elementId);
         const currentValue = parseInt(element.textContent) || 0;
-        
+
         if (currentValue === targetValue) return;
-        
+
         const duration = 1000;
         const steps = 60;
         const stepTime = duration / steps;
         const increment = (targetValue - currentValue) / steps;
         let current = currentValue;
-        
+
         const timer = setInterval(() => {
             current += increment;
             if ((increment > 0 && current >= targetValue) || (increment < 0 && current <= targetValue)) {
@@ -144,13 +144,13 @@ class UsersManager {
 
         let filteredUsers = this.allUsers.filter(user => {
             const fullName = user.fullName || `${user.firstName || ''} ${user.lastName || ''}`.trim();
-            const matchesSearch = fullName.toLowerCase().includes(searchTerm) || 
-                                user.email.toLowerCase().includes(searchTerm);
+            const matchesSearch = fullName.toLowerCase().includes(searchTerm) ||
+                user.email.toLowerCase().includes(searchTerm);
             const matchesRole = !roleFilter || user.role === roleFilter;
-            const matchesStatus = !statusFilter || 
-                                (statusFilter === 'active' && user.isActive) ||
-                                (statusFilter === 'inactive' && !user.isActive);
-            
+            const matchesStatus = !statusFilter ||
+                (statusFilter === 'active' && user.isActive) ||
+                (statusFilter === 'inactive' && !user.isActive);
+
             return matchesSearch && matchesRole && matchesStatus;
         });
 
@@ -160,9 +160,9 @@ class UsersManager {
     displayUsers(users) {
         const tbody = document.getElementById('usersTableBody');
         const countElement = document.getElementById('usersCount');
-        
+
         countElement.textContent = users.length;
-        
+
         if (users.length === 0) {
             tbody.innerHTML = `
                 <tr>
@@ -177,14 +177,14 @@ class UsersManager {
         }
 
         tbody.innerHTML = '';
-        
+
         users.forEach(user => {
             const row = document.createElement('tr');
             row.classList.add('fade-in');
-            
+
             const fullName = user.fullName || `${user.firstName || ''} ${user.lastName || ''}`.trim();
             const initials = this.getUserInitials(fullName);
-            
+
             row.innerHTML = `
                 <td>
                     <div class="user-info-cell">
@@ -258,7 +258,7 @@ class UsersManager {
         const now = new Date();
         const diffTime = Math.abs(now - date);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
+
         if (diffDays === 1) {
             return 'Hoy';
         } else if (diffDays === 2) {
@@ -293,6 +293,27 @@ class UsersManager {
             });
     }
 
+    formatDateOfBirthForDisplay(dateString) {
+        if (!dateString) return 'No especificado';
+
+        console.log('📅 Fecha recibida para mostrar en modal:', dateString);
+
+        // Método 1: Parsear manualmente sin usar new Date()
+        const dateParts = dateString.split('-');
+        if (dateParts.length === 3) {
+            const year = dateParts[0];
+            const month = dateParts[1];
+            const day = dateParts[2];
+
+            // Formatear como DD/MM/YYYY para mostrar
+            const formattedDate = `${day}/${month}/${year}`;
+            return formattedDate;
+        }
+
+        // Método 2: Fallback - usar el formato original
+        return dateString;
+    }
+
     populateUserModal(user) {
         const fullName = user.fullName || `${user.firstName || ''} ${user.lastName || ''}`.trim();
         const initials = this.getUserInitials(fullName);
@@ -308,7 +329,7 @@ class UsersManager {
         const roleBadge = document.getElementById('viewRole');
         roleBadge.textContent = user.role;
         roleBadge.className = 'badge bg-primary';
-        
+
         const statusBadge = document.getElementById('viewStatus');
         statusBadge.textContent = user.isActive ? 'Activo' : 'Inactivo';
         statusBadge.className = user.isActive ? 'badge bg-success' : 'badge bg-danger';
@@ -317,7 +338,7 @@ class UsersManager {
         document.getElementById('viewUserId').textContent = user.id;
         document.getElementById('viewFullNameText').textContent = fullName;
         document.getElementById('viewEmailText').textContent = user.email;
-        
+
         const roleTextBadge = document.getElementById('viewRoleText');
         roleTextBadge.textContent = user.role;
         roleTextBadge.className = 'badge bg-primary';
@@ -325,22 +346,22 @@ class UsersManager {
         // Información de contacto
         document.getElementById('viewPhone').textContent = user.phone || 'No especificado';
         document.getElementById('viewAlternatePhone').textContent = user.alternatePhone || 'No especificado';
-        document.getElementById('viewDateOfBirth').textContent = user.dateOfBirth ? 
-            new Date(user.dateOfBirth).toLocaleDateString() : 'No especificado';
-        document.getElementById('viewGender').textContent = user.gender ? 
+        document.getElementById('viewDateOfBirth').textContent = user.dateOfBirth ?
+            this.formatDateOfBirthForDisplay(user.dateOfBirth) : 'No especificado';
+        document.getElementById('viewGender').textContent = user.gender ?
             this.formatGender(user.gender) : 'No especificado';
 
         // Verificación y seguridad
         const emailVerifiedBadge = document.getElementById('viewEmailVerified');
         emailVerifiedBadge.textContent = user.emailVerified ? 'Sí' : 'No';
         emailVerifiedBadge.className = user.emailVerified ? 'badge bg-success' : 'badge bg-secondary';
-        
+
         const phoneVerifiedBadge = document.getElementById('viewPhoneVerified');
         phoneVerifiedBadge.textContent = user.phoneVerified ? 'Sí' : 'No';
         phoneVerifiedBadge.className = user.phoneVerified ? 'badge bg-success' : 'badge bg-secondary';
-        
+
         document.getElementById('viewFailedAttempts').textContent = user.failedLoginAttempts || 0;
-        
+
         const accountLockedBadge = document.getElementById('viewAccountLocked');
         accountLockedBadge.textContent = user.accountLocked ? 'Sí' : 'No';
         accountLockedBadge.className = user.accountLocked ? 'badge bg-danger' : 'badge bg-success';
@@ -349,29 +370,29 @@ class UsersManager {
         const emailNotifBadge = document.getElementById('viewEmailNotifications');
         emailNotifBadge.textContent = user.emailNotifications ? 'Activado' : 'Desactivado';
         emailNotifBadge.className = user.emailNotifications ? 'badge bg-success' : 'badge bg-secondary';
-        
+
         const smsNotifBadge = document.getElementById('viewSmsNotifications');
         smsNotifBadge.textContent = user.smsNotifications ? 'Activado' : 'Desactivado';
         smsNotifBadge.className = user.smsNotifications ? 'badge bg-success' : 'badge bg-secondary';
-        
+
         const newsletterBadge = document.getElementById('viewNewsletter');
         newsletterBadge.textContent = user.newsletterSubscription ? 'Activado' : 'Desactivado';
         newsletterBadge.className = user.newsletterSubscription ? 'badge bg-success' : 'badge bg-secondary';
 
         // Auditoría
-        document.getElementById('viewCreatedAt').textContent = user.createdAt ? 
+        document.getElementById('viewCreatedAt').textContent = user.createdAt ?
             new Date(user.createdAt).toLocaleString() : 'No disponible';
         document.getElementById('viewCreatedBy').textContent = user.createdBy || 'Sistema';
-        document.getElementById('viewUpdatedAt').textContent = user.updatedAt ? 
+        document.getElementById('viewUpdatedAt').textContent = user.updatedAt ?
             new Date(user.updatedAt).toLocaleString() : 'No actualizado';
-        document.getElementById('viewLastLogin').textContent = user.lastLogin ? 
+        document.getElementById('viewLastLogin').textContent = user.lastLogin ?
             new Date(user.lastLogin).toLocaleString() : 'Nunca';
     }
 
     formatGender(gender) {
         const genderMap = {
             'MALE': 'Masculino',
-            'FEMALE': 'Femenino', 
+            'FEMALE': 'Femenino',
             'OTHER': 'Otro'
         };
         return genderMap[gender] || gender;
@@ -416,7 +437,7 @@ class UsersManager {
             statusModalIcon.style.color = 'var(--success)';
             statusModalTitle.textContent = 'Activar Usuario';
             statusModalMessage.textContent = 'Estás a punto de activar este usuario. ¿Estás seguro de que deseas continuar?';
-            
+
             // Cambiar color del botón de confirmación
             document.getElementById('confirmStatusChange').className = 'btn-modal success';
         } else {
@@ -424,7 +445,7 @@ class UsersManager {
             statusModalIcon.style.color = 'var(--error)';
             statusModalTitle.textContent = 'Desactivar Usuario';
             statusModalMessage.textContent = 'Estás a punto de desactivar este usuario. ¿Estás seguro de que deseas continuar?';
-            
+
             // Cambiar color del botón de confirmación
             document.getElementById('confirmStatusChange').className = 'btn-modal danger';
         }
@@ -446,26 +467,26 @@ class UsersManager {
         fetch(`/system-admin/api/users/${this.currentUserId}/toggle-status`, {
             method: 'PATCH'
         })
-        .then(response => {
-            if (response.ok) {
-                this.loadUsers();
-                this.showSuccess('Estado del usuario actualizado correctamente');
-                bootstrap.Modal.getInstance(document.getElementById('changeStatusModal')).hide();
-            } else {
-                throw new Error('Error al cambiar el estado del usuario');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            this.showError('Error al cambiar el estado del usuario: ' + error.message);
-        })
-        .finally(() => {
-            // Restaurar botón
-            confirmBtn.innerHTML = originalText;
-            confirmBtn.disabled = false;
-            this.currentUserId = null;
-            this.currentUserData = null;
-        });
+            .then(response => {
+                if (response.ok) {
+                    this.loadUsers();
+                    this.showSuccess('Estado del usuario actualizado correctamente');
+                    bootstrap.Modal.getInstance(document.getElementById('changeStatusModal')).hide();
+                } else {
+                    throw new Error('Error al cambiar el estado del usuario');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                this.showError('Error al cambiar el estado del usuario: ' + error.message);
+            })
+            .finally(() => {
+                // Restaurar botón
+                confirmBtn.innerHTML = originalText;
+                confirmBtn.disabled = false;
+                this.currentUserId = null;
+                this.currentUserData = null;
+            });
     }
 
     changeUserRole(id) {
@@ -496,7 +517,7 @@ class UsersManager {
             option.classList.remove('selected');
             const radio = option.querySelector('.form-check-input');
             radio.checked = false;
-            
+
             // Preseleccionar el rol actual
             if (option.getAttribute('data-role') === user.role) {
                 option.classList.add('selected');
@@ -552,32 +573,32 @@ class UsersManager {
         fetch(`/system-admin/api/users/${this.currentUserId}/role?newRole=${newRole}`, {
             method: 'PATCH'
         })
-        .then(response => {
-            if (response.ok) {
-                this.loadUsers();
-                this.showSuccess('Rol del usuario actualizado correctamente');
-                bootstrap.Modal.getInstance(document.getElementById('changeRoleModal')).hide();
-            } else {
-                throw new Error('Error al cambiar el rol del usuario');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            this.showError('Error al cambiar el rol del usuario: ' + error.message);
-        })
-        .finally(() => {
-            // Restaurar botón
-            confirmBtn.innerHTML = originalText;
-            confirmBtn.disabled = false;
-            this.currentUserId = null;
-            this.currentUserData = null;
-        });
+            .then(response => {
+                if (response.ok) {
+                    this.loadUsers();
+                    this.showSuccess('Rol del usuario actualizado correctamente');
+                    bootstrap.Modal.getInstance(document.getElementById('changeRoleModal')).hide();
+                } else {
+                    throw new Error('Error al cambiar el rol del usuario');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                this.showError('Error al cambiar el rol del usuario: ' + error.message);
+            })
+            .finally(() => {
+                // Restaurar botón
+                confirmBtn.innerHTML = originalText;
+                confirmBtn.disabled = false;
+                this.currentUserId = null;
+                this.currentUserData = null;
+            });
     }
 
     exportUsers() {
         // Simular exportación
         this.showSuccess('La exportación de usuarios comenzará pronto...');
-        
+
         // En una implementación real, aquí iría la lógica de exportación
         setTimeout(() => {
             this.showSuccess('Exportación completada exitosamente');
@@ -630,13 +651,13 @@ class UsersManager {
             min-width: 300px;
             animation: slideInRight 0.3s ease;
         `;
-        
+
         const icons = {
             'success': 'check-circle',
             'error': 'exclamation-circle',
             'info': 'info-circle'
         };
-        
+
         const titles = {
             'success': 'Éxito:',
             'error': 'Error:',
@@ -647,9 +668,9 @@ class UsersManager {
             <strong><i class="fas fa-${icons[type]}"></i> ${titles[type]}</strong> ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
-        
+
         document.body.appendChild(notification);
-        
+
         // Auto-remover después de 5 segundos
         setTimeout(() => {
             if (notification.parentNode) {
@@ -662,9 +683,9 @@ class UsersManager {
 // Inicializar cuando el DOM esté listo
 let usersManager;
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     usersManager = new UsersManager();
-    
+
     // Agregar estilos adicionales
     const styles = document.createElement('style');
     styles.textContent = `

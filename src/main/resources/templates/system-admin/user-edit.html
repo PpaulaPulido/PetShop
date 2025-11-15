@@ -1,110 +1,103 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${pageTitle}">Editar Usuario - PetShop</title>
+    <title>Editar Usuario - PetLuz</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        .form-container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .required-field::after {
-            content: " *";
-            color: red;
-        }
-
-        .user-info-card {
-            background-color: #f8f9fa;
-            border-left: 4px solid #007bff;
-        }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/base_system.css">
+    <link rel="stylesheet" href="/css/edit-user.css">
 </head>
 
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/system-admin/dashboard">
-                <i class="fas fa-paw"></i> PetShop - Sistema
-            </a>
-            <div class="navbar-nav ms-auto">
-                <a href="/system-admin/dashboard" class="btn btn-outline-light me-2">
+    <nav class="navbar system-navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="/system-admin/dashboard">
+                    <i class="fas fa-paw"></i>
+                    <span>PetLuz</span>
+                </a>
+            </div>
+            <div class="nav-actions">
+                <a href="/system-admin/dashboard" class="btn-dashboard">
                     <i class="fas fa-tachometer-alt"></i> Dashboard
                 </a>
-                <a href="/system-admin/users" class="btn btn-outline-light me-2">
+                <a href="/system-admin/users" class="btn-dashboard">
                     <i class="fas fa-arrow-left"></i> Volver
                 </a>
-                <span class="navbar-text text-light me-3">
+                <span class="user-role">
                     <i class="fas fa-user-shield"></i> SYSTEM_ADMIN
                 </span>
-                <a href="/auth/logout" class="btn btn-outline-light">
+                <a href="/auth/logout" class="btn-logout">
                     <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
                 </a>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
-        <div class="form-container">
+    <div class="edit-user-container">
+        <div class="container-fluid">
             <!-- Header -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h1><i class="fas fa-user-edit text-warning"></i> Editar Usuario</h1>
-                    <p class="lead">Actualice la información del usuario</p>
-                </div>
+            <div class="edit-user-header">
+                <h1><i class="fas fa-user-edit"></i> Editar Usuario</h1>
+                <p class="lead">Actualice la información del usuario</p>
             </div>
 
             <!-- Información del Usuario -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="card user-info-card">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <strong>ID:</strong> <span id="userIdDisplay"></span><br>
-                                    <strong>Email:</strong> <span id="userEmailDisplay"></span><br>
-                                    <strong>Fecha de Creación:</strong> <span id="userCreatedAt"></span>
-                                </div>
-                                <div class="col-md-6">
-                                    <strong>Estado:</strong> <span id="userStatusDisplay"></span><br>
-                                    <strong>Último Login:</strong> <span id="userLastLogin"></span><br>
-                                    <strong>Email Verificado:</strong> <span id="userEmailVerified"></span>
-                                </div>
-                            </div>
+            <div class="user-info-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-info-circle"></i> Información del Usuario</h2>
+                </div>
+                <div class="user-info-card">
+                    <div class="user-info-grid">
+                        <div class="info-item">
+                            <strong>ID:</strong> <span id="userIdDisplay"></span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Email:</strong> <span id="userEmailDisplay"></span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Fecha de Creación:</strong> <span id="userCreatedAt"></span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Estado:</strong> <span id="userStatusDisplay"></span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Último Login:</strong> <span id="userLastLogin"></span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Email Verificado:</strong> <span id="userEmailVerified"></span>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Formulario -->
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Información del Usuario</h5>
+            <div class="form-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-edit"></i> Información del Usuario</h2>
                 </div>
-                <div class="card-body">
+                <div class="form-card">
                     <form id="editUserForm">
                         <input type="hidden" id="userId">
 
                         <!-- Información Básica -->
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <h6 class="border-bottom pb-2">Información Básica</h6>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
+                        <div class="form-section-group">
+                            <h3 class="section-title">Información Básica</h3>
+                            <div class="form-row">
+                                <div class="form-group">
                                     <label class="form-label required-field">Email</label>
                                     <input type="text" class="form-control" id="email" readonly
                                         style="background-color: #e9ecef;">
                                     <div class="form-text">El email no se puede modificar</div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
+                                <div class="form-group">
                                     <label for="role" class="form-label required-field">Rol</label>
                                     <select class="form-select" id="role" required>
                                         <option value="">Seleccionar rol</option>
@@ -112,47 +105,59 @@
                                         <option value="MANAGER">Manager</option>
                                         <option value="CUSTOMER">Customer</option>
                                     </select>
+                                    <div class="error-message" id="roleError"></div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Información Personal -->
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <h6 class="border-bottom pb-2">Información Personal</h6>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
+                        <div class="form-section-group">
+                            <h3 class="section-title">Información Personal</h3>
+                            <div class="form-row">
+                                <div class="form-group">
                                     <label for="firstName" class="form-label required-field">Nombre</label>
                                     <input type="text" class="form-control" id="firstName" required>
+                                    <div class="error-message" id="firstNameError"></div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
+                                <div class="form-group">
                                     <label for="lastName" class="form-label required-field">Apellido</label>
                                     <input type="text" class="form-control" id="lastName" required>
+                                    <div class="error-message" id="lastNameError"></div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
+                            <div class="form-row">
+                                <div class="form-group">
                                     <label for="phone" class="form-label required-field">Teléfono</label>
-                                    <input type="text" class="form-control" id="phone" required>
+                                    <div class="input-with-validation">
+                                        <div class="phone-prefix">+57</div>
+                                        <input type="tel" class="form-control" id="phone" name="phone" required maxlength="10"
+                                            autocomplete="tel" placeholder="3001234567">
+                                        <button type="button" class="validation-btn" id="checkPhone">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </div>
+                                    <div class="error-message" id="phoneError"></div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
+                                <div class="form-group">
                                     <label for="alternatePhone" class="form-label">Teléfono Alternativo</label>
-                                    <input type="text" class="form-control" id="alternatePhone">
+                                    <div class="input-with-validation">
+                                        <div class="phone-prefix">+57</div>
+                                        <input type="tel" class="form-control" id="alternatePhone" name="alternatePhone" 
+                                            maxlength="10" autocomplete="tel" placeholder="3001234567">
+                                        <button type="button" class="validation-btn" id="checkAlternatePhone">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </div>
+                                    <div class="error-message" id="alternatePhoneError"></div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
+                            <div class="form-row">
+                                <div class="form-group">
                                     <label for="dateOfBirth" class="form-label">Fecha de Nacimiento</label>
                                     <input type="date" class="form-control" id="dateOfBirth">
+                                    <div class="error-message" id="dateOfBirthError"></div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
+                                <div class="form-group">
                                     <label for="gender" class="form-label">Género</label>
                                     <select class="form-select" id="gender">
                                         <option value="">Seleccionar género</option>
@@ -160,62 +165,46 @@
                                         <option value="FEMALE">Femenino</option>
                                         <option value="OTHER">Otro</option>
                                     </select>
+                                    <div class="error-message" id="genderError"></div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Configuraciones -->
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <h6 class="border-bottom pb-2">Configuraciones</h6>
-                            </div>
-                            <div class="col-md-4">
+                        <div class="form-section-group">
+                            <h3 class="section-title">Configuraciones</h3>
+                            <div class="settings-grid">
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" id="isActive">
                                     <label class="form-check-label" for="isActive">Usuario Activo</label>
                                 </div>
-                            </div>
-                            <div class="col-md-4">
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" id="emailVerified">
                                     <label class="form-check-label" for="emailVerified">Email Verificado</label>
                                 </div>
-                            </div>
-                            <div class="col-md-4">
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" id="emailNotifications">
-                                    <label class="form-check-label" for="emailNotifications">Notificaciones por
-                                        Email</label>
+                                    <label class="form-check-label" for="emailNotifications">Notificaciones por Email</label>
                                 </div>
-                            </div>
-                            <div class="col-md-4">
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" id="smsNotifications">
-                                    <label class="form-check-label" for="smsNotifications">Notificaciones por
-                                        SMS</label>
+                                    <label class="form-check-label" for="smsNotifications">Notificaciones por SMS</label>
                                 </div>
-                            </div>
-                            <div class="col-md-4">
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" id="newsletterSubscription">
-                                    <label class="form-check-label" for="newsletterSubscription">Suscripción a
-                                        Newsletter</label>
+                                    <label class="form-check-label" for="newsletterSubscription">Suscripción a Newsletter</label>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Botones -->
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="d-flex justify-content-between">
-                                    <a href="/system-admin/users" class="btn btn-secondary">
-                                        <i class="fas fa-times"></i> Cancelar
-                                    </a>
-                                    <button type="button" class="btn btn-warning" onclick="updateUser()">
-                                        <i class="fas fa-save"></i> Actualizar Usuario
-                                    </button>
-                                </div>
-                            </div>
+                        <div class="form-actions">
+                            <a href="/system-admin/users" class="btn-action secondary">
+                                <i class="fas fa-times"></i> Cancelar
+                            </a>
+                            <button type="button" class="btn-action primary" id="updateUserBtn">
+                                <i class="fas fa-save"></i> Actualizar Usuario
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -223,123 +212,50 @@
         </div>
     </div>
 
+    <!-- Notificaciones -->
+    <div class="notification" id="successNotification">
+        <div class="notification-content success">
+            <i class="fas fa-check-circle"></i>
+            <span id="successMessage"></span>
+        </div>
+    </div>
+
+    <div class="notification" id="errorNotification">
+        <div class="notification-content error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span id="errorMessage"></span>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer" id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>PetLuz</h3>
+                    <p>Tu tienda de confianza para el cuidado de mascotas</p>
+                    <div class="social-links">
+                        <a href="#" aria-label="Facebook">📘</a>
+                        <a href="#" aria-label="Instagram">📷</a>
+                        <a href="#" aria-label="Twitter">🐦</a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Contacto</h4>
+                    <p>📧 info@petluz.com</p>
+                    <p>📞 +57 3114506070</p>
+                    <p>📍 Calle Mascotas 123, Madrid</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 PetLuz. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Obtener el ID del usuario de la URL
-        const pathParts = window.location.pathname.split('/');
-        const userId = pathParts[pathParts.length - 1];
-
-        document.addEventListener('DOMContentLoaded', function () {
-            loadUserData();
-        });
-
-        function loadUserData() {
-            fetch(`/system-admin/api/users/${userId}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Usuario no encontrado');
-                    }
-                    return response.json();
-                })
-                .then(user => {
-                    console.log('Datos del usuario:', user); // Para debug
-
-                    // Llenar información de display
-                    document.getElementById('userIdDisplay').textContent = user.id;
-                    document.getElementById('userEmailDisplay').textContent = user.email;
-                    document.getElementById('userCreatedAt').textContent = new Date(user.createdAt).toLocaleString();
-                    document.getElementById('userStatusDisplay').innerHTML = user.isActive ?
-                        '<span class="badge bg-success">Activo</span>' :
-                        '<span class="badge bg-danger">Inactivo</span>';
-                    document.getElementById('userLastLogin').textContent = user.lastLogin ?
-                        new Date(user.lastLogin).toLocaleString() : 'Nunca';
-                    document.getElementById('userEmailVerified').innerHTML = user.emailVerified ?
-                        '<span class="badge bg-success">Sí</span>' :
-                        '<span class="badge bg-secondary">No</span>';
-
-                    // Llenar formulario
-                    document.getElementById('userId').value = user.id;
-                    document.getElementById('email').value = user.email;
-                    document.getElementById('firstName').value = user.firstName;
-                    document.getElementById('lastName').value = user.lastName;
-                    document.getElementById('phone').value = user.phone;
-                    document.getElementById('role').value = user.role;
-                    document.getElementById('isActive').checked = user.isActive;
-                    document.getElementById('emailVerified').checked = user.emailVerified;
-
-                    // CORREGIDO: Manejar campos que podrían ser null/undefined
-                    document.getElementById('alternatePhone').value = user.alternatePhone || '';
-
-                    // CORREGIDO: Fecha de nacimiento - formatear correctamente
-                    if (user.dateOfBirth) {
-                        // Convertir la fecha al formato YYYY-MM-DD que espera input type="date"
-                        const date = new Date(user.dateOfBirth);
-                        const formattedDate = date.toISOString().split('T')[0];
-                        document.getElementById('dateOfBirth').value = formattedDate;
-                    } else {
-                        document.getElementById('dateOfBirth').value = '';
-                    }
-
-                    // CORREGIDO: Género - asegurar que sea string
-                    if (user.gender) {
-                        document.getElementById('gender').value = user.gender.toString();
-                    } else {
-                        document.getElementById('gender').value = '';
-                    }
-
-                    // CORREGIDO: Configuraciones - usar valores reales de la base de datos
-                    document.getElementById('emailNotifications').checked = user.emailNotifications !== false;
-                    document.getElementById('smsNotifications').checked = user.smsNotifications === true;
-                    document.getElementById('newsletterSubscription').checked = user.newsletterSubscription !== false;
-                })
-                .catch(error => {
-                    console.error('Error:', user); // Para debug
-                    alert('Error al cargar datos del usuario: ' + error.message);
-                    window.location.href = '/system-admin/users';
-                });
-        }
-
-        function updateUser() {
-            const userData = {
-                firstName: document.getElementById('firstName').value,
-                lastName: document.getElementById('lastName').value,
-                phone: document.getElementById('phone').value,
-                alternatePhone: document.getElementById('alternatePhone').value || null,
-                dateOfBirth: document.getElementById('dateOfBirth').value || null,
-                gender: document.getElementById('gender').value || null,
-                role: document.getElementById('role').value,
-                isActive: document.getElementById('isActive').checked,
-                emailVerified: document.getElementById('emailVerified').checked,
-                emailNotifications: document.getElementById('emailNotifications').checked,
-                smsNotifications: document.getElementById('smsNotifications').checked,
-                newsletterSubscription: document.getElementById('newsletterSubscription').checked
-            };
-
-            console.log('Datos a enviar:', userData); // Para debug
-
-            fetch(`/system-admin/api/users/${userId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(userData)
-            })
-                .then(response => {
-                    if (response.ok) {
-                        return response.json();
-                    } else {
-                        return response.text().then(text => { throw new Error(text) });
-                    }
-                })
-                .then(() => {
-                    alert('Usuario actualizado exitosamente');
-                    window.location.href = '/system-admin/users';
-                })
-                .catch(error => {
-                    alert('Error al actualizar usuario: ' + error.message);
-                });
-        }
-    </script>
+    <script src="/js/validation.js"></script>
+    <script src="/js/edit-user.js"></script>
 </body>
 
 </html>
