@@ -1,148 +1,176 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${pageTitle}">Gestión de Usuarios - PetShop</title>
+    <title>Gestión de Usuarios - PetLuz</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        .user-actions .btn {
-            margin: 2px;
-        }
-        .table-responsive {
-            max-height: 600px;
-        }
-        .filter-section {
-            background-color: #f8f9fa;
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-        .info-card {
-            border-left: 4px solid #007bff;
-        }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/base_system.css">
+    <link rel="stylesheet" href="/css/users_system.css">
 </head>
+
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/system-admin/dashboard">
-                <i class="fas fa-paw"></i> PetShop - Sistema
-            </a>
-            <div class="navbar-nav ms-auto">
-                <a href="/system-admin/dashboard" class="btn btn-outline-light me-2">
+    <nav class="navbar system-navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="/system-admin/dashboard">
+                    <i class="fas fa-paw"></i>
+                    <span>PetLuz Sistema</span>
+                </a>
+            </div>
+            <div class="nav-actions">
+                <a href="/system-admin/dashboard" class="btn-dashboard">
                     <i class="fas fa-tachometer-alt"></i> Dashboard
                 </a>
-                <span class="navbar-text text-light me-3">
+                <span class="user-role">
                     <i class="fas fa-user-shield"></i> SYSTEM_ADMIN
                 </span>
-                <a href="/auth/logout" class="btn btn-outline-light">
+                <a href="/auth/logout" class="btn-logout">
                     <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
                 </a>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
-        <!-- Header -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <h1><i class="fas fa-users-cog text-primary"></i> Gestión de Usuarios</h1>
+    <!-- Contenido principal -->
+    <div class="users-container">
+        <div class="container-fluid">
+            <!-- Header -->
+            <div class="users-header">
+                <h1><i class="fas fa-users-cog"></i> Gestión de Usuarios</h1>
                 <p class="lead">Administra los usuarios y sus roles en el sistema</p>
             </div>
-        </div>
 
-        <!-- Filtros y Búsqueda -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="filter-section">
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" id="searchInput" placeholder="Buscar por nombre o email...">
+            <!-- Estadísticas Rápidas -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="card-body">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
                         </div>
-                        <div class="col-md-3">
-                            <select class="form-select" id="roleFilter">
-                                <option value="">Todos los roles</option>
-                                <option value="SUPER_ADMIN">Super Admin</option>
-                                <option value="MANAGER">Manager</option>
-                                <option value="CUSTOMER">Customer</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <select class="form-select" id="statusFilter">
-                                <option value="">Todos los estados</option>
-                                <option value="active">Activos</option>
-                                <option value="inactive">Inactivos</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <button class="btn btn-primary w-100" onclick="loadUsers()">
-                                <i class="fas fa-filter"></i> Filtrar
-                            </button>
-                        </div>
+                        <div class="stat-number" id="totalUsers">0</div>
+                        <div class="stat-label">Total Usuarios</div>
                     </div>
+                    <div class="card-wave"></div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="card-body">
+                        <div class="stat-icon">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        <div class="stat-number" id="activeUsers">0</div>
+                        <div class="stat-label">Usuarios Activos</div>
+                    </div>
+                    <div class="card-wave"></div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="card-body">
+                        <div class="stat-icon">
+                            <i class="fas fa-user-times"></i>
+                        </div>
+                        <div class="stat-number" id="inactiveUsers">0</div>
+                        <div class="stat-label">Usuarios Inactivos</div>
+                    </div>
+                    <div class="card-wave"></div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="card-body">
+                        <div class="stat-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="stat-number" id="adminUsers">0</div>
+                        <div class="stat-label">Administradores</div>
+                    </div>
+                    <div class="card-wave"></div>
                 </div>
             </div>
-        </div>
 
-        <!-- Botones de Acción -->
-        <div class="row mb-3">
-            <div class="col-12">
-                <a href="/system-admin/users/create" class="btn btn-success">
-                    <i class="fas fa-user-plus"></i> Crear Nuevo Usuario
-                </a>
-                <button class="btn btn-outline-secondary" onclick="exportUsers()">
-                    <i class="fas fa-download"></i> Exportar
-                </button>
-                <div class="btn-group float-end">
-                    <button class="btn btn-outline-info" onclick="loadUsers()">
-                        <i class="fas fa-sync-alt"></i> Actualizar
+            <!-- Filtros y Búsqueda -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-filter"></i> Filtros y Búsqueda</h2>
+                </div>
+                <div class="filter-grid">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Buscar por nombre o email...">
+                    </div>
+
+                    <select class="form-select" id="roleFilter">
+                        <option value="">Todos los roles</option>
+                        <option value="SUPER_ADMIN">Super Admin</option>
+                        <option value="MANAGER">Manager</option>
+                        <option value="CUSTOMER">Customer</option>
+                    </select>
+
+                    <select class="form-select" id="statusFilter">
+                        <option value="">Todos los estados</option>
+                        <option value="active">Activos</option>
+                        <option value="inactive">Inactivos</option>
+                    </select>
+
+                    <button class="btn-filter" onclick="usersManager.applyFilters()">
+                        <i class="fas fa-filter"></i> Aplicar Filtros
                     </button>
                 </div>
             </div>
-        </div>
 
-        <!-- Tabla de Usuarios -->
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-list"></i> Lista de Usuarios
-                            <span class="badge bg-primary ms-2" id="usersCount">0</span>
-                        </h5>
+            <!-- Botones de Acción -->
+            <div class="action-buttons">
+                <a href="/system-admin/users/create" class="btn-action primary">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Crear Nuevo Usuario</span>
+                </a>
+                <!-- <button class="btn-action secondary" onclick="usersManager.exportUsers()">
+                    <i class="fas fa-download"></i>
+                    <span>Exportar Usuarios</span>
+                </button> -->
+                <button class="btn-action outline" onclick="usersManager.loadUsers()">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>Actualizar Lista</span>
+                </button>
+            </div>
+
+            <!-- Lista de Usuarios -->
+            <div class="users-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-list"></i> Lista de Usuarios</h2>
+                    <div class="users-count">
+                        <span class="count-badge" id="usersCount">0</span>
+                        <span>usuarios encontrados</span>
                     </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover" id="usersTable">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Nombre Completo</th>
-                                        <th>Email</th>
-                                        <th>Teléfono</th>
-                                        <th>Rol</th>
-                                        <th>Estado</th>
-                                        <th>Email Verificado</th>
-                                        <th>Último Login</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="usersTableBody">
-                                    <tr>
-                                        <td colspan="9" class="text-center">
-                                            <div class="spinner-border" role="status">
-                                                <span class="visually-hidden">Cargando...</span>
-                                            </div>
-                                            <p class="mt-2">Cargando usuarios...</p>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                </div>
+
+                <div class="users-table-container">
+                    <table class="users-table" id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Información de Contacto</th>
+                                <th>Rol</th>
+                                <th>Estado</th>
+                                <th>Última Actividad</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <tr>
+                                <td colspan="6" class="loading-state">
+                                    <div class="loader-spinner"></div>
+                                    <p>Cargando usuarios...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -152,416 +180,348 @@
     <div class="modal fade" id="viewUserModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
+                <div class="modal-header">
                     <h5 class="modal-title">
                         <i class="fas fa-user-circle"></i> Información Completa del Usuario
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="row">
+                    <div class="user-profile-header">
+                        <div class="user-avatar-large">
+                            <div class="avatar-placeholder" id="viewUserAvatar">US</div>
+                        </div>
+                        <div class="user-profile-info">
+                            <h3 id="viewFullName">Usuario</h3>
+                            <p id="viewEmail">email@ejemplo.com</p>
+                            <div class="user-badges">
+                                <span class="badge" id="viewRole">ROL</span>
+                                <span class="badge" id="viewStatus">Estado</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="user-details-grid">
                         <!-- Información Básica -->
-                        <div class="col-md-6">
-                            <div class="card mb-3 info-card">
-                                <div class="card-header bg-light">
-                                    <h6 class="card-title mb-0">Información Básica</h6>
+                        <div class="detail-card">
+                            <div class="detail-card-header">
+                                <i class="fas fa-id-card"></i>
+                                <h6>Información Básica</h6>
+                            </div>
+                            <div class="detail-card-body">
+                                <div class="detail-item">
+                                    <span class="detail-label">ID:</span>
+                                    <span class="detail-value" id="viewUserId">-</span>
                                 </div>
-                                <div class="card-body">
-                                    <table class="table table-sm table-borderless">
-                                        <tr>
-                                            <td><strong>ID:</strong></td>
-                                            <td id="viewUserId"></td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Nombre:</strong></td>
-                                            <td id="viewFullName"></td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Email:</strong></td>
-                                            <td id="viewEmail"></td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Rol:</strong></td>
-                                            <td><span class="badge" id="viewRole"></span></td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Estado:</strong></td>
-                                            <td><span class="badge" id="viewStatus"></span></td>
-                                        </tr>
-                                    </table>
+                                <div class="detail-item">
+                                    <span class="detail-label">Nombre Completo:</span>
+                                    <span class="detail-value" id="viewFullNameText">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Email:</span>
+                                    <span class="detail-value" id="viewEmailText">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Rol:</span>
+                                    <span class="detail-value"><span class="badge" id="viewRoleText">-</span></span>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Información de Contacto -->
-                        <div class="col-md-6">
-                            <div class="card mb-3 info-card">
-                                <div class="card-header bg-light">
-                                    <h6 class="card-title mb-0">Información de Contacto</h6>
+                        <div class="detail-card">
+                            <div class="detail-card-header">
+                                <i class="fas fa-phone"></i>
+                                <h6>Información de Contacto</h6>
+                            </div>
+                            <div class="detail-card-body">
+                                <div class="detail-item">
+                                    <span class="detail-label">Teléfono:</span>
+                                    <span class="detail-value" id="viewPhone">-</span>
                                 </div>
-                                <div class="card-body">
-                                    <table class="table table-sm table-borderless">
-                                        <tr>
-                                            <td><strong>Teléfono:</strong></td>
-                                            <td id="viewPhone"></td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Teléfono Alt:</strong></td>
-                                            <td id="viewAlternatePhone"></td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Fecha Nacimiento:</strong></td>
-                                            <td id="viewDateOfBirth"></td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Género:</strong></td>
-                                            <td id="viewGender"></td>
-                                        </tr>
-                                    </table>
+                                <div class="detail-item">
+                                    <span class="detail-label">Teléfono Alternativo:</span>
+                                    <span class="detail-value" id="viewAlternatePhone">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Fecha de Nacimiento:</span>
+                                    <span class="detail-value" id="viewDateOfBirth">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Género:</span>
+                                    <span class="detail-value" id="viewGender">-</span>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="row">
                         <!-- Verificación y Seguridad -->
-                        <div class="col-md-6">
-                            <div class="card mb-3 info-card">
-                                <div class="card-header bg-light">
-                                    <h6 class="card-title mb-0">Verificación y Seguridad</h6>
+                        <div class="detail-card">
+                            <div class="detail-card-header">
+                                <i class="fas fa-shield-alt"></i>
+                                <h6>Verificación y Seguridad</h6>
+                            </div>
+                            <div class="detail-card-body">
+                                <div class="detail-item">
+                                    <span class="detail-label">Email Verificado:</span>
+                                    <span class="detail-value"><span class="badge"
+                                            id="viewEmailVerified">-</span></span>
                                 </div>
-                                <div class="card-body">
-                                    <table class="table table-sm table-borderless">
-                                        <tr>
-                                            <td><strong>Email Verificado:</strong></td>
-                                            <td><span class="badge" id="viewEmailVerified"></span></td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Teléfono Verificado:</strong></td>
-                                            <td><span class="badge" id="viewPhoneVerified"></span></td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Intentos Fallidos:</strong></td>
-                                            <td id="viewFailedAttempts"></td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Cuenta Bloqueada:</strong></td>
-                                            <td><span class="badge" id="viewAccountLocked"></span></td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Bloqueado Hasta:</strong></td>
-                                            <td id="viewLockedUntil"></td>
-                                        </tr>
-                                    </table>
+                                <div class="detail-item">
+                                    <span class="detail-label">Teléfono Verificado:</span>
+                                    <span class="detail-value"><span class="badge"
+                                            id="viewPhoneVerified">-</span></span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Intentos Fallidos:</span>
+                                    <span class="detail-value" id="viewFailedAttempts">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Cuenta Bloqueada:</span>
+                                    <span class="detail-value"><span class="badge"
+                                            id="viewAccountLocked">-</span></span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Configuraciones y Auditoría -->
-                        <div class="col-md-6">
-                            <div class="card mb-3 info-card">
-                                <div class="card-header bg-light">
-                                    <h6 class="card-title mb-0">Configuraciones</h6>
+                        <!-- Configuraciones -->
+                        <div class="detail-card">
+                            <div class="detail-card-header">
+                                <i class="fas fa-cog"></i>
+                                <h6>Configuraciones</h6>
+                            </div>
+                            <div class="detail-card-body">
+                                <div class="detail-item">
+                                    <span class="detail-label">Notificaciones Email:</span>
+                                    <span class="detail-value"><span class="badge"
+                                            id="viewEmailNotifications">-</span></span>
                                 </div>
-                                <div class="card-body">
-                                    <table class="table table-sm table-borderless">
-                                        <tr>
-                                            <td><strong>Notificaciones Email:</strong></td>
-                                            <td><span class="badge" id="viewEmailNotifications"></span></td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Notificaciones SMS:</strong></td>
-                                            <td><span class="badge" id="viewSmsNotifications"></span></td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Newsletter:</strong></td>
-                                            <td><span class="badge" id="viewNewsletter"></span></td>
-                                        </tr>
-                                    </table>
+                                <div class="detail-item">
+                                    <span class="detail-label">Notificaciones SMS:</span>
+                                    <span class="detail-value"><span class="badge"
+                                            id="viewSmsNotifications">-</span></span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Newsletter:</span>
+                                    <span class="detail-value"><span class="badge" id="viewNewsletter">-</span></span>
                                 </div>
                             </div>
+                        </div>
 
-                            <div class="card info-card">
-                                <div class="card-header bg-light">
-                                    <h6 class="card-title mb-0">Auditoría</h6>
+                        <!-- Auditoría -->
+                        <div class="detail-card">
+                            <div class="detail-card-header">
+                                <i class="fas fa-history"></i>
+                                <h6>Auditoría</h6>
+                            </div>
+                            <div class="detail-card-body">
+                                <div class="detail-item">
+                                    <span class="detail-label">Creado:</span>
+                                    <span class="detail-value" id="viewCreatedAt">-</span>
                                 </div>
-                                <div class="card-body">
-                                    <table class="table table-sm table-borderless">
-                                        <tr>
-                                            <td><strong>Creado:</strong></td>
-                                            <td id="viewCreatedAt"></td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Por:</strong></td>
-                                            <td id="viewCreatedBy"></td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Actualizado:</strong></td>
-                                            <td id="viewUpdatedAt"></td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Por:</strong></td>
-                                            <td id="viewUpdatedBy"></td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Último Login:</strong></td>
-                                            <td id="viewLastLogin"></td>
-                                        </tr>
-                                    </table>
+                                <div class="detail-item">
+                                    <span class="detail-label">Por:</span>
+                                    <span class="detail-value" id="viewCreatedBy">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Actualizado:</span>
+                                    <span class="detail-value" id="viewUpdatedAt">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Último Login:</span>
+                                    <span class="detail-value" id="viewLastLogin">-</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn-modal secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Modal para cambiar estado del usuario -->
+    <div class="modal fade" id="changeStatusModal" tabindex="-1">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exchange-alt"></i> Cambiar Estado del Usuario
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="status-modal-content">
+                        <div class="status-icon">
+                            <i class="fas fa-user-slash" id="statusModalIcon"></i>
+                        </div>
+                        <h4 id="statusModalTitle">¿Cambiar estado del usuario?</h4>
+                        <p id="statusModalMessage" class="text-muted">
+                            Estás a punto de cambiar el estado de este usuario. ¿Estás seguro de que deseas continuar?
+                        </p>
+                        <div class="user-info-preview">
+                            <div class="user-avatar-sm">
+                                <span id="statusUserAvatar">US</span>
+                            </div>
+                            <div class="user-details-sm">
+                                <strong id="statusUserName">Usuario</strong>
+                                <small id="statusUserEmail" class="text-muted">email@ejemplo.com</small>
+                            </div>
+                        </div>
+                        <div class="status-change-preview">
+                            <div class="status-before">
+                                <span class="badge" id="currentStatusBadge">Activo</span>
+                                <span>Estado actual</span>
+                            </div>
+                            <div class="status-arrow">
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                            <div class="status-after">
+                                <span class="badge" id="newStatusBadge">Inactivo</span>
+                                <span>Nuevo estado</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-modal secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="button" class="btn-modal danger" id="confirmStatusChange">
+                        <i class="fas fa-check"></i> Confirmar Cambio
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para cambiar rol del usuario -->
+    <div class="modal fade" id="changeRoleModal" tabindex="-1">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-user-tag"></i> Cambiar Rol del Usuario
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="role-modal-content">
+                        <div class="role-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h4>Seleccionar Nuevo Rol</h4>
+                        <p class="text-muted">Elige el nuevo rol para este usuario:</p>
+
+                        <div class="user-info-preview">
+                            <div class="user-avatar-sm">
+                                <span id="roleUserAvatar">US</span>
+                            </div>
+                            <div class="user-details-sm">
+                                <strong id="roleUserName">Usuario</strong>
+                                <small id="roleUserEmail" class="text-muted">email@ejemplo.com</small>
+                                <div class="current-role">
+                                    <small>Rol actual: <span class="badge" id="currentRoleBadge">CUSTOMER</span></small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="role-options">
+                            <div class="role-option" data-role="SUPER_ADMIN">
+                                <div class="role-icon-option">
+                                    <i class="fas fa-crown"></i>
+                                </div>
+                                <div class="role-info">
+                                    <h6>Super Administrador</h6>
+                                    <p>Acceso completo al sistema con todos los privilegios</p>
+                                </div>
+                                <div class="role-selector">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="roleSelection"
+                                            id="roleSuperAdmin">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="role-option" data-role="MANAGER">
+                                <div class="role-icon-option">
+                                    <i class="fas fa-user-tie"></i>
+                                </div>
+                                <div class="role-info">
+                                    <h6>Manager</h6>
+                                    <p>Gestión de usuarios y contenido, permisos limitados</p>
+                                </div>
+                                <div class="role-selector">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="roleSelection"
+                                            id="roleManager">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="role-option" data-role="CUSTOMER">
+                                <div class="role-icon-option">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="role-info">
+                                    <h6>Customer</h6>
+                                    <p>Usuario regular con acceso básico a la plataforma</p>
+                                </div>
+                                <div class="role-selector">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="roleSelection"
+                                            id="roleCustomer">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-modal secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="button" class="btn-modal primary" id="confirmRoleChange" disabled>
+                        <i class="fas fa-check"></i> Confirmar Cambio
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="footer" id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>PetLuz</h3>
+                    <p>Tu tienda de confianza para el cuidado de mascotas</p>
+                    <div class="social-links">
+                        <a href="#" aria-label="Facebook">📘</a>
+                        <a href="#" aria-label="Instagram">📷</a>
+                        <a href="#" aria-label="Twitter">🐦</a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Contacto</h4>
+                    <p>📧 info@petluz.com</p>
+                    <p>📞 +57 3114506070</p>
+                    <p>📍 Calle Mascotas 123, Madrid</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 PetLuz. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Canvas para partículas -->
+    <canvas id="particleCanvas" class="particle-canvas"></canvas>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        let allUsers = [];
-
-        document.addEventListener('DOMContentLoaded', function() {
-            loadUsers();
-        });
-
-        function loadUsers() {
-            fetch('/system-admin/api/users')
-                .then(response => response.json())
-                .then(users => {
-                    allUsers = users;
-                    applyFilters();
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('usersTableBody').innerHTML = 
-                        '<tr><td colspan="9" class="text-center text-danger">Error al cargar usuarios</td></tr>';
-                });
-        }
-
-        function applyFilters() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const roleFilter = document.getElementById('roleFilter').value;
-            const statusFilter = document.getElementById('statusFilter').value;
-
-            let filteredUsers = allUsers.filter(user => {
-                const matchesSearch = user.fullName.toLowerCase().includes(searchTerm) || 
-                                    user.email.toLowerCase().includes(searchTerm);
-                const matchesRole = !roleFilter || user.role === roleFilter;
-                const matchesStatus = !statusFilter || 
-                                    (statusFilter === 'active' && user.isActive) ||
-                                    (statusFilter === 'inactive' && !user.isActive);
-                
-                return matchesSearch && matchesRole && matchesStatus;
-            });
-
-            displayUsers(filteredUsers);
-        }
-
-        function displayUsers(users) {
-            const tbody = document.getElementById('usersTableBody');
-            const countElement = document.getElementById('usersCount');
-            
-            countElement.textContent = users.length;
-            
-            if (users.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" class="text-center">No se encontraron usuarios</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = '';
-            
-            users.forEach(user => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${user.id}</td>
-                    <td>
-                        <strong>${user.fullName}</strong>
-                    </td>
-                    <td>${user.email}</td>
-                    <td>${user.phone}</td>
-                    <td>
-                        <span class="badge bg-primary">${user.role}</span>
-                    </td>
-                    <td>
-                        <span class="badge ${user.isActive ? 'bg-success' : 'bg-danger'}">
-                            ${user.isActive ? 'Activo' : 'Inactivo'}
-                        </span>
-                    </td>
-                    <td>
-                        <span class="badge ${user.emailVerified ? 'bg-success' : 'bg-secondary'}">
-                            ${user.emailVerified ? 'Sí' : 'No'}
-                        </span>
-                    </td>
-                    <td>${user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Nunca'}</td>
-                    <td class="user-actions">
-                        <!-- Botón para ver información completa -->
-                        <button class="btn btn-sm btn-info" onclick="viewUser(${user.id})" title="Ver Información">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <!-- Botón para editar -->
-                        <a href="/system-admin/users/edit/${user.id}" class="btn btn-sm btn-warning" title="Editar">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <!-- Botón para activar/desactivar -->
-                        <button class="btn btn-sm ${user.isActive ? 'btn-danger' : 'btn-success'}" 
-                                onclick="toggleUserStatus(${user.id})" 
-                                title="${user.isActive ? 'Desactivar' : 'Activar'}">
-                            <i class="fas ${user.isActive ? 'fa-ban' : 'fa-check'}"></i>
-                        </button>
-                        <!-- Botón para cambiar rol -->
-                        <button class="btn btn-sm btn-secondary" onclick="changeUserRole(${user.id})" title="Cambiar Rol">
-                            <i class="fas fa-user-tag"></i>
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        function viewUser(id) {
-            fetch(`/system-admin/api/users/${id}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Usuario no encontrado');
-                    }
-                    return response.json();
-                })
-                .then(user => {
-                    console.log('Datos del usuario:', user); // Para debug
-
-                    // Llenar información básica
-                    document.getElementById('viewUserId').textContent = user.id;
-                    document.getElementById('viewFullName').textContent = user.fullName;
-                    document.getElementById('viewEmail').textContent = user.email;
-                    
-                    // Rol con color
-                    const roleBadge = document.getElementById('viewRole');
-                    roleBadge.textContent = user.role;
-                    roleBadge.className = 'badge bg-primary';
-                    
-                    // Estado
-                    const statusBadge = document.getElementById('viewStatus');
-                    statusBadge.textContent = user.isActive ? 'Activo' : 'Inactivo';
-                    statusBadge.className = user.isActive ? 'badge bg-success' : 'badge bg-danger';
-                    
-                    // Información de contacto
-                    document.getElementById('viewPhone').textContent = user.phone || 'No especificado';
-                    document.getElementById('viewAlternatePhone').textContent = user.alternatePhone || 'No especificado';
-                    document.getElementById('viewDateOfBirth').textContent = user.dateOfBirth ? 
-                        new Date(user.dateOfBirth).toLocaleDateString() : 'No especificado';
-                    document.getElementById('viewGender').textContent = user.gender ? 
-                        formatGender(user.gender) : 'No especificado';
-                    
-                    // Verificación y seguridad
-                    const emailVerifiedBadge = document.getElementById('viewEmailVerified');
-                    emailVerifiedBadge.textContent = user.emailVerified ? 'Sí' : 'No';
-                    emailVerifiedBadge.className = user.emailVerified ? 'badge bg-success' : 'badge bg-secondary';
-                    
-                    const phoneVerifiedBadge = document.getElementById('viewPhoneVerified');
-                    phoneVerifiedBadge.textContent = user.phoneVerified ? 'Sí' : 'No';
-                    phoneVerifiedBadge.className = user.phoneVerified ? 'badge bg-success' : 'badge bg-secondary';
-                    
-                    document.getElementById('viewFailedAttempts').textContent = user.failedLoginAttempts || 0;
-                    
-                    const accountLockedBadge = document.getElementById('viewAccountLocked');
-                    accountLockedBadge.textContent = user.accountLocked ? 'Sí' : 'No';
-                    accountLockedBadge.className = user.accountLocked ? 'badge bg-danger' : 'badge bg-success';
-                    
-                    document.getElementById('viewLockedUntil').textContent = user.lockedUntil ? 
-                        new Date(user.lockedUntil).toLocaleString() : 'No aplica';
-                    
-                    // Configuraciones
-                    const emailNotifBadge = document.getElementById('viewEmailNotifications');
-                    emailNotifBadge.textContent = user.emailNotifications ? 'Activado' : 'Desactivado';
-                    emailNotifBadge.className = user.emailNotifications ? 'badge bg-success' : 'badge bg-secondary';
-                    
-                    const smsNotifBadge = document.getElementById('viewSmsNotifications');
-                    smsNotifBadge.textContent = user.smsNotifications ? 'Activado' : 'Desactivado';
-                    smsNotifBadge.className = user.smsNotifications ? 'badge bg-success' : 'badge bg-secondary';
-                    
-                    const newsletterBadge = document.getElementById('viewNewsletter');
-                    newsletterBadge.textContent = user.newsletterSubscription ? 'Activado' : 'Desactivado';
-                    newsletterBadge.className = user.newsletterSubscription ? 'badge bg-success' : 'badge bg-secondary';
-                    
-                    // Auditoría
-                    document.getElementById('viewCreatedAt').textContent = user.createdAt ? 
-                        new Date(user.createdAt).toLocaleString() : 'No disponible';
-                    document.getElementById('viewCreatedBy').textContent = user.createdBy || 'Sistema';
-                    document.getElementById('viewUpdatedAt').textContent = user.updatedAt ? 
-                        new Date(user.updatedAt).toLocaleString() : 'No actualizado';
-                    document.getElementById('viewUpdatedBy').textContent = user.updatedBy || 'No actualizado';
-                    document.getElementById('viewLastLogin').textContent = user.lastLogin ? 
-                        new Date(user.lastLogin).toLocaleString() : 'Nunca';
-
-                    // Mostrar el modal
-                    const modal = new bootstrap.Modal(document.getElementById('viewUserModal'));
-                    modal.show();
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error al cargar información del usuario: ' + error.message);
-                });
-        }
-
-        function formatGender(gender) {
-            const genderMap = {
-                'MALE': 'Masculino',
-                'FEMALE': 'Femenino', 
-                'OTHER': 'Otro'
-            };
-            return genderMap[gender] || gender;
-        }
-
-        function toggleUserStatus(id) {
-            if (confirm('¿Estás seguro de que quieres cambiar el estado de este usuario?')) {
-                fetch(`/system-admin/api/users/${id}/toggle-status`, {
-                    method: 'PATCH'
-                })
-                .then(response => {
-                    if (response.ok) {
-                        loadUsers();
-                        alert('Estado del usuario actualizado correctamente');
-                    } else {
-                        alert('Error al cambiar el estado del usuario');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error al cambiar el estado del usuario: ' + error.message);
-                });
-            }
-        }
-
-        function changeUserRole(id) {
-            const newRole = prompt('Ingrese el nuevo rol (SUPER_ADMIN, MANAGER, CUSTOMER):');
-            if (newRole && ['SUPER_ADMIN', 'MANAGER', 'CUSTOMER'].includes(newRole)) {
-                fetch(`/system-admin/api/users/${id}/role?newRole=${newRole}`, {
-                    method: 'PATCH'
-                })
-                .then(response => {
-                    if (response.ok) {
-                        loadUsers();
-                        alert('Rol del usuario actualizado correctamente');
-                    } else {
-                        alert('Error al cambiar el rol del usuario');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error al cambiar el rol del usuario: ' + error.message);
-                });
-            } else if (newRole) {
-                alert('Rol inválido. Los roles válidos son: SUPER_ADMIN, MANAGER, CUSTOMER');
-            }
-        }
-
-        function exportUsers() {
-            alert('Funcionalidad de exportación en desarrollo');
-        }
-    </script>
+    <script src="/js/animations.js"></script>
+    <script src="/js/users_system.js"></script>
 </body>
+
 </html>

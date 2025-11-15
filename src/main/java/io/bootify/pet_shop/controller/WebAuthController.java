@@ -46,7 +46,6 @@ public class WebAuthController {
     @GetMapping("/auth/verify-email")
     public String verifyEmail(@RequestParam String token, Model model) {
         try {
-            System.out.println("🔍 Verificando token: " + token);
             
             boolean verified = authService.verifyEmail(token);
             
