@@ -1,77 +1,76 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${pageTitle}">Crear Usuario - PetShop</title>
+    <title>Crear Usuario - PetLuz</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        .form-container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .required-field::after {
-            content: " *";
-            color: red;
-        }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/base_system.css">
+    <link rel="stylesheet" href="/css/edit-user.css">
 </head>
+
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/system-admin/dashboard">
-                <i class="fas fa-paw"></i> PetShop - Sistema
-            </a>
-            <div class="navbar-nav ms-auto">
-                <a href="/system-admin/dashboard" class="btn btn-outline-light me-2">
+    <nav class="navbar system-navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="/system-admin/dashboard">
+                    <i class="fas fa-paw"></i>
+                    <span>PetLuz</span>
+                </a>
+            </div>
+            <div class="nav-actions">
+                <a href="/system-admin/dashboard" class="btn-dashboard">
                     <i class="fas fa-tachometer-alt"></i> Dashboard
                 </a>
-                <a href="/system-admin/users" class="btn btn-outline-light me-2">
+                <a href="/system-admin/users" class="btn-dashboard">
                     <i class="fas fa-arrow-left"></i> Volver
                 </a>
-                <span class="navbar-text text-light me-3">
+                <span class="user-role">
                     <i class="fas fa-user-shield"></i> SYSTEM_ADMIN
                 </span>
-                <a href="/auth/logout" class="btn btn-outline-light">
+                <a href="/auth/logout" class="btn-logout">
                     <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
                 </a>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
-        <div class="form-container">
+    <div class="create-user-container">
+        <div class="container-fluid">
             <!-- Header -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h1><i class="fas fa-user-plus text-success"></i> Crear Nuevo Usuario</h1>
-                    <p class="lead">Complete la información del nuevo usuario</p>
-                </div>
+            <div class="create-user-header">
+                <h1><i class="fas fa-user-plus"></i> Crear Nuevo Usuario</h1>
+                <p class="lead">Complete la información del nuevo usuario</p>
             </div>
 
             <!-- Formulario -->
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Información del Usuario</h5>
+            <div class="form-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-edit"></i> Información del Usuario</h2>
                 </div>
-                <div class="card-body">
+                <div class="form-card">
                     <form id="createUserForm">
                         <!-- Información Básica -->
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <h6 class="border-bottom pb-2">Información Básica</h6>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
+                        <div class="form-section-group">
+                            <h3 class="section-title">Información Básica</h3>
+                            <div class="form-row">
+                                <div class="form-group">
                                     <label for="email" class="form-label required-field">Email</label>
-                                    <input type="email" class="form-control" id="email" required>
+                                    <div class="input-with-validation">
+                                        <input type="email" class="form-control" id="email" required>
+                                        <button type="button" class="validation-btn" id="checkEmail">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </div>
                                     <div class="form-text">El email será usado para iniciar sesión</div>
+                                    <div class="error-message" id="emailError"></div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
+                                <div class="form-group">
                                     <label for="role" class="form-label required-field">Rol</label>
                                     <select class="form-select" id="role" required>
                                         <option value="">Seleccionar rol</option>
@@ -79,68 +78,78 @@
                                         <option value="MANAGER">Manager</option>
                                         <option value="CUSTOMER">Customer</option>
                                     </select>
+                                    <div class="error-message" id="roleError"></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Contraseña -->
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <h6 class="border-bottom pb-2">Seguridad</h6>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
+                        <!-- Seguridad -->
+                        <div class="form-section-group">
+                            <h3 class="section-title">Seguridad</h3>
+                            <div class="form-row">
+                                <div class="form-group">
                                     <label for="password" class="form-label required-field">Contraseña</label>
                                     <input type="password" class="form-control" id="password" required minlength="8">
-                                    <div class="form-text">Mínimo 8 caracteres</div>
+                                    <div class="form-text">Mínimo 8 caracteres, debe incluir mayúsculas, minúsculas, números y caracteres especiales</div>
+                                    <div class="error-message" id="passwordError"></div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
+                                <div class="form-group">
                                     <label for="confirmPassword" class="form-label required-field">Confirmar Contraseña</label>
                                     <input type="password" class="form-control" id="confirmPassword" required>
                                     <div class="form-text">Las contraseñas deben coincidir</div>
+                                    <div class="error-message" id="confirmPasswordError"></div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Información Personal -->
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <h6 class="border-bottom pb-2">Información Personal</h6>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
+                        <div class="form-section-group">
+                            <h3 class="section-title">Información Personal</h3>
+                            <div class="form-row">
+                                <div class="form-group">
                                     <label for="firstName" class="form-label required-field">Nombre</label>
                                     <input type="text" class="form-control" id="firstName" required>
+                                    <div class="error-message" id="firstNameError"></div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
+                                <div class="form-group">
                                     <label for="lastName" class="form-label required-field">Apellido</label>
                                     <input type="text" class="form-control" id="lastName" required>
+                                    <div class="error-message" id="lastNameError"></div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
+                            <div class="form-row">
+                                <div class="form-group">
                                     <label for="phone" class="form-label required-field">Teléfono</label>
-                                    <input type="text" class="form-control" id="phone" required>
+                                    <div class="input-with-validation">
+                                        <div class="phone-prefix">+57</div>
+                                        <input type="tel" class="form-control" id="phone" name="phone" required maxlength="10"
+                                            autocomplete="tel" placeholder="3001234567">
+                                        <button type="button" class="validation-btn" id="checkPhone">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </div>
+                                    <div class="error-message" id="phoneError"></div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
+                                <div class="form-group">
                                     <label for="alternatePhone" class="form-label">Teléfono Alternativo</label>
-                                    <input type="text" class="form-control" id="alternatePhone">
+                                    <div class="input-with-validation">
+                                        <div class="phone-prefix">+57</div>
+                                        <input type="tel" class="form-control" id="alternatePhone" name="alternatePhone" 
+                                            maxlength="10" autocomplete="tel" placeholder="3001234567">
+                                        <button type="button" class="validation-btn" id="checkAlternatePhone">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </div>
+                                    <div class="error-message" id="alternatePhoneError"></div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
+                            <div class="form-row">
+                                <div class="form-group">
                                     <label for="dateOfBirth" class="form-label">Fecha de Nacimiento</label>
                                     <input type="date" class="form-control" id="dateOfBirth">
+                                    <div class="error-message" id="dateOfBirthError"></div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
+                                <div class="form-group">
                                     <label for="gender" class="form-label">Género</label>
                                     <select class="form-select" id="gender">
                                         <option value="">Seleccionar género</option>
@@ -148,47 +157,42 @@
                                         <option value="FEMALE">Femenino</option>
                                         <option value="OTHER">Otro</option>
                                     </select>
+                                    <div class="error-message" id="genderError"></div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Configuraciones -->
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <h6 class="border-bottom pb-2">Configuraciones</h6>
-                            </div>
-                            <div class="col-md-4">
+                        <div class="form-section-group">
+                            <h3 class="section-title">Configuraciones</h3>
+                            <div class="settings-grid">
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" id="isActive" checked>
                                     <label class="form-check-label" for="isActive">Usuario Activo</label>
                                 </div>
-                            </div>
-                            <div class="col-md-4">
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
                                     <label class="form-check-label" for="emailNotifications">Notificaciones por Email</label>
                                 </div>
-                            </div>
-                            <div class="col-md-4">
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" id="smsNotifications">
                                     <label class="form-check-label" for="smsNotifications">Notificaciones por SMS</label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="newsletterSubscription" checked>
+                                    <label class="form-check-label" for="newsletterSubscription">Suscripción a Newsletter</label>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Botones -->
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="d-flex justify-content-between">
-                                    <a href="/system-admin/users" class="btn btn-secondary">
-                                        <i class="fas fa-times"></i> Cancelar
-                                    </a>
-                                    <button type="button" class="btn btn-success" onclick="createUser()">
-                                        <i class="fas fa-save"></i> Crear Usuario
-                                    </button>
-                                </div>
-                            </div>
+                        <div class="form-actions">
+                            <a href="/system-admin/users" class="btn-action secondary">
+                                <i class="fas fa-times"></i> Cancelar
+                            </a>
+                            <button type="button" class="btn-action primary" id="createUserBtn">
+                                <i class="fas fa-save"></i> Crear Usuario
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -196,13 +200,28 @@
         </div>
     </div>
 
+    <!-- Notificaciones -->
+    <div class="notification" id="successNotification">
+        <div class="notification-content success">
+            <i class="fas fa-check-circle"></i>
+            <span id="successMessage"></span>
+        </div>
+    </div>
+
+    <div class="notification" id="errorNotification">
+        <div class="notification-content error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span id="errorMessage"></span>
+        </div>
+    </div>
+
     <!-- Modal de éxito -->
     <div class="modal fade" id="successModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header bg-success text-white">
+                <div class="modal-header">
                     <h5 class="modal-title">¡Éxito!</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <p>Usuario creado exitosamente.</p>
@@ -212,86 +231,41 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <a href="/system-admin/users" class="btn btn-primary">Ir a Lista de Usuarios</a>
+                    <button type="button" class="btn-action secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <a href="/system-admin/users" class="btn-action primary">Ir a Lista de Usuarios</a>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Footer -->
+    <footer class="footer" id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>PetLuz</h3>
+                    <p>Tu tienda de confianza para el cuidado de mascotas</p>
+                    <div class="social-links">
+                        <a href="#" aria-label="Facebook">📘</a>
+                        <a href="#" aria-label="Instagram">📷</a>
+                        <a href="#" aria-label="Twitter">🐦</a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Contacto</h4>
+                    <p>📧 info@petluz.com</p>
+                    <p>📞 +57 3114506070</p>
+                    <p>📍 Calle Mascotas 123, Madrid</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 PetLuz. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function createUser() {
-            // Validar contraseñas
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            
-            if (password !== confirmPassword) {
-                alert('Las contraseñas no coinciden');
-                return;
-            }
-
-            if (password.length < 8) {
-                alert('La contraseña debe tener al menos 8 caracteres');
-                return;
-            }
-
-            const userData = {
-                email: document.getElementById('email').value,
-                password: password,
-                firstName: document.getElementById('firstName').value,
-                lastName: document.getElementById('lastName').value,
-                phone: document.getElementById('phone').value,
-                alternatePhone: document.getElementById('alternatePhone').value,
-                dateOfBirth: document.getElementById('dateOfBirth').value,
-                gender: document.getElementById('gender').value,
-                role: document.getElementById('role').value,
-                isActive: document.getElementById('isActive').checked,
-                emailNotifications: document.getElementById('emailNotifications').checked,
-                smsNotifications: document.getElementById('smsNotifications').checked,
-                newsletterSubscription: true
-            };
-
-            fetch('/system-admin/api/users', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(userData)
-            })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    return response.text().then(text => { throw new Error(text) });
-                }
-            })
-            .then(user => {
-                // Mostrar modal de éxito con la contraseña
-                document.getElementById('assignedPassword').textContent = password;
-                const modal = new bootstrap.Modal(document.getElementById('successModal'));
-                modal.show();
-            })
-            .catch(error => {
-                alert('Error al crear usuario: ' + error.message);
-            });
-        }
-
-        // Validación en tiempo real de contraseñas
-        document.getElementById('confirmPassword').addEventListener('input', function() {
-            const password = document.getElementById('password').value;
-            const confirmPassword = this.value;
-            
-            if (confirmPassword && password !== confirmPassword) {
-                this.classList.add('is-invalid');
-                this.classList.remove('is-valid');
-            } else if (confirmPassword) {
-                this.classList.add('is-valid');
-                this.classList.remove('is-invalid');
-            } else {
-                this.classList.remove('is-valid', 'is-invalid');
-            }
-        });
-    </script>
+    <script src="/js/validation.js"></script>
+    <script src="/js/create-user.js"></script>
 </body>
 </html>

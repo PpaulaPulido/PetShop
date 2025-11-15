@@ -1,4 +1,4 @@
-/* Edit User Styles */
+/* Edit User & Create User Styles */
 :root {
     --primary-color: #6A2FB4;
     --secondary-color: #8E44FF;
@@ -19,7 +19,8 @@
     --shadow-hover: 0 15px 40px rgba(106, 47, 180, 0.25);
 }
 
-.edit-user-container {
+.edit-user-container,
+.create-user-container {
     min-height: 100vh;
     padding-top: 80px;
     background: linear-gradient(135deg, #f8f9fa 0%, var(--lavender) 100%);
@@ -34,14 +35,16 @@
 }
 
 /* Header */
-.edit-user-header {
+.edit-user-header,
+.create-user-header {
     text-align: center;
     margin-bottom: 3rem;
     padding: 2rem 0;
     position: relative;
 }
 
-.edit-user-header::after {
+.edit-user-header::after,
+.create-user-header::after {
     content: '';
     position: absolute;
     bottom: 0;
@@ -53,11 +56,13 @@
     border-radius: 2px;
 }
 
-.edit-user-header h1 {
+.edit-user-header h1,
+.create-user-header h1 {
     font-size: 2.5rem;
     font-weight: 700;
     color: var(--primary-color);
     margin-bottom: 1rem;
+    margin-top: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -69,7 +74,13 @@
     font-size: 2.2rem;
 }
 
-.edit-user-header .lead {
+.create-user-header h1 i {
+    color: var(--success);
+    font-size: 2.2rem;
+}
+
+.edit-user-header .lead,
+.create-user-header .lead {
     font-size: 1.2rem;
     color: var(--gray);
     font-weight: 400;
@@ -98,7 +109,7 @@
     color: var(--yellow);
 }
 
-/* Información del Usuario */
+/* Información del Usuario (Solo para editar) */
 .user-info-section {
     margin-bottom: 3rem;
 }
@@ -141,8 +152,8 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: white !important; /* Forzar texto blanco para mejor contraste */
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); /* Sombra para mejor legibilidad */
+    color: white !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .badge.bg-success {
@@ -410,7 +421,6 @@
     cursor: pointer;
     transition: color 0.3s ease;
     flex: 1;
-    margin-left: 20px;
 }
 
 .form-check:hover .form-check-label {
@@ -451,75 +461,6 @@
 .form-check-input:disabled ~ .form-check-label {
     color: var(--gray);
     cursor: not-allowed;
-}
-
-/* Responsive para Configuraciones */
-@media (max-width: 768px) {
-    .settings-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-        padding: 1rem;
-    }
-    
-    .form-check {
-        padding: 0.875rem 1rem;
-    }
-    
-    .form-check-input {
-        width: 3rem !important;
-        height: 1.5rem !important;
-        margin-right: 0.875rem;
-    }
-    
-    .form-check-input:checked {
-        transform: translateX(1.5rem);
-    }
-    
-    .form-check-label {
-        font-size: 0.95rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .settings-grid {
-        gap: 0.75rem;
-        padding: 0.875rem;
-    }
-    
-    .form-check {
-        padding: 0.75rem 0.875rem;
-    }
-    
-    .form-check-input {
-        width: 2.75rem !important;
-        height: 1.375rem !important;
-        margin-right: 0.75rem;
-    }
-    
-    .form-check-input:checked {
-        transform: translateX(1.375rem);
-    }
-    
-    .form-check-label {
-        font-size: 0.9rem;
-    }
-}
-
-/* Animaciones suaves para los switches */
-@keyframes switchToggle {
-    0% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.1);
-    }
-    100% {
-        transform: scale(1);
-    }
-}
-
-.form-check-input:checked {
-    animation: switchToggle 0.3s ease;
 }
 
 /* Botones de acción */
@@ -615,13 +556,31 @@
     font-size: 1.2rem;
 }
 
+/* Modal de éxito (Para crear usuario) */
+.success-modal .modal-header {
+    background: linear-gradient(135deg, var(--success), #45a049);
+    color: var(--white);
+}
+
+.success-modal .modal-content {
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+}
+
+.success-modal .alert-warning {
+    background: var(--yellow-light);
+    border-color: var(--yellow);
+    color: var(--dark-gray);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .container-fluid {
         padding: 0 1rem;
     }
     
-    .edit-user-header h1 {
+    .edit-user-header h1,
+    .create-user-header h1 {
         font-size: 2rem;
         flex-direction: column;
         gap: 0.5rem;
@@ -670,7 +629,8 @@
 }
 
 @media (max-width: 480px) {
-    .edit-user-header h1 {
+    .edit-user-header h1,
+    .create-user-header h1 {
         font-size: 1.7rem;
     }
     
@@ -698,4 +658,21 @@
     .form-check-label {
         font-size: 0.9rem;
     }
+}
+
+/* Animaciones suaves para los switches */
+@keyframes switchToggle {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.form-check-input:checked {
+    animation: switchToggle 0.3s ease;
 }
