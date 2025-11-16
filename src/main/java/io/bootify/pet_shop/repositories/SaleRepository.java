@@ -58,4 +58,16 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
                         "GROUP BY c.name")
         Map<String, Long> getSalesCountByCategory(@Param("start") LocalDateTime start,
                         @Param("end") LocalDateTime end);
+
+        @Query("SELECT s FROM Sale s WHERE s.user.id = :userId ORDER BY s.createdAt DESC")
+        List<Sale> findByUserIdOrderByCreatedAtDesc(@Param("userId") Long userId);
+
+        @Query("SELECT s FROM Sale s WHERE s.id = :id AND s.user.id = :userId")
+        Optional<Sale> findByIdAndUserId(@Param("id") Long id, @Param("userId") Long userId);
+
+        @Query("SELECT s FROM Sale s WHERE s.invoiceNumber = :invoiceNumber AND s.user.id = :userId")
+        Optional<Sale> findByInvoiceNumberAndUserId(@Param("invoiceNumber") String invoiceNumber,
+                        @Param("userId") Long userId);
+
+        Page<Sale> findByUserId(Long userId, Pageable pageable);
 }

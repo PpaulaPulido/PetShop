@@ -23,6 +23,11 @@ public class Sale {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    // NUEVO: Dirección de envío
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shipping_address_id")
+    private Address shippingAddress;
+
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
 
@@ -35,6 +40,10 @@ public class Sale {
 
     @Enumerated(EnumType.STRING)
     private DeliveryMethod deliveryMethod;
+
+    // NUEVO: Instrucciones de entrega
+    @Column(name = "delivery_instructions", length = 500)
+    private String deliveryInstructions;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
@@ -83,6 +92,23 @@ public class Sale {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    // NUEVOS: Getters y Setters para shippingAddress y deliveryInstructions
+    public Address getShippingAddress() {
+        return shippingAddress;
+    }
+
+    public void setShippingAddress(Address shippingAddress) {
+        this.shippingAddress = shippingAddress;
+    }
+
+    public String getDeliveryInstructions() {
+        return deliveryInstructions;
+    }
+
+    public void setDeliveryInstructions(String deliveryInstructions) {
+        this.deliveryInstructions = deliveryInstructions;
     }
 
     public BigDecimal getTotalAmount() {
