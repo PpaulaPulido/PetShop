@@ -7,14 +7,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/")
+@RequestMapping("/customer") // Cambiar la ruta base
 public class CustomerViewController {
-
-    @GetMapping
-    public String home(Model model) {
-        model.addAttribute("pageTitle", "PetShop - Tienda de Mascotas");
-        return "customer/home";
-    }
 
     @GetMapping("/products")
     public String products(Model model) {
