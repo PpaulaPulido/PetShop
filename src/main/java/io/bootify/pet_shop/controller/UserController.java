@@ -15,18 +15,18 @@ public class UserController {
     public String userDashboard(Model model) {
         model.addAttribute("pageTitle", "Mi Cuenta - PetShop");
         model.addAttribute("userRole", "CUSTOMER");
-        return "user/dashboard";
+        return "customer/dashboard";
     }
 
     @GetMapping("/profile")
     public String userProfile(Model model) {
         model.addAttribute("pageTitle", "Mi Perfil - PetShop");
-        return "user/profile";
+        return "customer/profile";
     }
 
     @GetMapping("/orders")
     public String userOrders(Model model) {
         model.addAttribute("pageTitle", "Mis Pedidos - PetShop");
-        return "user/orders";
+        return "customer/orders";
     }
 }
