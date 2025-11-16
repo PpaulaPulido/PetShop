@@ -1,11 +1,13 @@
 package io.bootify.pet_shop.controller;
 
-import io.bootify.pet_shop.dto.UserResponseDTO;
-import io.bootify.pet_shop.services.UserService;
+import io.bootify.pet_shop.dto.CustomerProfileDTO;
+import io.bootify.pet_shop.dto.UpdateCustomerProfileRequest;
+import io.bootify.pet_shop.services.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/customer/profile")
@@ -13,35 +15,40 @@ import org.springframework.web.bind.annotation.*;
 @PreAuthorize("hasRole('CUSTOMER')")
 public class CustomerProfileController {
 
-    private final UserService userService;
+    private final CustomerService customerService;
 
     @GetMapping
-    public ResponseEntity<UserResponseDTO> getProfile() {
-        // El UserService ya tiene lógica para obtener el usuario actual
-        Long currentUserId = userService.getCurrentUser().getId();
-        return ResponseEntity.ok(userService.getUserById(currentUserId));
+    public ResponseEntity<CustomerProfileDTO> getProfile() {
+        return ResponseEntity.ok(customerService.getCustomerProfile());
     }
 
-    // Para customer, solo puede actualizar su propio perfil
     @PutMapping
-    public ResponseEntity<UserResponseDTO> updateProfile(@RequestBody UserResponseDTO request) {
-        Long currentUserId = userService.getCurrentUser().getId();
-        // Necesitarías crear un método específico en UserService para actualización de customer
-        // Por ahora usaremos el existente
-        return ResponseEntity.ok(userService.updateUser(currentUserId, convertToUpdateRequest(request)));
+    public ResponseEntity<CustomerProfileDTO> updateProfile(@ModelAttribute UpdateCustomerProfileRequest request) {
+        return ResponseEntity.ok(customerService.updateCustomerProfile(request));
     }
 
-    // Método helper para convertir UserResponseDTO a UpdateUserRequestDTO
-    private io.bootify.pet_shop.dto.UpdateUserRequestDTO convertToUpdateRequest(UserResponseDTO dto) {
-        io.bootify.pet_shop.dto.UpdateUserRequestDTO request = new io.bootify.pet_shop.dto.UpdateUserRequestDTO();
-        request.setFirstName(dto.getFirstName());
-        request.setLastName(dto.getLastName());
-        request.setPhone(dto.getPhone());
-        request.setAlternatePhone(dto.getAlternatePhone());
-        request.setDateOfBirth(dto.getDateOfBirth());
-        request.setGender(dto.getGender());
-        // No permitir cambiar rol desde customer
-        request.setRole(userService.getCurrentUser().getRole());
-        return request;
+    @PostMapping("/password")
+    public ResponseEntity<Void> changePassword(
+            @RequestParam String currentPassword,
+            @RequestParam String newPassword) {
+        customerService.changePassword(currentPassword, newPassword);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/profile-picture")
+    public ResponseEntity<CustomerProfileDTO> updateProfilePicture(
+            @RequestParam("file") MultipartFile file) {
+        return ResponseEntity.ok(customerService.updateProfilePicture(file));
+    }
+
+    @DeleteMapping("/profile-picture")
+    public ResponseEntity<Void> deleteProfilePicture() {
+        customerService.deleteProfilePicture();
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/complete")
+    public ResponseEntity<Boolean> isProfileComplete() {
+        return ResponseEntity.ok(customerService.isProfileComplete());
     }
 }
