@@ -2,7 +2,6 @@ package io.bootify.pet_shop.services;
 
 import io.bootify.pet_shop.dto.AddressResponseDTO;
 import io.bootify.pet_shop.models.Address;
-import io.bootify.pet_shop.models.AddressType;
 import io.bootify.pet_shop.models.User;
 import io.bootify.pet_shop.repositories.AddressRepository;
 import lombok.RequiredArgsConstructor;
