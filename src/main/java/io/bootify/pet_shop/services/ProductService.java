@@ -10,10 +10,11 @@ import io.bootify.pet_shop.models.User;
 import io.bootify.pet_shop.repositories.CategoryRepository;
 import io.bootify.pet_shop.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,18 +24,22 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final FileStorageService fileStorageService;
+    private final SecurityService securityService;
 
     private User getCurrentUser() {
-        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return securityService.getCurrentUser();
     }
 
-    // Crear producto
     @Transactional
     public ProductResponseDTO createProduct(ProductRequestDTO request) {
         User currentUser = getCurrentUser();
         System.out.println("🛍️ SUPER_ADMIN " + currentUser.getEmail() + " creando producto: " + request.getName());
 
-        // Validar categoría si se proporciona
+        if (productRepository.existsByNameIgnoreCase(request.getName())) {
+            throw new RuntimeException("Ya existe un producto con el nombre: " + request.getName());
+        }
+
         Category category = null;
         if (request.getCategoryId() != null) {
             category = categoryRepository.findById(request.getCategoryId())
@@ -46,37 +51,48 @@ public class ProductService {
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
         product.setStock(request.getStock());
-        product.setMinStock(request.getMinStock() != null ? request.getMinStock() : 10);
-        product.setImageUrl(request.getImageUrl());
+        product.setMinStock(request.getMinStock() != null ? request.getMinStock() : 5);
         product.setType(ProductType.valueOf(request.getType()));
         product.setCategory(category);
         product.setActive(true);
 
         Product savedProduct = productRepository.save(product);
+
+        if (request.getImageFile() != null && !request.getImageFile().isEmpty()) {
+            handleImageUpload(request.getImageFile(), savedProduct);
+            savedProduct = productRepository.save(savedProduct);
+        } else if (request.getImageUrl() != null && !request.getImageUrl().isEmpty()) {
+            savedProduct.setImageUrl(request.getImageUrl());
+            savedProduct = productRepository.save(savedProduct);
+        }
+
         return convertToDTO(savedProduct);
     }
 
-    // Obtener todos los productos
+    @Transactional(readOnly = true)
     public List<ProductResponseDTO> getAllProducts() {
-        return productRepository.findAll()
+        return productRepository.findAllWithCategory()
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
-    // Obtener producto por ID
+    @Transactional(readOnly = true)
     public ProductResponseDTO getProductById(Long id) {
-        Product product = productRepository.findById(id)
+        Product product = productRepository.findByIdWithCategory(id)
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
         return convertToDTO(product);
     }
 
-    // Actualizar producto
     @Transactional
     public ProductResponseDTO updateProduct(Long id, ProductRequestDTO request) {
         User currentUser = getCurrentUser();
-        Product product = productRepository.findById(id)
+        Product product = productRepository.findByIdWithCategory(id)
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        if (productRepository.existsByNameIgnoreCaseAndIdNot(request.getName(), id)) {
+            throw new RuntimeException("Ya existe otro producto con el nombre: " + request.getName());
+        }
 
         System.out.println("✏️ SUPER_ADMIN " + currentUser.getEmail() + " actualizando producto: " + product.getName());
 
@@ -90,23 +106,34 @@ public class ProductService {
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
         product.setMinStock(request.getMinStock());
-        product.setImageUrl(request.getImageUrl());
         product.setType(ProductType.valueOf(request.getType()));
         product.setCategory(category);
+
+        if (request.getActive() != null) {
+            product.setActive(request.getActive());
+        }
+
+        if (request.getImageFile() != null && !request.getImageFile().isEmpty()) {
+            // Si se sube nueva imagen
+            handleImageUpload(request.getImageFile(), product);
+        } else if (request.getImageUrl() != null && !request.getImageUrl().isEmpty()) {
+            // Si se proporciona nueva URL
+            clearUploadedImage(product);
+            product.setImageUrl(request.getImageUrl());
+        } 
 
         Product updatedProduct = productRepository.save(product);
         return convertToDTO(updatedProduct);
     }
 
-    // Gestionar stock
     @Transactional
     public ProductResponseDTO updateStock(Long id, StockUpdateRequestDTO request) {
         User currentUser = getCurrentUser();
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
-        System.out.println("📦 SUPER_ADMIN " + currentUser.getEmail() + 
-                " actualizando stock de " + product.getName() + ": " + request.getOperation() + 
+        System.out.println("📦 SUPER_ADMIN " + currentUser.getEmail() +
+                " actualizando stock de " + product.getName() + ": " + request.getOperation() +
                 " " + request.getQuantity());
 
         switch (request.getOperation().toUpperCase()) {
@@ -130,7 +157,6 @@ public class ProductService {
         return convertToDTO(updatedProduct);
     }
 
-    // Activar/Desactivar producto
     @Transactional
     public ProductResponseDTO toggleProductStatus(Long id) {
         User currentUser = getCurrentUser();
@@ -141,22 +167,52 @@ public class ProductService {
         Product updatedProduct = productRepository.save(product);
 
         String status = product.getActive() ? "activado" : "desactivado";
-        System.out.println("🔘 SUPER_ADMIN " + currentUser.getEmail() + " " + status + " producto: " + product.getName());
+        System.out
+                .println("🔘 SUPER_ADMIN " + currentUser.getEmail() + " " + status + " producto: " + product.getName());
 
         return convertToDTO(updatedProduct);
     }
 
-    // Obtener productos con stock bajo
-    public List<ProductResponseDTO> getLowStockProducts() {
-        return productRepository.findByStockLessThanEqualAndActiveTrue()
+    @Transactional(readOnly = true)
+    public List<ProductResponseDTO> searchProducts(String keyword) {
+        return productRepository.findByNameContainingIgnoreCase(keyword)
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
-    // Buscar productos por nombre
-    public List<ProductResponseDTO> searchProducts(String keyword) {
-        return productRepository.findByNameContainingIgnoreCase(keyword)
+    private void handleImageUpload(MultipartFile imageFile, Product product) {
+        try {
+            if (product.getImageFileName() != null) {
+                fileStorageService.deleteProductFile(product.getImageFileName());
+            }
+
+            FileStorageService.FileInfo fileInfo = fileStorageService.storeProductImage(imageFile, product.getId());
+            product.setImageFileName(fileInfo.getFileName());
+            product.setImageFilePath(fileInfo.getFilePath());
+            product.setImageFileSize(fileInfo.getFileSize());
+            product.setImageUrl(null);
+        } catch (IOException e) {
+            throw new RuntimeException("Error al guardar la imagen: " + e.getMessage());
+        }
+    }
+
+    private void clearUploadedImage(Product product) {
+        if (product.getImageFileName() != null) {
+            try {
+                fileStorageService.deleteProductFile(product.getImageFileName());
+            } catch (IOException e) {
+                System.err.println("Error al eliminar archivo anterior: " + e.getMessage());
+            }
+            product.setImageFileName(null);
+            product.setImageFilePath(null);
+            product.setImageFileSize(null);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductResponseDTO> getLowStockProducts() {
+        return productRepository.findByStockLessThanEqualMinStock()
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -170,10 +226,19 @@ public class ProductService {
         dto.setPrice(product.getPrice());
         dto.setStock(product.getStock());
         dto.setMinStock(product.getMinStock());
-        dto.setImageUrl(product.getImageUrl());
+        dto.setImageUrl(product.getDisplayImage());
+        dto.setHasUploadedImage(product.getImageFileName() != null);
         dto.setActive(product.getActive());
         dto.setType(product.getType().name());
-        dto.setCategoryName(product.getCategory() != null ? product.getCategory().getName() : null);
+
+        if (product.getCategory() != null) {
+            dto.setCategoryName(product.getCategory().getName());
+            dto.setCategoryId(product.getCategory().getId());
+        } else {
+            dto.setCategoryName(null);
+            dto.setCategoryId(null);
+        }
+
         dto.setCreatedAt(product.getCreatedAt());
         dto.setUpdatedAt(product.getUpdatedAt());
         return dto;

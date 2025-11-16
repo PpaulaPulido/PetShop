@@ -16,8 +16,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import io.bootify.pet_shop.config.JwtAuthenticationFilter;
-import io.bootify.pet_shop.config.CustomAuthenticationSuccessHandler;
 
 import java.util.Arrays;
 
@@ -75,14 +73,16 @@ public class SecurityConfig {
                                 "/js/**",
                                 "/images/**",
                                 "/webjars/**",
-                                "/static/**")
+                                "/static/**",
+                                "/api/images/**")
                         .permitAll()
 
                         // Endpoints públicos de API
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/api/products/public/**",
-                                "/api/categories/**")
+                                "/api/categories/**",
+                                "/api/images/**")
                         .permitAll()
 
                         // NUEVAS RUTAS ESPECÍFICAS

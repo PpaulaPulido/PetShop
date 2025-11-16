@@ -64,7 +64,16 @@ public class User {
     private Gender gender;
     
     @Column(name = "profile_picture")
-    private String profilePicture; // URL o path de la imagen
+    private String profilePicture; // URL externa (opcional)
+    
+    @Column(name = "profile_picture_file_name")
+    private String profilePictureFileName; // Nombre del archivo subido
+    
+    @Column(name = "profile_picture_file_path")
+    private String profilePictureFilePath; // Ruta donde se guarda el archivo
+    
+    @Column(name = "profile_picture_file_size")
+    private Long profilePictureFileSize; // Tamaño del archivo en bytes
 
     // Roles y permisos
     @Enumerated(EnumType.STRING)
@@ -150,6 +159,16 @@ public class User {
     // Métodos de utilidad
     public String getFullName() {
         return firstName + " " + lastName;
+    }
+
+    //Método para obtener la imagen de perfil
+    public String getDisplayProfilePicture() {
+        if (profilePictureFileName != null && !profilePictureFileName.isEmpty()) {
+            return "/api/images/users/" + this.id;
+        } else if (profilePicture != null && !profilePicture.isEmpty()) {
+            return profilePicture;
+        }
+        return "/images/default-avatar.png"; // Imagen por defecto
     }
 
     public boolean canManageUsers() {

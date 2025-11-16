@@ -1,0 +1,722 @@
+.sales-content {
+    padding: 2rem;
+}
+
+/* Header de Página */
+.page-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: var(--white);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+    border-radius: 50%;
+}
+
+.header-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+}
+
+.header-text h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--white);
+}
+
+.header-text p {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin-bottom: 0;
+    color: var(--white);
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+/* Estadísticas de Ventas - ESTILOS COMPLETOS */
+.sales-stats-section {
+    margin-bottom: 2rem;
+}
+
+.sales-stats-section .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+}
+
+.sales-stats-section .stat-card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--light-gray);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.sales-stats-section .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sales-stats-section .stat-card:hover::before {
+    opacity: 1;
+}
+
+.sales-stats-section .stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-hover);
+}
+
+.sales-stats-section .stat-icon {
+    width: 48px;
+    height: 48px;
+    background: rgba(106, 47, 180, 0.08);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.sales-stats-section .stat-card:hover .stat-icon {
+    background: rgba(106, 47, 180, 0.12);
+    transform: scale(1.05);
+}
+
+.sales-stats-section .stat-icon i {
+    font-size: 1.2rem;
+    color: var(--primary-color);
+}
+
+.sales-stats-section .stat-content {
+    margin-bottom: 1rem;
+}
+
+.sales-stats-section .stat-number {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--dark-gray);
+    margin-bottom: 0.25rem;
+    line-height: 1;
+    transition: all 0.3s ease;
+}
+
+.sales-stats-section .stat-card:hover .stat-number {
+    color: var(--primary-color);
+}
+
+.sales-stats-section .stat-label {
+    color: var(--gray);
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.sales-stats-section .stat-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 16px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid var(--light-gray);
+    transition: all 0.3s ease;
+}
+
+.sales-stats-section .stat-card:hover .stat-badge {
+    background: var(--white);
+    border-color: var(--lavender);
+}
+
+.sales-stats-section .stat-badge.success {
+    color: var(--success);
+}
+
+.sales-stats-section .stat-badge.warning {
+    color: var(--warning);
+}
+
+.sales-stats-section .stat-badge.primary {
+    color: var(--primary-color);
+}
+
+.sales-stats-section .stat-badge i {
+    font-size: 0.7rem;
+}
+
+/* Filtros */
+.filters-section {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--light-gray);
+    margin-bottom: 2rem;
+}
+
+.filters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    align-items: end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.filter-label {
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.filter-select,
+.filter-input {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--light-gray);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    background: var(--white);
+}
+
+.filter-select:focus,
+.filter-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(106, 47, 180, 0.1);
+}
+
+.search-input-group {
+    position: relative;
+}
+
+.search-input {
+    padding-right: 2.5rem;
+    width: 100%;
+}
+
+.search-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gray);
+}
+
+/* Lista de Ventas */
+.sales-list-section {
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--light-gray);
+    overflow: hidden;
+}
+
+.sales-list-section .section-header {
+    padding: 1.5rem;
+    margin-bottom: 0;
+    border-bottom: 1px solid var(--light-gray);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-title {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.header-title h2 {
+    margin-bottom: 0;
+    font-size: 1.3rem;
+}
+
+.sales-count-badge {
+    background: var(--primary-color);
+    color: var(--white);
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.sales-table-container {
+    overflow-x: auto;
+}
+
+.sales-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.sales-table thead {
+    background: var(--lavender);
+}
+
+.sales-table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--dark-gray);
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--light-gray);
+}
+
+.sales-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--light-gray);
+    vertical-align: middle;
+}
+
+.sales-table tbody tr {
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateX(-20px);
+}
+
+.sales-table tbody tr.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.sales-table tbody tr:hover {
+    background: rgba(106, 47, 180, 0.02);
+}
+
+/* Estados de venta */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border: 1px solid;
+}
+
+.status-pending {
+    background: rgba(255, 152, 0, 0.1);
+    color: var(--warning);
+    border-color: rgba(255, 152, 0, 0.2);
+}
+
+.status-confirmed {
+    background: rgba(33, 150, 243, 0.1);
+    color: #2196F3;
+    border-color: rgba(33, 150, 243, 0.2);
+}
+
+.status-paid {
+    background: rgba(76, 175, 80, 0.1);
+    color: var(--success);
+    border-color: rgba(76, 175, 80, 0.2);
+}
+
+.status-shipped {
+    background: rgba(158, 158, 158, 0.1);
+    color: #9E9E9E;
+    border-color: rgba(158, 158, 158, 0.2);
+}
+
+.status-delivered {
+    background: rgba(76, 175, 80, 0.15);
+    color: var(--success);
+    border-color: rgba(76, 175, 80, 0.3);
+}
+
+.status-cancelled {
+    background: rgba(244, 67, 54, 0.1);
+    color: var(--error);
+    border-color: rgba(244, 67, 54, 0.2);
+}
+
+/* Acciones */
+.actions-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.action-btn.view {
+    background: rgba(33, 150, 243, 0.1);
+    color: #2196F3;
+}
+
+.action-btn.edit {
+    background: rgba(255, 152, 0, 0.1);
+    color: var(--warning);
+}
+
+.action-btn.cancel {
+    background: rgba(244, 67, 54, 0.1);
+    color: var(--error);
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.action-btn.view:hover {
+    background: #2196F3;
+    color: white;
+}
+
+.action-btn.edit:hover {
+    background: var(--warning);
+    color: white;
+}
+
+.action-btn.cancel:hover {
+    background: var(--error);
+    color: white;
+}
+
+/* Paginación */
+.pagination-container {
+    padding: 1.5rem;
+    border-top: 1px solid var(--light-gray);
+}
+
+.pagination-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pagination-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border: 1px solid var(--light-gray);
+    border-radius: 8px;
+    background: var(--white);
+    color: var(--dark-gray);
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    transform: translateY(-1px);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.page-info {
+    font-weight: 500;
+    color: var(--dark-gray);
+}
+
+/* Loading States */
+.loading-content {
+    text-align: center;
+    color: var(--gray);
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.loading-spinner.large {
+    width: 40px;
+    height: 40px;
+    border-width: 3px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--gray);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state h4 {
+    margin-bottom: 0.5rem;
+    color: var(--dark-gray);
+}
+
+/* Modal Styles */
+.modal-content {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--light-gray);
+    background: var(--lavender);
+}
+
+.modal-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    padding: 1.5rem;
+    border-top: 1px solid var(--light-gray);
+    gap: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.form-select,
+.form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--light-gray);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.form-select:focus,
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(106, 47, 180, 0.1);
+}
+
+/* Botones de Acción */
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    cursor: pointer;
+    font-size: 1rem;
+    background: none;
+    font-family: inherit;
+}
+
+.btn-action.primary {
+    background: var(--primary-color);
+    color: var(--white);
+    border-color: var(--primary-color);
+}
+
+.btn-action.primary:hover {
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+.btn-action.secondary {
+    background: transparent;
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-action.secondary:hover {
+    background: var(--primary-color);
+    color: var(--white);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+.btn-action.small {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+}
+
+.btn-action:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .header-content {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        text-align: center;
+    }
+    
+    .header-actions {
+        justify-content: center;
+    }
+    
+    .filters-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .sales-content {
+        padding: 1rem;
+    }
+    
+    .page-header {
+        padding: 1.5rem;
+    }
+    
+    .header-text h1 {
+        font-size: 1.4rem;
+    }
+    
+    .filters-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .sales-list-section .section-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .header-title {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .sales-table {
+        font-size: 0.85rem;
+    }
+    
+    .sales-table th,
+    .sales-table td {
+        padding: 0.75rem 0.5rem;
+    }
+    
+    .actions-group {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .action-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 0.8rem;
+    }
+    
+    .pagination-content {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .sales-stats-section .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .header-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .header-actions .btn-action {
+        width: 100%;
+    }
+    
+    .modal-dialog {
+        margin: 1rem;
+    }
+    
+    .sales-stats-section .stat-card {
+        padding: 1.25rem;
+    }
+    
+    .sales-stats-section .stat-number {
+        font-size: 1.5rem;
+    }
+}

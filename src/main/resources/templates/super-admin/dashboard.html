@@ -1,187 +1,179 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Sistema - PetLuz</title>
+    <title>Dashboard - PetLuz</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/base_system.css">
-    <link rel="stylesheet" href="/css/system_dashboard.css">
+    <link rel="stylesheet" href="/css/base_super_admin.css">
+    <link rel="stylesheet" href="/css/super_dashboard.css">
 </head>
+
 <body>
-    <!-- Navbar -->
-    <nav class="navbar system-navbar">
-        <div class="nav-container">
-            <div class="nav-logo">
-                <a href="/system-admin/dashboard">
-                    <i class="fas fa-paw"></i>
-                    <span>PetLuz</span>
-                </a>
-            </div>
-            <div class="nav-actions">
-                <span class="user-role">
-                    <i class="fas fa-user-shield"></i> SYSTEM_ADMIN
-                </span>
-                <a href="/auth/logout" class="btn-logout">
-                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-                </a>
-            </div>
-        </div>
-    </nav>
+    <div class="system-layout">
+        <div th:replace="~{/super-admin/sidebar :: super-admin-sidebar}"></div>
 
-    <!-- Contenido principal -->
-    <div class="dashboard-container">
-        <div class="container-fluid">
-            <!-- Header -->
-            <div class="dashboard-header">
-                <h1><i class="fas fa-cogs"></i> Panel de Administración del Sistema</h1>
-                <p class="lead">Bienvenido al panel exclusivo de SYSTEM_ADMIN</p>
-            </div>
+        <div class="main-content">
+            <header class="top-bar">
+                <div class="top-bar-content">
+                    <div class="page-title">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard Principal</span>
+                    </div>
+                    <div class="top-bar-actions">
+                        <div class="current-time">
+                            <i class="fas fa-clock"></i>
+                            <span id="current-time">Cargando...</span>
+                        </div>
+                        <div class="user-welcome">
+                            <i class="fas fa-user-shield"></i>
+                            <span>Super Admin</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
 
-            <!-- Estadísticas Rápidas -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="card-body">
-                        <div class="stat-icon">
-                            <i class="fas fa-users"></i>
+            <div class="dashboard-content">
+                <section class="welcome-section fade-in">
+                    <div class="welcome-content">
+                        <div class="welcome-text">
+                            <h1>¡Bienvenido, <span class="text-gradient">Super Administrador</span>!</h1>
+                            <p>Gestiona tu tienda de mascotas desde este panel centralizado.</p>
                         </div>
-                        <div class="stat-number" id="totalUsers">0</div>
-                        <div class="stat-label">Total Usuarios</div>
-                    </div>
-                    <div class="card-wave"></div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="card-body">
-                        <div class="stat-icon">
-                            <i class="fas fa-user-check"></i>
+                        <div class="welcome-actions">
+                            <button class="btn-action primary" onclick="location.href='/super-admin/products'">
+                                <i class="fas fa-plus"></i> Nuevo Producto
+                            </button>
+                            <button class="btn-action secondary" onclick="location.href='/super-admin/inventory'">
+                                <i class="fas fa-warehouse"></i> Ver Inventario
+                            </button>
                         </div>
-                        <div class="stat-number" id="activeUsers">0</div>
-                        <div class="stat-label">Usuarios Activos</div>
                     </div>
-                    <div class="card-wave"></div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="card-body">
-                        <div class="stat-icon">
-                            <i class="fas fa-user-times"></i>
-                        </div>
-                        <div class="stat-number" id="inactiveUsers">0</div>
-                        <div class="stat-label">Usuarios Inactivos</div>
-                    </div>
-                    <div class="card-wave"></div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="card-body">
-                        <div class="stat-icon">
-                            <i class="fas fa-shield-alt"></i>
-                        </div>
-                        <div class="stat-number" id="adminUsers">0</div>
-                        <div class="stat-label">Administradores</div>
-                    </div>
-                    <div class="card-wave"></div>
-                </div>
-            </div>
+                </section>
 
-            <!-- Acciones Rápidas -->
-            <div class="quick-actions-section">
-                <div class="section-header">
-                    <h2><i class="fas fa-bolt"></i> Acciones Rápidas</h2>
-                </div>
-                <div class="quick-actions-grid">
-                    <a href="/system-admin/users" class="quick-action-card">
-                        <div class="action-icon">
-                            <i class="fas fa-users-cog"></i>
-                        </div>
-                        <div class="action-content">
-                            <h3>Gestionar Usuarios</h3>
-                            <p>Administra todos los usuarios del sistema</p>
-                        </div>
-                        <div class="action-arrow">
-                            <i class="fas fa-chevron-right"></i>
-                        </div>
-                    </a>
-                    
-                    <a href="/system-admin/users/create" class="quick-action-card">
-                        <div class="action-icon">
-                            <i class="fas fa-user-plus"></i>
-                        </div>
-                        <div class="action-content">
-                            <h3>Crear Usuario</h3>
-                            <p>Agrega un nuevo usuario al sistema</p>
-                        </div>
-                        <div class="action-arrow">
-                            <i class="fas fa-chevron-right"></i>
-                        </div>
-                    </a>
-                    
-                    <div class="quick-action-card coming-soon">
-                        <div class="action-icon">
-                            <i class="fas fa-chart-bar"></i>
-                        </div>
-                        <div class="action-content">
-                            <h3>Reportes Avanzados</h3>
-                            <p>Próximamente - Análisis detallados</p>
-                        </div>
-                        <div class="coming-soon-badge">Próximamente</div>
+                <section class="stats-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-chart-bar"></i> Resumen General</h2>
+                        <p>Métricas clave de tu tienda</p>
                     </div>
-                </div>
-            </div>
 
-            <!-- Usuarios Recientes -->
-            <div class="recent-users-section">
-                <div class="section-header">
-                    <h2><i class="fas fa-clock"></i> Usuarios Recientes</h2>
-                    <a href="/system-admin/users" class="view-all-btn">Ver Todos</a>
-                </div>
-                <div class="users-grid" id="recentUsersGrid">
-                    <!-- Los usuarios se cargarán aquí via JavaScript -->
-                    <div class="loading-users">
-                        <div class="loader-spinner"></div>
-                        <p>Cargando usuarios...</p>
+                    <div class="stats-grid">
+                        <div class="stat-card fade-in">
+                            <div class="stat-icon">
+                                <i class="fas fa-box"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 class="stat-number" id="total-products">0</h3>
+                                <p class="stat-label">Total Productos</p>
+                            </div>
+                            <div class="stat-badge success">
+                                <i class="fas fa-check-circle"></i>
+                                <span id="active-products">0</span> activos
+                            </div>
+                        </div>
+
+                        <div class="stat-card fade-in">
+                            <div class="stat-icon">
+                                <i class="fas fa-warehouse"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 class="stat-number" id="low-stock-products">0</h3>
+                                <p class="stat-label">Stock Bajo</p>
+                            </div>
+                            <div class="stat-badge warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <span id="out-of-stock-products">0</span> sin stock
+                            </div>
+                        </div>
+
+                        <div class="stat-card fade-in">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 class="stat-number" id="total-customers">0</h3>
+                                <p class="stat-label">Total Clientes</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card fade-in">
+                            <div class="stat-icon">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 class="stat-number" id="total-managers">0</h3>
+                                <p class="stat-label">Total Managers</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="row mt-4">
+                    <div class="col-lg-12 mb-4">
+                        <div class="section-header">
+                            <h2><i class="fas fa-bell"></i> Alertas y Notificaciones</h2>
+                        </div>
+                        <div class="alerts-container" id="alerts-container">
+                            <div class="text-center">
+                                <div class="loading-spinner"></div>
+                                <p class="mt-2">Cargando alertas...</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
+                <section class="actions-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-bolt"></i> Acciones Rápidas</h2>
+                    </div>
+
+                    <div class="actions-grid">
+                        <div class="action-card fade-in" onclick="location.href='/super-admin/products'">
+                            <div class="action-icon">
+                                <i class="fas fa-box"></i>
+                            </div>
+                            <h4>Gestionar Productos</h4>
+                            <p>Agregar, editar o eliminar productos</p>
+                        </div>
+
+                        <div class="action-card fade-in" onclick="location.href='/super-admin/inventory'">
+                            <div class="action-icon">
+                                <i class="fas fa-warehouse"></i>
+                            </div>
+                            <h4>Control de Inventario</h4>
+                            <p>Gestionar stock y niveles</p>
+                        </div>
+
+                        <div class="action-card fade-in" onclick="location.href='/super-admin/categories'">
+                            <div class="action-icon">
+                                <i class="fas fa-tags"></i>
+                            </div>
+                            <h4>Gestionar Categorías</h4>
+                            <p>Organizar productos por categorías</p>
+                        </div>
+
+                        <div class="action-card fade-in" onclick="location.href='/super-admin/reports'">
+                            <div class="action-icon">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <h4>Ver Reportes</h4>
+                            <p>Análisis de ventas y rendimiento</p>
+                        </div>
+                    </div>
+                </section>
             </div>
+            <div th:replace="~{/shared/footer :: footer-pedLUz}"></div>
+
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="footer" id="contact">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>PetLuz</h3>
-                    <p>Tu tienda de confianza para el cuidado de mascotas</p>
-                    <div class="social-links">
-                        <a href="#" aria-label="Facebook">📘</a>
-                        <a href="#" aria-label="Instagram">📷</a>
-                        <a href="#" aria-label="Twitter">🐦</a>
-                    </div>
-                </div>
-                <div class="footer-section">
-                    <h4>Contacto</h4>
-                    <p>📧 info@petluz.com</p>
-                    <p>📞 +57 3114506070</p>
-                    <p>📍 Calle Mascotas 123, Madrid</p>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2024 PetLuz. Todos los derechos reservados.</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Canvas para partículas -->
-    <canvas id="particleCanvas" class="particle-canvas"></canvas>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/js/animations.js"></script>
-    <script src="/js/system_dashboard.js"></script>
+    <script src="/js/sidebar.js"></script>
+    <script src="/js/common-admin.js"></script>
+    <script src="/js/super_admin_dashboard.js"></script>
 </body>
+
 </html>

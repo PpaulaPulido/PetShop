@@ -5,6 +5,8 @@ import lombok.Data;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import org.springframework.web.multipart.MultipartFile;
+
 @Data
 public class UserDTO {
     private Long id;
@@ -22,4 +24,6 @@ public class UserDTO {
     private Boolean emailVerified;
     private Boolean phoneVerified;
     private LocalDateTime createdAt;
+    private MultipartFile profilePictureFile;
+    private String profilePicture; 
 }

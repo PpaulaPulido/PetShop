@@ -3,6 +3,7 @@ package io.bootify.pet_shop.dto;
 import io.bootify.pet_shop.models.Gender;
 import io.bootify.pet_shop.models.Role;
 import lombok.Data;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -17,6 +18,8 @@ public class UserResponseDTO {
     private String alternatePhone;
     private LocalDate dateOfBirth;
     private Gender gender;
+    private String profilePicture; 
+    private Boolean hasUploadedProfilePicture;
     private Role role;
     private Boolean isActive;
     private LocalDateTime lastLogin;

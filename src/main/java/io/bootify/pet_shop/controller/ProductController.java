@@ -5,6 +5,7 @@ import io.bootify.pet_shop.dto.ProductResponseDTO;
 import io.bootify.pet_shop.dto.StockUpdateRequestDTO;
 import io.bootify.pet_shop.services.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +20,9 @@ public class ProductController {
 
     private final ProductService productService;
 
-    @PostMapping
-    public ResponseEntity<ProductResponseDTO> createProduct(@RequestBody ProductRequestDTO request) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ProductResponseDTO> createProduct(
+            @ModelAttribute ProductRequestDTO request) {
         return ResponseEntity.ok(productService.createProduct(request));
     }
 
@@ -34,10 +36,10 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductById(id));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ProductResponseDTO> updateProduct(
             @PathVariable Long id, 
-            @RequestBody ProductRequestDTO request) {
+            @ModelAttribute ProductRequestDTO request) {
         return ResponseEntity.ok(productService.updateProduct(id, request));
     }
 

@@ -1,0 +1,705 @@
+/* inventory.css - Versión Compacta */
+:root {
+    --primary-color: #6A2FB4;
+    --secondary-color: #8E44FF;
+    --primary-light: #8E44FF;
+    --primary-dark: #5A2A9D;
+    --lavender: #F4F0FF;
+    --gray: #6B6B6B;
+    --light-gray: #E9E7F7;
+    --dark-gray: #4A4A4A;
+    --yellow: #FFD166;
+    --yellow-light: #FFE4A1;
+    --white: #FFFFFF;
+    --black: #333333;
+    --success: #4CAF50;
+    --warning: #FF9800;
+    --error: #f44336;
+    --info: #2196F3;
+    --shadow: 0 4px 15px rgba(106, 47, 180, 0.1);
+    --shadow-hover: 0 8px 25px rgba(106, 47, 180, 0.15);
+}
+
+.dashboard-content{
+    padding: 2rem;
+}
+/* Sección de estadísticas COMPACTA */
+.stats-section {
+    margin-bottom: 1.5rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.stat-card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--light-gray);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 90px;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--primary-color);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.stat-card:hover::before {
+    opacity: 1;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-hover);
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: var(--white);
+    flex-shrink: 0;
+}
+
+.stat-icon.critical {
+    background: linear-gradient(135deg, var(--error), #e53935);
+}
+
+.stat-icon.warning {
+    background: linear-gradient(135deg, var(--warning), #f57c00);
+}
+
+.stat-icon.success {
+    background: linear-gradient(135deg, var(--success), #43a047);
+}
+
+.stat-icon.primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+}
+
+.stat-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.stat-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+    line-height: 1;
+    color: var(--dark-gray);
+}
+
+.stat-label {
+    color: var(--gray);
+    font-weight: 500;
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+}
+
+.stat-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid var(--light-gray);
+}
+
+.stat-badge.critical {
+    color: var(--error);
+    border-color: rgba(244, 67, 54, 0.2);
+}
+
+.stat-badge.warning {
+    color: var(--warning);
+    border-color: rgba(255, 152, 0, 0.2);
+}
+
+/* Sección de gráficos compacta */
+.charts-section {
+    margin-bottom: 1.5rem;
+}
+
+.chart-card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--light-gray);
+    height: 100%;
+    transition: all 0.3s ease;
+}
+
+.chart-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.chart-header h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin: 0;
+}
+
+.chart-legend {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--gray);
+}
+
+.legend-color {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.btn-chart-action {
+    background: var(--lavender);
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+    transition: all 0.3s ease;
+    font-size: 0.8rem;
+}
+
+.btn-chart-action:hover {
+    background: var(--primary-color);
+    color: var(--white);
+    transform: scale(1.1);
+}
+
+.chart-container {
+    position: relative;
+    height: 200px;
+    width: 100%;
+}
+
+/* Sección de filtros compacta */
+.filters-section {
+    margin-bottom: 1.5rem;
+}
+
+.filter-card {
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--light-gray);
+    overflow: hidden;
+}
+
+.filter-header {
+    padding: 1.25rem;
+    border-bottom: 1px solid var(--light-gray);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.filter-header h5 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin: 0;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.filter-body {
+    padding: 1.25rem;
+}
+
+.form-group {
+    margin-bottom: 0;
+}
+
+.form-label {
+    font-weight: 500;
+    color: var(--dark-gray);
+    margin-bottom: 0.4rem;
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+/* Sección de inventario compacta */
+.inventory-section {
+    margin-bottom: 1.5rem;
+}
+
+.inventory-card {
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--light-gray);
+    overflow: hidden;
+}
+
+.inventory-header {
+    padding: 1.25rem;
+    border-bottom: 1px solid var(--light-gray);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.inventory-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.inventory-title h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin: 0;
+}
+
+.inventory-count {
+    background: var(--lavender);
+    color: var(--primary-color);
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.inventory-actions {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.btn-refresh {
+    background: var(--lavender);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+    transition: all 0.3s ease;
+    font-size: 0.8rem;
+}
+
+.btn-refresh:hover {
+    background: var(--primary-color);
+    color: var(--white);
+    transform: rotate(180deg);
+}
+
+.inventory-body {
+    padding: 0;
+}
+
+/* Tabla de inventario compacta */
+.table {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.table thead th {
+    background: var(--lavender);
+    border-bottom: 2px solid var(--light-gray);
+    font-weight: 600;
+    color: var(--dark-gray);
+    padding: 0.75rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.table tbody td {
+    padding: 0.75rem;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--light-gray);
+}
+
+/* Estados de stock compactos */
+.stock-critical { 
+    background: rgba(244, 67, 54, 0.05);
+    border-left: 3px solid var(--error);
+}
+
+.stock-low { 
+    background: rgba(255, 152, 0, 0.05);
+    border-left: 3px solid var(--warning);
+}
+
+.stock-ok { 
+    background: rgba(76, 175, 80, 0.05);
+    border-left: 3px solid var(--success);
+}
+
+.stock-excellent { 
+    background: rgba(33, 150, 243, 0.05);
+    border-left: 3px solid var(--info);
+}
+
+/* Badges de stock compactos */
+.badge {
+    font-size: 0.7rem;
+    font-weight: 500;
+    padding: 0.3rem 0.6rem;
+    border-radius: 12px;
+}
+
+.badge-out-of-stock { 
+    background: rgba(244, 67, 54, 0.1);
+    color: var(--error);
+    border: 1px solid rgba(244, 67, 54, 0.2);
+}
+
+.badge-critical { 
+    background: rgba(255, 152, 0, 0.1);
+    color: var(--warning);
+    border: 1px solid rgba(255, 152, 0, 0.2);
+}
+
+.badge-low { 
+    background: rgba(255, 193, 7, 0.1);
+    color: #b38700;
+    border: 1px solid rgba(255, 193, 7, 0.2);
+}
+
+.badge-ok { 
+    background: rgba(76, 175, 80, 0.1);
+    color: var(--success);
+    border: 1px solid rgba(76, 175, 80, 0.2);
+}
+
+.badge-excellent { 
+    background: rgba(33, 150, 243, 0.1);
+    color: var(--info);
+    border: 1px solid rgba(33, 150, 243, 0.2);
+}
+
+/* Progress bars compactos */
+.progress {
+    height: 6px;
+    background: var(--light-gray);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    border-radius: 8px;
+    transition: width 0.6s ease;
+}
+
+/* Botones de acción compactos */
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    cursor: pointer;
+    font-size: 0.85rem;
+    background: none;
+    font-family: inherit;
+}
+
+.btn-action.primary {
+    background: var(--primary-color);
+    color: var(--white);
+    border-color: var(--primary-color);
+}
+
+.btn-action.primary:hover {
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+.btn-action.secondary {
+    background: transparent;
+    color: var(--gray);
+    border-color: var(--light-gray);
+}
+
+.btn-action.secondary:hover {
+    background: var(--light-gray);
+    color: var(--dark-gray);
+    transform: translateY(-2px);
+}
+
+.btn-action.success {
+    background: var(--success);
+    color: var(--white);
+    border-color: var(--success);
+}
+
+.btn-action.success:hover {
+    background: #45a049;
+    border-color: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3);
+}
+
+/* Modales compactos */
+.modal-content {
+    border: none;
+    border-radius: 12px;
+    box-shadow: var(--shadow-hover);
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--light-gray);
+    padding: 1.25rem;
+}
+
+.modal-title {
+    font-weight: 600;
+    color: var(--dark-gray);
+    display: flex;
+    align-items: center;
+    font-size: 1.1rem;
+}
+
+.modal-body {
+    padding: 1.25rem;
+}
+
+.modal-footer {
+    border-top: 1px solid var(--light-gray);
+    padding: 1.25rem;
+}
+
+/* Información del producto en modal compacto */
+.product-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: var(--lavender);
+    border-radius: 10px;
+    margin-bottom: 1.25rem;
+}
+
+.product-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-details h6 {
+    margin: 0;
+    font-weight: 600;
+    color: var(--dark-gray);
+    font-size: 0.95rem;
+}
+
+.product-details p {
+    margin: 0;
+    font-size: 0.8rem;
+}
+
+.info-box {
+    text-align: center;
+    padding: 0.75rem;
+    background: var(--lavender);
+    border-radius: 8px;
+}
+
+.info-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* Selección de productos para ajuste masivo compacto */
+.products-selection {
+    border: 1px solid var(--light-gray);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.selection-header {
+    padding: 0.75rem;
+    background: var(--lavender);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--light-gray);
+}
+
+.selected-count {
+    font-size: 0.8rem;
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.products-list {
+    max-height: 180px;
+    overflow-y: auto;
+    padding: 0.4rem;
+}
+
+.product-check-item {
+    padding: 0.6rem;
+    border-bottom: 1px solid var(--light-gray);
+    transition: background 0.3s ease;
+    font-size: 0.85rem;
+}
+
+.product-check-item:last-child {
+    border-bottom: none;
+}
+
+.product-check-item:hover {
+    background: var(--lavender);
+}
+
+/* Animaciones */
+.fade-in {
+    opacity: 0;
+    transform: translateY(15px);
+    transition: all 0.5s ease;
+}
+
+.fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Responsive para diseño compacto */
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+    
+    .stat-card {
+        padding: 1rem;
+        min-height: 80px;
+    }
+    
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.1rem;
+    }
+    
+    .stat-number {
+        font-size: 1.3rem;
+    }
+    
+    .filter-header {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: flex-start;
+    }
+    
+    .filter-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+    
+    .inventory-header {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: flex-start;
+    }
+    
+    .inventory-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+    
+    .table-responsive {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .chart-header {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: flex-start;
+    }
+    
+    .filter-actions {
+        flex-direction: column;
+    }
+    
+    .btn-action {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .product-info {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .chart-container {
+        height: 180px;
+    }
+}

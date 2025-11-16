@@ -28,9 +28,18 @@ public class Product {
     private Integer stock;
 
     @Column(name = "min_stock")
-    private Integer minStock = 10;
+    private Integer minStock = 5;
 
-    private String imageUrl;
+    private String imageUrl; // Para URLs externas (opcional)
+    
+    @Column(name = "image_file_name")
+    private String imageFileName; // Nombre del archivo subido
+    
+    @Column(name = "image_file_path")
+    private String imageFilePath; // Ruta donde se guarda el archivo
+    
+    @Column(name = "image_file_size")
+    private Long imageFileSize; // Tamaño del archivo en bytes
 
     @Column(nullable = false)
     private Boolean active = true;
@@ -124,6 +133,45 @@ public class Product {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    // NUEVOS: Getters y Setters para manejo de archivos
+    public String getImageFileName() {
+        return imageFileName;
+    }
+
+    public void setImageFileName(String imageFileName) {
+        this.imageFileName = imageFileName;
+    }
+
+    public String getImageFilePath() {
+        return imageFilePath;
+    }
+
+    public void setImageFilePath(String imageFilePath) {
+        this.imageFilePath = imageFilePath;
+    }
+
+    public Long getImageFileSize() {
+        return imageFileSize;
+    }
+
+    public void setImageFileSize(Long imageFileSize) {
+        this.imageFileSize = imageFileSize;
+    }
+
+    // Método auxiliar para obtener la URL de la imagen
+    public String getDisplayImage() {
+        if (this.imageFileName != null && !this.imageFileName.isEmpty()) {
+            // Usar la ruta del ImageController
+            return "/api/images/products/" + this.id;
+        } else if (this.imageUrl != null && !this.imageUrl.isEmpty()) {
+            // Si hay URL externa, usar esa
+            return this.imageUrl;
+        } else {
+            // Si no hay nada, usar imagen por defecto
+            return "/images/default-product.png";
+        }
     }
 
     public Boolean getActive() {

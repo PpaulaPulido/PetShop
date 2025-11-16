@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Producto - PetLuz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/base_super_admin.css">
+    <link rel="stylesheet" href="/css/super_product_form.css">
+</head>
+
+<body>
+    <div class="system-layout">
+        <div th:replace="~{/super-admin/sidebar :: super-admin-sidebar}"></div>
+
+        <div class="main-content">
+            <header class="top-bar">
+                <div class="top-bar-content">
+                    <div class="page-title">
+                        <i class="fas fa-edit"></i>
+                        <span id="formTitle">Nuevo Producto</span>
+                    </div>
+                    <div class="top-bar-actions">
+                        <div class="current-time">
+                            <i class="fas fa-clock"></i>
+                            <span id="current-time">Cargando...</span>
+                        </div>
+                        <div class="user-welcome">
+                            <i class="fas fa-user-shield"></i>
+                            <span>Super Admin</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="product-form-content">
+                <!-- Header del Formulario -->
+                <div class="form-header fade-in">
+                    <div class="header-content">
+                        <div class="header-text">
+                            <h1><span class="text-gradient" id="mainFormTitle">Nuevo Producto</span></h1>
+                            <p id="formSubtitle">Agrega un nuevo producto al catálogo de PetLuz</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn-action secondary" onclick="location.href='/super-admin/products'">
+                                <i class="fas fa-arrow-left"></i> Volver
+                            </button>
+                            <button class="btn-action primary" onclick="saveProduct()">
+                                <i class="fas fa-save"></i> Guardar Producto
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulario -->
+                <div class="form-container">
+                    <div class="form-grid">
+                        <!-- Columna Principal -->
+                        <div class="form-main-column">
+                            <!-- Información Básica -->
+                            <section class="form-section fade-in">
+                                <div class="section-header">
+                                    <h2><i class="fas fa-info-circle"></i> Información Básica</h2>
+                                    <p>Datos principales del producto</p>
+                                </div>
+
+                                <form id="productForm" enctype="multipart/form-data">
+                                    <input type="hidden" id="productId">
+
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="name" class="form-label required-field">Nombre del
+                                                Producto</label>
+                                            <input type="text" class="form-control" id="name" required
+                                                placeholder="Ej: Comida para perros premium">
+                                            <div class="form-feedback" id="nameFeedback"></div>
+                                            <div class="form-hint">
+                                                Mínimo 1 palabra. Si es una palabra, mínimo 3 caracteres. Máximo 100
+                                                caracteres.
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="type" class="form-label required-field">Tipo de Producto</label>
+                                            <select class="form-select" id="type" required>
+                                                <option value="">Seleccionar tipo</option>
+                                                <option value="FOOD">🍖 Comida</option>
+                                                <option value="ACCESSORY">🐕 Accesorio</option>
+                                                <option value="TOY">🎾 Juguete</option>
+                                                <option value="MEDICINE">💊 Medicina</option>
+                                                <option value="HYGIENE">🧼 Higiene</option>
+                                                <option value="OTHER">📦 Otro</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="form-group">
+                                        <label for="description" class="form-label">Descripción</label>
+                                        <textarea class="form-control" id="description" rows="4"
+                                            placeholder="Describe las características, beneficios y especificaciones del producto..."></textarea>
+                                        <div class="form-feedback" id="descriptionFeedback"></div>
+                                        <div class="form-hint">
+                                            Opcional. Si se ingresa, mínimo 3 palabras, máximo 50 palabras.
+                                        </div>
+                                    </div>
+                                </form>
+                            </section>
+
+                            <!-- Precio y Stock -->
+                            <section class="form-section fade-in">
+                                <div class="section-header">
+                                    <h2><i class="fas fa-dollar-sign"></i> Precio y Stock</h2>
+                                    <p>Información de inventario y precios</p>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="price" class="form-label required-field">Precio</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input type="number" class="form-control" id="price" step="0.01" min="0"
+                                                required placeholder="0.00">
+                                        </div>
+                                        <div class="form-hint">Precio de venta al público</div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="stock" class="form-label required-field">Stock Inicial</label>
+                                        <input type="number" class="form-control" id="stock" min="0" required
+                                            placeholder="0">
+                                        <div class="form-hint">Cantidad disponible</div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="minStock" class="form-label">Stock Mínimo</label>
+                                        <input type="number" class="form-control" id="minStock" min="0" value="10"
+                                            placeholder="10">
+                                        <div class="form-hint">Alerta cuando el stock sea menor</div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- Categoría -->
+                            <section class="form-section fade-in">
+                                <div class="section-header">
+                                    <h2><i class="fas fa-tags"></i> Categoría</h2>
+                                    <p>Organización del catálogo</p>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="categoryId" class="form-label">Categoría</label>
+                                        <select class="form-select" id="categoryId">
+                                            <option value="">Sin categoría</option>
+                                        </select>
+                                        <div class="form-hint">
+                                            <a href="/super-admin/categories" class="form-link">
+                                                <i class="fas fa-plus"></i> Gestionar categorías
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+
+                        <!-- Columna Lateral -->
+                        <div class="form-side-column">
+                            <!-- Imagen del Producto -->
+                            <section class="form-section fade-in">
+                                <div class="section-header">
+                                    <h2><i class="fas fa-image"></i> Imagen del Producto</h2>
+                                    <p>Imagen principal</p>
+                                </div>
+
+                                <div class="image-upload-container">
+                                    <div class="upload-options">
+                                        <div class="form-group">
+                                            <label for="imageFile" class="form-label">Subir Imagen</label>
+                                            <input type="file" class="form-control" id="imageFile" accept="image/*"
+                                                onchange="previewImage(this)">
+                                            <div class="form-hint">
+                                                Formatos: JPG, PNG, GIF. Tamaño máximo: 10MB
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="imageUrl" class="form-label">O URL de Imagen</label>
+                                            <input type="url" class="form-control" id="imageUrl"
+                                                placeholder="https://ejemplo.com/imagen.jpg">
+                                        </div>
+                                    </div>
+
+                                    <!-- Vista Previa -->
+                                    <div class="image-preview" id="imagePreview">
+                                        <div class="preview-content">
+                                            <img id="previewImage" src="" alt="Vista previa">
+                                            <div class="preview-actions">
+                                                <button type="button" class="btn-action small danger"
+                                                    onclick="removeImage()">
+                                                    <i class="fas fa-times"></i> Eliminar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Imagen Actual (solo en edición) -->
+                                    <div id="currentImageSection" class="current-image">
+                                        <label class="form-label">Imagen Actual</label>
+                                        <div class="current-image-container">
+                                            <img id="currentImage" src="" alt="Imagen actual">
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- Estado del Producto -->
+                            <section class="form-section fade-in">
+                                <div class="section-header">
+                                    <h2><i class="fas fa-toggle-on"></i> Estado</h2>
+                                    <p>Disponibilidad del producto</p>
+                                </div>
+
+                                <div class="status-toggle">
+                                    <div class="toggle-group">
+                                        <input class="toggle-input" type="checkbox" id="active" checked>
+                                        <label class="toggle-label" for="active">
+                                            <span class="toggle-slider"></span>
+                                            <span class="toggle-text">Producto Activo</span>
+                                        </label>
+                                    </div>
+                                    <div class="form-hint">
+                                        Los productos inactivos no estarán disponibles para la venta
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- Información Adicional -->
+                            <section class="form-section fade-in">
+                                <div class="section-header">
+                                    <h2><i class="fas fa-history"></i> Información Adicional</h2>
+                                    <p>Metadatos del producto</p>
+                                </div>
+
+                                <div id="creationInfo" class="creation-info">
+                                    <div class="info-item">
+                                        <span class="info-label">Creado el:</span>
+                                        <span id="createdAt" class="info-value">-</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Por:</span>
+                                        <span id="createdBy" class="info-value">-</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Última actualización:</span>
+                                        <span id="updatedAt" class="info-value">-</span>
+                                    </div>
+                                </div>
+
+                                <div id="newProductInfo" class="new-product-info">
+                                    <div class="new-product-icon">
+                                        <i class="fas fa-cube"></i>
+                                    </div>
+                                    <p>Este será un nuevo producto en el sistema</p>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div th:replace="~{/shared/footer :: footer-pedLUz}"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/sidebar.js"></script>
+    <script src="/js/common-admin.js"></script>
+    <script src="/js/patterns-dictionary.js"></script>
+    <script src="/js/validator-field.js"></script>
+    <script src="/js/super_product_form.js"></script>
+</body>
+
+</html>

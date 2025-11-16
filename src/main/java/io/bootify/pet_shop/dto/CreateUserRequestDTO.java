@@ -3,6 +3,8 @@ package io.bootify.pet_shop.dto;
 import io.bootify.pet_shop.models.Role;
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.time.LocalDate;
 
 @Data
@@ -33,4 +35,7 @@ public class CreateUserRequestDTO {
 
     @NotNull(message = "El rol es obligatorio")
     private Role role;
+
+    private String profilePicture;
+    private MultipartFile profilePictureFile; 
 }

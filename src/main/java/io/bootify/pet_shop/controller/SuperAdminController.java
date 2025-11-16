@@ -1,12 +1,13 @@
 package io.bootify.pet_shop.controller;
 
-import io.bootify.pet_shop.services.ReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/super-admin")
@@ -14,15 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequiredArgsConstructor
 public class SuperAdminController {
 
-    private final ReportService reportService;
-
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
         model.addAttribute("pageTitle", "Panel de Super Admin - PetShop");
-        
-        // Agregar estadísticas al modelo
-        model.addAttribute("dashboardStats", reportService.getDashboardStats());
-        
         return "super-admin/dashboard";
     }
 
@@ -30,6 +25,17 @@ public class SuperAdminController {
     public String manageProducts(Model model) {
         model.addAttribute("pageTitle", "Gestión de Productos - PetShop");
         return "super-admin/products";
+    }
+
+    @GetMapping("/product-form")
+    public String productForm(Model model, @RequestParam(required = false) Long id) {
+        if (id != null) {
+            model.addAttribute("pageTitle", "Editar Producto - PetShop");
+            model.addAttribute("productId", id);
+        } else {
+            model.addAttribute("pageTitle", "Nuevo Producto - PetShop");
+        }
+        return "super-admin/product-form";
     }
 
     @GetMapping("/categories")
@@ -44,4 +50,22 @@ public class SuperAdminController {
         return "super-admin/inventory";
     }
 
+    @GetMapping("/sales")
+    public String manageSales(Model model) {
+        model.addAttribute("pageTitle", "Gestión de Ventas - PetShop");
+        return "super-admin/sales";
+    }
+
+    @GetMapping("/sales/{id}")
+    public String viewSaleDetail(@PathVariable Long id, Model model) {
+        model.addAttribute("pageTitle", "Detalle de Venta - PetShop");
+        model.addAttribute("saleId", id);
+        return "super-admin/sale-detail";
+    }
+
+    @GetMapping("/reports")
+    public String viewReports(Model model) {
+        model.addAttribute("pageTitle", "Reportes y Estadísticas - PetShop");
+        return "super-admin/reports";
+    }
 }

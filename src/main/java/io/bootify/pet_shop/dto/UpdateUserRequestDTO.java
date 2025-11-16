@@ -6,6 +6,8 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import java.time.LocalDate;
 
+import org.springframework.web.multipart.MultipartFile;
+
 @Data
 public class UpdateUserRequestDTO {
     
@@ -33,4 +35,6 @@ public class UpdateUserRequestDTO {
     private Boolean emailNotifications;
     private Boolean smsNotifications;
     private Boolean newsletterSubscription;
+    private String profilePicture; // URL externa (opcional)
+    private MultipartFile profilePictureFile; // Archivo subido
 }

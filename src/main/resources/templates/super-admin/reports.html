@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">Reportes y Estadísticas - PetLuz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/css/base_super_admin.css">
+    <link rel="stylesheet" href="/css/reports.css">
+</head>
+
+<body>
+    <div class="system-layout">
+        <div th:replace="~{/super-admin/sidebar :: super-admin-sidebar}"></div>
+
+        <div class="main-content">
+            <header class="top-bar">
+                <div class="top-bar-content">
+                    <div class="page-title">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Reportes y Estadísticas</span>
+                    </div>
+                    <div class="top-bar-actions">
+                        <div class="current-time">
+                            <i class="fas fa-clock"></i>
+                            <span id="current-time">Cargando...</span>
+                        </div>
+                        <div class="user-welcome">
+                            <i class="fas fa-user-shield"></i>
+                            <span>Super Admin</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <section class="filters-section">
+                    <div class="filter-card fade-in">
+                        <div class="filter-header">
+                            <h4><i class="fas fa-filter me-2"></i>Filtros del Reporte</h4>
+                            <button class="btn-action primary" onclick="generateReport()">
+                                <i class="fas fa-download"></i> Exportar Reporte
+                            </button>
+                        </div>
+                        <div class="filter-body">
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="reportType" class="form-label">Tipo de Reporte</label>
+                                        <select class="form-select" id="reportType" onchange="toggleDateFilters()">
+                                            <option value="sales">Reporte de Ventas</option>
+                                            <option value="inventory">Reporte de Inventario</option>
+                                            <option value="monthly">Reporte Mensual</option>
+                                            <option value="performance">Rendimiento</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3" id="startDateGroup">
+                                    <div class="form-group">
+                                        <label for="startDate" class="form-label">Fecha Inicial</label>
+                                        <input type="date" class="form-control" id="startDate">
+                                    </div>
+                                </div>
+                                <div class="col-md-3" id="endDateGroup">
+                                    <div class="form-group">
+                                        <label for="endDate" class="form-label">Fecha Final</label>
+                                        <input type="date" class="form-control" id="endDate">
+                                    </div>
+                                </div>
+                                <div class="col-md-3" id="monthGroup" style="display: none;">
+                                    <div class="form-group">
+                                        <label for="month" class="form-label">Mes</label>
+                                        <input type="month" class="form-control" id="month">
+                                    </div>
+                                </div>
+                                <div class="col-md-3 align-self-end">
+                                    <button class="btn-action primary w-100" onclick="loadReport()">
+                                        <i class="fas fa-chart-bar"></i> Generar Reporte
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Estadísticas Rápidas -->
+                <section class="stats-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-tachometer-alt"></i> Resumen General</h2>
+                        <p>Métricas clave de tu tienda</p>
+                    </div>
+                    <div class="stats-grid" id="quickStats">
+                    </div>
+                </section>
+
+                <!-- Gráficos Principales -->
+                <section class="charts-section">
+                    <div class="row">
+                        <div class="col-lg-6 mb-4">
+                            <div class="chart-card fade-in">
+                                <div class="chart-header">
+                                    <h4><i class="fas fa-chart-pie me-2"></i>Ventas por Estado</h4>
+                                    <button class="btn-chart-action" onclick="downloadChart('salesByStatusChart')">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="salesByStatusChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 mb-4">
+                            <div class="chart-card fade-in">
+                                <div class="chart-header">
+                                    <h4><i class="fas fa-chart-bar me-2"></i>Estado del Inventario</h4>
+                                    <button class="btn-chart-action" onclick="downloadChart('inventoryStatusChart')">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="inventoryStatusChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Gráficos Adicionales -->
+                <section class="charts-section">
+                    <div class="row">
+                        <div class="col-lg-6 mb-4">
+                            <div class="chart-card fade-in">
+                                <div class="chart-header">
+                                    <h4><i class="fas fa-chart-line me-2"></i>Tendencia de Ventas</h4>
+                                    <button class="btn-chart-action" onclick="downloadChart('salesTrendChart')">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="salesTrendChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 mb-4">
+                            <div class="chart-card fade-in">
+                                <div class="chart-header">
+                                    <h4><i class="fas fa-boxes me-2"></i>Productos Más Vendidos</h4>
+                                    <button class="btn-chart-action" onclick="downloadChart('topProductsChart')">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="topProductsChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Tabla de Datos del Reporte -->
+                <section class="report-section">
+                    <div class="report-card fade-in">
+                        <div class="report-header">
+                            <h4><i class="fas fa-table me-2"></i>Datos del Reporte</h4>
+                            <div class="report-actions">
+                                <button class="btn-refresh" onclick="loadReport()" title="Actualizar reporte">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="report-body">
+                            <div id="reportData">
+                                <div class="empty-state">
+                                    <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                                    <h5 class="text-muted">No hay datos para mostrar</h5>
+                                    <p class="text-muted">Selecciona un tipo de reporte y haz clic en "Generar Reporte"
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Footer -->
+            <div th:replace="~{/shared/footer :: footer-pedLUz}"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/sidebar.js"></script>
+    <script src="/js/common-admin.js"></script>
+    <script src="/js/reports.js"></script>
+</body>
+
+</html>

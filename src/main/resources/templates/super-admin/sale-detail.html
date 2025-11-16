@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${pageTitle}">Detalle de Venta - PetShop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background-color: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+        }
+
+        .nav-link {
+            color: #495057;
+            padding: 10px 15px;
+            margin: 2px 0;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #3498db;
+            color: white !important;
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            border-radius: 0.5rem;
+        }
+
+        .badge {
+            font-size: 0.85em;
+            padding: 0.5em 0.75em;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <!-- <div th:replace="fragments/header :: header"></div> -->
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar CORREGIDO -->
+            <div th:replace="~{/super-admin/sidebar :: super-admin-sidebar}"></div>
+
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" style="margin-left: 250px;">
+                <div
+                    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2" style="color: #2c3e50;">
+                        <i class="fas fa-file-invoice me-2"></i>Detalle de Venta
+                    </h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <a href="/super-admin/sales" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Volver a Ventas
+                        </a>
+                    </div>
+                </div>
+
+                <div id="loadingSpinner" class="text-center py-5">
+                    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Cargando detalles de la venta...</p>
+                </div>
+
+                <div id="saleDetail" style="display: none;">
+                    <!-- Se cargará via JavaScript -->
+                </div>
+
+                <div id="errorMessage" class="alert alert-danger" style="display: none;">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Error cargando el detalle de la venta
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // CORRECCIÓN: Usar th:inline="javascript" para variables Thymeleaf en JS
+        /*<![CDATA[*/
+        const saleId = /*[[${saleId}]]*/ 0;
+        /*]]>*/
+
+        document.addEventListener('DOMContentLoaded', function () {
+            if (saleId && saleId !== 0) {
+                loadSaleDetail();
+            } else {
+                document.getElementById('loadingSpinner').style.display = 'none';
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('errorMessage').innerHTML =
+                    '<i class="fas fa-exclamation-triangle me-2"></i>ID de venta no válido';
+            }
+        });
+
+        function loadSaleDetail() {
+            fetch(`/api/super-admin/sales/${saleId}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Venta no encontrada');
+                    return response.json();
+                })
+                .then(sale => {
+                    displaySaleDetail(sale);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('loadingSpinner').style.display = 'none';
+                    document.getElementById('errorMessage').style.display = 'block';
+                    document.getElementById('errorMessage').innerHTML =
+                        `<i class="fas fa-exclamation-triangle me-2"></i>Error: ${error.message}`;
+                });
+        }
+
+        function displaySaleDetail(sale) {
+            const container = document.getElementById('saleDetail');
+
+            container.innerHTML = `
+                <div class="row">
+                    <!-- Información de la Venta -->
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-info-circle me-2"></i>Información de la Venta
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <strong>N° Factura:</strong><br>
+                                        <span class="h6 text-primary">${sale.invoiceNumber || 'N/A'}</span>
+                                    </div>
+                                    <div class="col-6">
+                                        <strong>Estado:</strong><br>
+                                        <span class="badge ${getStatusBadgeClass(sale.status)}">
+                                            <i class="fas ${getStatusIcon(sale.status)} me-1"></i>
+                                            ${getStatusText(sale.status)}
+                                        </span>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <strong>Fecha:</strong><br>
+                                        ${new Date(sale.createdAt).toLocaleString('es-CO')}
+                                    </div>
+                                    <div class="col-6">
+                                        <strong>Total:</strong><br>
+                                        <h4 class="text-success">$${(sale.totalAmount || 0).toLocaleString('es-CO')}</h4>
+                                    </div>
+                                </div>
+                                ${sale.paymentMethod ? `
+                                    <hr>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <strong>Método de Pago:</strong><br>
+                                            <i class="fas ${getPaymentMethodIcon(sale.paymentMethod)} me-1"></i>
+                                            ${getPaymentMethodText(sale.paymentMethod)}
+                                        </div>
+                                        <div class="col-6">
+                                            <strong>Método de Entrega:</strong><br>
+                                            <i class="fas fa-truck me-1"></i>
+                                            ${sale.deliveryMethod || 'No especificado'}
+                                        </div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <!-- Información del Cliente -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-user me-2"></i>Información del Cliente
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p><strong><i class="fas fa-user me-2"></i>Nombre:</strong> ${sale.userFullName || 'N/A'}</p>
+                                <p><strong><i class="fas fa-envelope me-2"></i>Email:</strong> ${sale.userEmail || 'N/A'}</p>
+                                <p><strong><i class="fas fa-id-card me-2"></i>ID Usuario:</strong> ${sale.userId || 'N/A'}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información de Pago -->
+                    <div class="col-md-6">
+                        ${sale.payment ? `
+                            <div class="card mb-4">
+                                <div class="card-header bg-success text-white">
+                                    <h5 class="card-title mb-0">
+                                        <i class="fas fa-credit-card me-2"></i>Información de Pago
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Estado:</strong> 
+                                        <span class="badge ${getPaymentStatusBadgeClass(sale.payment.status)}">
+                                            ${sale.payment.status}
+                                        </span>
+                                    </p>
+                                    <p><strong>Monto:</strong> <span class="h5 text-success">$${(sale.payment.amount || 0).toLocaleString('es-CO')}</span></p>
+                                    ${sale.payment.mercadopagoPaymentId ? `
+                                        <p><strong><i class="fas fa-receipt me-2"></i>ID Mercado Pago:</strong> ${sale.payment.mercadopagoPaymentId}</p>
+                                    ` : ''}
+                                    ${sale.payment.cardLastFour ? `
+                                        <p><strong><i class="fas fa-credit-card me-2"></i>Tarjeta:</strong> **** ${sale.payment.cardLastFour}</p>
+                                    ` : ''}
+                                    ${sale.payment.installments ? `
+                                        <p><strong><i class="fas fa-calendar-alt me-2"></i>Cuotas:</strong> ${sale.payment.installments}</p>
+                                    ` : ''}
+                                    ${sale.payment.paidAt ? `
+                                        <p><strong><i class="fas fa-calendar-check me-2"></i>Pagado el:</strong> ${new Date(sale.payment.paidAt).toLocaleString('es-CO')}</p>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        ` : '<div class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i>No hay información de pago disponible</div>'}
+
+                        <!-- Acciones -->
+                        <div class="card">
+                            <div class="card-header bg-secondary text-white">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-cogs me-2"></i>Acciones
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-warning" onclick="changeStatus(${sale.id})">
+                                        <i class="fas fa-edit me-1"></i> Cambiar Estado
+                                    </button>
+                                    ${sale.status !== 'CANCELLED' && sale.status !== 'DELIVERED' ? `
+                                        <button class="btn btn-danger" onclick="cancelSale(${sale.id})">
+                                            <i class="fas fa-times me-1"></i> Cancelar Venta
+                                        </button>
+                                    ` : ''}
+                                    <button class="btn btn-info" onclick="printInvoice(${sale.id})">
+                                        <i class="fas fa-print me-1"></i> Imprimir Factura
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Productos -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header bg-dark text-white">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-boxes me-2"></i>Productos
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th>Producto</th>
+                                                <th>Precio Unitario</th>
+                                                <th>Cantidad</th>
+                                                <th>Subtotal</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${(sale.items && sale.items.length > 0) ? sale.items.map(item => `
+                                                <tr>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <img src="${item.productImage || '/images/default-product.png'}" 
+                                                                 alt="${item.productName}" 
+                                                                 class="rounded me-3" 
+                                                                 style="width: 50px; height: 50px; object-fit: cover;"
+                                                                 onerror="this.src='/images/default-product.png'">
+                                                            <div>
+                                                                <strong>${item.productName || 'Producto'}</strong><br>
+                                                                <small class="text-muted">ID: ${item.productId || 'N/A'}</small>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle">$${(item.unitPrice || 0).toLocaleString('es-CO')}</td>
+                                                    <td class="align-middle">
+                                                        <span class="badge bg-primary">${item.quantity || 0}</span>
+                                                    </td>
+                                                    <td class="align-middle"><strong>$${(item.subtotal || 0).toLocaleString('es-CO')}</strong></td>
+                                                </tr>
+                                            `).join('') : `
+                                                <tr>
+                                                    <td colspan="4" class="text-center text-muted py-4">
+                                                        <i class="fas fa-inbox fa-2x mb-2"></i>
+                                                        <p>No hay productos en esta venta</p>
+                                                    </td>
+                                                </tr>
+                                            `}
+                                        </tbody>
+                                        <tfoot class="table-active">
+                                            <tr>
+                                                <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                                                <td><strong class="h5 text-success">$${(sale.totalAmount || 0).toLocaleString('es-CO')}</strong></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('loadingSpinner').style.display = 'none';
+            container.style.display = 'block';
+        }
+
+        function changeStatus(saleId) {
+            window.location.href = `/super-admin/sales?saleId=${saleId}&action=changeStatus`;
+        }
+
+        function cancelSale(saleId) {
+            if (confirm('¿Estás seguro de que deseas cancelar esta venta?\n\nEsta acción no se puede deshacer.')) {
+                fetch(`/api/super-admin/sales/${saleId}/cancel`, {
+                    method: 'POST'
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            showAlert('Venta cancelada correctamente', 'success');
+                            setTimeout(() => location.reload(), 1000);
+                        } else {
+                            throw new Error('Error cancelando venta');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showAlert('Error cancelando venta', 'danger');
+                    });
+            }
+        }
+
+        function printInvoice(saleId) {
+            window.open(`/api/super-admin/sales/${saleId}/invoice`, '_blank');
+        }
+
+        function getStatusBadgeClass(status) {
+            const classes = {
+                'PENDING': 'bg-warning text-dark',
+                'CONFIRMED': 'bg-info text-white',
+                'PAID': 'bg-primary text-white',
+                'SHIPPED': 'bg-secondary text-white',
+                'DELIVERED': 'bg-success text-white',
+                'CANCELLED': 'bg-danger text-white'
+            };
+            return classes[status] || 'bg-secondary text-white';
+        }
+
+        function getStatusIcon(status) {
+            const icons = {
+                'PENDING': 'fa-clock',
+                'CONFIRMED': 'fa-check-circle',
+                'PAID': 'fa-credit-card',
+                'SHIPPED': 'fa-shipping-fast',
+                'DELIVERED': 'fa-box-check',
+                'CANCELLED': 'fa-times-circle'
+            };
+            return icons[status] || 'fa-question-circle';
+        }
+
+        function getPaymentStatusBadgeClass(status) {
+            const classes = {
+                'PENDING': 'bg-warning text-dark',
+                'APPROVED': 'bg-success text-white',
+                'REJECTED': 'bg-danger text-white',
+                'CANCELLED': 'bg-danger text-white'
+            };
+            return classes[status] || 'bg-secondary text-white';
+        }
+
+        function getPaymentMethodIcon(method) {
+            const icons = {
+                'MERCADO_PAGO': 'fa-credit-card',
+                'CREDIT_CARD': 'fa-credit-card',
+                'DEBIT_CARD': 'fa-credit-card',
+                'PAYPAL': 'fa-paypal',
+                'BANK_TRANSFER': 'fa-university',
+                'CASH_ON_DELIVERY': 'fa-money-bill-wave'
+            };
+            return icons[method] || 'fa-credit-card';
+        }
+
+        function getStatusText(status) {
+            const texts = {
+                'PENDING': 'Pendiente',
+                'CONFIRMED': 'Confirmado',
+                'PAID': 'Pagado',
+                'SHIPPED': 'Enviado',
+                'DELIVERED': 'Entregado',
+                'CANCELLED': 'Cancelado'
+            };
+            return texts[status] || status;
+        }
+
+        function getPaymentMethodText(method) {
+            const texts = {
+                'MERCADO_PAGO': 'Mercado Pago',
+                'CREDIT_CARD': 'Tarjeta Crédito',
+                'DEBIT_CARD': 'Tarjeta Débito',
+                'PAYPAL': 'PayPal',
+                'BANK_TRANSFER': 'Transferencia',
+                'CASH_ON_DELIVERY': 'Contraentrega'
+            };
+            return texts[method] || method;
+        }
+
+        function showAlert(message, type) {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} alert-dismissible fade show`;
+            alert.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle'} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+            document.querySelector('main').insertBefore(alert, document.querySelector('main').firstChild);
+
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+
+</html>
