@@ -1,11 +1,214 @@
 <!DOCTYPE html>
-<html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>User Orders</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Pedidos - PetLuz</title>
+    <link rel="stylesheet" th:href="@{/css/base_customer.css}">
+    <link rel="stylesheet" th:href="@{/css/customer_orders.css}">
 </head>
 <body>
-    <h1>Mis Pedidos</h1>
-    <p>Página de pedidos del usuario</p>
-    <a href="/user/dashboard">Volver al Dashboard</a>
+    <!-- Header -->
+    <div th:replace="shared/header :: header"></div>
+
+    <!-- Sidebar del carrito -->
+    <div th:replace="shared/cart-sidebar :: cart-sidebar"></div>
+
+    <main class="orders-container">
+        <div class="container">
+            <!-- Header de la página -->
+            <section class="orders-header">
+                <div class="header-content">
+                    <h1>📋 Mis Pedidos</h1>
+                    <p>Gestiona y revisa el estado de todos tus pedidos</p>
+                </div>
+                <div class="header-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalOrders">0</span>
+                        <span class="stat-label">Total Pedidos</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="pendingOrders">0</span>
+                        <span class="stat-label">Pendientes</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="deliveredOrders">0</span>
+                        <span class="stat-label">Entregados</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Filtros y búsqueda -->
+            <section class="orders-filters">
+                <div class="filters-container">
+                    <div class="search-box">
+                        <input type="text" id="searchOrders" placeholder="Buscar por número de pedido...">
+                        <button class="search-btn">🔍</button>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="statusFilter">Filtrar por estado:</label>
+                        <select id="statusFilter">
+                            <option value="ALL">Todos los estados</option>
+                            <option value="PENDING">Pendientes</option>
+                            <option value="CONFIRMED">Confirmados</option>
+                            <option value="PAID">Pagados</option>
+                            <option value="SHIPPED">Enviados</option>
+                            <option value="DELIVERED">Entregados</option>
+                            <option value="CANCELLED">Cancelados</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="dateFilter">Filtrar por fecha:</label>
+                        <select id="dateFilter">
+                            <option value="ALL">Todas las fechas</option>
+                            <option value="TODAY">Hoy</option>
+                            <option value="WEEK">Esta semana</option>
+                            <option value="MONTH">Este mes</option>
+                            <option value="LAST_MONTH">Mes anterior</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-outline" id="clearFilters">
+                        Limpiar Filtros
+                    </button>
+                </div>
+            </section>
+
+            <!-- Lista de órdenes -->
+            <section class="orders-list-section">
+                <div class="section-header">
+                    <h2>Historial de Pedidos</h2>
+                    <div class="sort-options">
+                        <label for="sortOrders">Ordenar por:</label>
+                        <select id="sortOrders">
+                            <option value="NEWEST">Más recientes primero</option>
+                            <option value="OLDEST">Más antiguos primero</option>
+                            <option value="TOTAL_HIGH">Mayor total</option>
+                            <option value="TOTAL_LOW">Menor total</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Estados de carga y vacío -->
+                <div class="orders-state" id="ordersState">
+                    <div class="loading-orders">
+                        <div class="loading-spinner"></div>
+                        <p>Cargando tus pedidos...</p>
+                    </div>
+                </div>
+
+                <!-- Lista de órdenes -->
+                <div class="orders-grid" id="ordersGrid" style="display: none;">
+                    <!-- Las órdenes se cargarán aquí dinámicamente -->
+                </div>
+
+                <!-- Estado vacío -->
+                <div class="empty-orders" id="emptyOrders" style="display: none;">
+                    <div class="empty-state">
+                        <div class="empty-icon">📦</div>
+                        <h3>No tienes pedidos aún</h3>
+                        <p>¡Descubre nuestros productos y realiza tu primer pedido!</p>
+                        <a href="/customer/products" class="btn btn-primary">
+                            Comenzar a Comprar
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Paginación -->
+                <div class="pagination" id="pagination" style="display: none;">
+                    <button class="pagination-btn" id="prevPage" disabled>
+                        ← Anterior
+                    </button>
+                    <div class="page-info">
+                        Página <span id="currentPage">1</span> de <span id="totalPages">1</span>
+                    </div>
+                    <button class="pagination-btn" id="nextPage" disabled>
+                        Siguiente →
+                    </button>
+                </div>
+            </section>
+
+            <!-- Información adicional -->
+            <section class="orders-info">
+                <div class="info-cards">
+                    <div class="info-card">
+                        <div class="info-icon">📞</div>
+                        <div class="info-content">
+                            <h4>¿Necesitas ayuda con un pedido?</h4>
+                            <p>Nuestro equipo de soporte está disponible 24/7 para ayudarte</p>
+                            <a href="/contact" class="btn btn-outline btn-sm">Contactar Soporte</a>
+                        </div>
+                    </div>
+                    
+                    <div class="info-card">
+                        <div class="info-icon">🔄</div>
+                        <div class="info-content">
+                            <h4>Política de Devoluciones</h4>
+                            <p>Tienes 30 días para devolver tu pedido si no estás satisfecho</p>
+                            <a href="/returns" class="btn btn-outline btn-sm">Saber Más</a>
+                        </div>
+                    </div>
+                    
+                    <div class="info-card">
+                        <div class="info-icon">🚚</div>
+                        <div class="info-content">
+                            <h4>Seguimiento de Pedidos</h4>
+                            <p>Rastrea tu pedido en tiempo real desde el momento del envío</p>
+                            <a href="/tracking" class="btn btn-outline btn-sm">Cómo Rastrear</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Modal de detalles de orden -->
+    <div class="modal-overlay" id="orderModalOverlay" style="display: none;">
+        <div class="modal modal-lg" id="orderModal">
+            <div class="modal-header">
+                <h3>Detalles del Pedido</h3>
+                <button type="button" class="modal-close" id="closeOrderModal">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="order-modal-content" id="orderModalContent">
+                    <!-- Los detalles se cargarán aquí -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de cancelación -->
+    <div class="modal-overlay" id="cancelModalOverlay" style="display: none;">
+        <div class="modal" id="cancelModal">
+            <div class="modal-header">
+                <h3>Cancelar Pedido</h3>
+                <button type="button" class="modal-close" id="closeCancelModal">✕</button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que quieres cancelar el pedido <strong id="cancelOrderNumber"></strong>?</p>
+                <div class="cancel-warning">
+                    <p>⚠️ Esta acción no se puede deshacer. El stock de los productos será liberado.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelCancelModal">
+                    Mantener Pedido
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmCancelOrder">
+                    Sí, Cancelar Pedido
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div th:replace="shared/footer :: footer-pedLUz"></div>
+
+    <!-- Notificaciones -->
+    <div id="notificationContainer"></div>
+
+    <script th:src="@{/js/customer_orders.js}"></script>
 </body>
 </html>

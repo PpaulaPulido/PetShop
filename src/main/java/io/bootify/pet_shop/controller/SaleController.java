@@ -83,4 +83,14 @@ public class SaleController {
     public ResponseEntity<List<Object[]>> getTopSellingProducts() {
         return ResponseEntity.ok(saleService.getTopSellingProducts());
     }
+
+    @GetMapping("/filtered")
+    public ResponseEntity<Page<SaleResponseDTO>> getSalesWithFilters(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) SaleStatus status,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            Pageable pageable) {
+        return ResponseEntity.ok(saleService.getSalesWithFilters(search, status, startDate, endDate, pageable));
+    }
 }

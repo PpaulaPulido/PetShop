@@ -2,6 +2,7 @@ package io.bootify.pet_shop.controller;
 
 import io.bootify.pet_shop.dto.CreateOrderRequest;
 import io.bootify.pet_shop.dto.CustomerOrderResponseDTO;
+import io.bootify.pet_shop.dto.OrderStatsDTO;
 import io.bootify.pet_shop.services.CustomerOrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -38,6 +39,11 @@ public class CustomerOrderController {
     @GetMapping("/invoice/{invoiceNumber}")
     public ResponseEntity<CustomerOrderResponseDTO> getOrderByInvoice(@PathVariable String invoiceNumber) {
         return ResponseEntity.ok(customerOrderService.getOrderByInvoiceNumber(invoiceNumber));
+    }
+
+    @GetMapping("/stats")
+    public ResponseEntity<OrderStatsDTO> getOrderStats() {
+        return ResponseEntity.ok(customerOrderService.getCustomerOrderStats());
     }
 
     @PostMapping

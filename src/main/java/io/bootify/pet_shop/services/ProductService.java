@@ -15,8 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Comparator;
 
 @Service
 @RequiredArgsConstructor
@@ -120,7 +122,7 @@ public class ProductService {
             // Si se proporciona nueva URL
             clearUploadedImage(product);
             product.setImageUrl(request.getImageUrl());
-        } 
+        }
 
         Product updatedProduct = productRepository.save(product);
         return convertToDTO(updatedProduct);
@@ -242,5 +244,108 @@ public class ProductService {
         dto.setCreatedAt(product.getCreatedAt());
         dto.setUpdatedAt(product.getUpdatedAt());
         return dto;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductResponseDTO> getProductsWithFilters(
+            String search,
+            List<Long> category,
+            List<ProductType> type,
+            Double minPrice,
+            Double maxPrice,
+            Boolean inStock,
+            String sort,
+            int page,
+            int size) {
+
+
+        List<Product> products;
+
+        if (search != null && !search.trim().isEmpty()) {
+            // Si hay búsqueda, usar el método existente
+            products = productRepository.findByNameContainingIgnoreCase(search);
+        } else {
+            // Si no hay búsqueda, obtener todos los productos activos
+            products = productRepository.findByActiveTrue();
+        }
+
+        // Aplicar filtros básicos
+        List<Product> filteredProducts = products.stream()
+                .filter(product -> {
+                    // Filtro por categoría
+                    if (category != null && !category.isEmpty()) {
+                        if (product.getCategory() == null)
+                            return false;
+                        return category.contains(product.getCategory().getId());
+                    }
+                    return true;
+                })
+                .filter(product -> {
+                    // Filtro por tipo
+                    if (type != null && !type.isEmpty()) {
+                        return type.contains(product.getType());
+                    }
+                    return true;
+                })
+                .filter(product -> {
+                    // Filtro por precio mínimo
+                    if (minPrice != null) {
+                        return product.getPrice().compareTo(BigDecimal.valueOf(minPrice)) >= 0;
+                    }
+                    return true;
+                })
+                .filter(product -> {
+                    // Filtro por precio máximo
+                    if (maxPrice != null) {
+                        return product.getPrice().compareTo(BigDecimal.valueOf(maxPrice)) <= 0;
+                    }
+                    return true;
+                })
+                .filter(product -> {
+                    // Filtro por stock
+                    if (inStock != null && inStock) {
+                        return product.getStock() > 0;
+                    }
+                    return true;
+                })
+                .collect(Collectors.toList());
+
+        // Aplicar ordenamiento
+        filteredProducts = applySorting(filteredProducts, sort);
+
+        // Aplicar paginación (básica)
+        int start = page * size;
+        int end = Math.min(start + size, filteredProducts.size());
+
+        if (start > filteredProducts.size()) {
+            return List.of();
+        }
+
+        return filteredProducts.subList(start, end)
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    private List<Product> applySorting(List<Product> products, String sort) {
+        switch (sort) {
+            case "price_asc":
+                return products.stream()
+                        .sorted(Comparator.comparing(Product::getPrice))
+                        .collect(Collectors.toList());
+            case "price_desc":
+                return products.stream()
+                        .sorted(Comparator.comparing(Product::getPrice).reversed())
+                        .collect(Collectors.toList());
+            case "newest":
+                return products.stream()
+                        .sorted(Comparator.comparing(Product::getCreatedAt).reversed())
+                        .collect(Collectors.toList());
+            case "name":
+            default:
+                return products.stream()
+                        .sorted(Comparator.comparing(Product::getName))
+                        .collect(Collectors.toList());
+        }
     }
 }

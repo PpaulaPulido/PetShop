@@ -3,7 +3,6 @@ package io.bootify.pet_shop.dto;
 import io.bootify.pet_shop.models.Gender;
 import io.bootify.pet_shop.models.Role;
 import lombok.Data;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 

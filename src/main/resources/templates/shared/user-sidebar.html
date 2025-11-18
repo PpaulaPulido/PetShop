@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="user-sidebar">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0">Mi Cuenta</h6>
+            </div>
+            <div class="list-group list-group-flush">
+                <a th:href="@{/user/dashboard}" class="list-group-item list-group-item-action active">
+                    📊 Dashboard
+                </a>
+                <a th:href="@{/user/profile}" class="list-group-item list-group-item-action">
+                    👤 Mi Perfil
+                </a>
+                <a th:href="@{/user/orders}" class="list-group-item list-group-item-action">
+                    📦 Mis Pedidos
+                </a>
+                <a th:href="@{/user/addresses}" class="list-group-item list-group-item-action">
+                    📍 Mis Direcciones
+                </a>
+                <a th:href="@{/user/cart}" class="list-group-item list-group-item-action">
+                    🛒 Mi Carrito
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

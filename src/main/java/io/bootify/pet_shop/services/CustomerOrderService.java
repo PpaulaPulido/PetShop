@@ -5,15 +5,15 @@ import io.bootify.pet_shop.models.*;
 import io.bootify.pet_shop.repositories.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -32,10 +32,64 @@ public class CustomerOrderService {
 
     public List<CustomerOrderResponseDTO> getCustomerOrders() {
         User customer = getCurrentCustomer();
-        return saleRepository.findByUserId(customer.getId())
-                .stream()
-                .map(this::convertToCustomerOrderDTO)
-                .collect(Collectors.toList());
+        log.info("📋 Obteniendo órdenes para el cliente: {}", customer.getEmail());
+
+        try {
+            // ✅ USAR el método seguro sin JOIN FETCH múltiples
+            List<Sale> sales = saleRepository.findByUserIdOrderByCreatedAtDesc(customer.getId());
+
+            if (sales == null || sales.isEmpty()) {
+                log.info("ℹ️ No se encontraron órdenes para el cliente {}", customer.getEmail());
+                return List.of();
+            }
+
+            log.info("✅ Encontradas {} órdenes para el cliente {}", sales.size(), customer.getEmail());
+
+            // ✅ Cargar las relaciones de forma MANUAL para evitar LazyLoadingException
+            return sales.stream()
+                    .map(sale -> {
+                        // Forzar la carga de las relaciones necesarias
+                        try {
+                            // Inicializar las colecciones lazy
+                            if (sale.getItems() != null) {
+                                sale.getItems().size(); // Force initialization
+                                for (SaleItem item : sale.getItems()) {
+                                    if (item.getProduct() != null) {
+                                        item.getProduct().getName(); // Force product loading
+                                    }
+                                }
+                            }
+                            return convertToCustomerOrderDTO(sale);
+                        } catch (Exception e) {
+                            log.error("❌ Error procesando orden {}: {}", sale.getId(), e.getMessage());
+                            // Retornar un DTO básico sin relaciones
+                            return createBasicOrderDTO(sale);
+                        }
+                    })
+                    .collect(Collectors.toList());
+
+        } catch (Exception e) {
+            log.error("❌ Error crítico obteniendo órdenes para el cliente {}: {}", customer.getEmail(), e.getMessage(),
+                    e);
+            throw new RuntimeException("Error al obtener las órdenes: " + e.getMessage());
+        }
+    }
+
+    // Método auxiliar para crear DTO básico en caso de error
+    private CustomerOrderResponseDTO createBasicOrderDTO(Sale sale) {
+        CustomerOrderResponseDTO dto = new CustomerOrderResponseDTO();
+        dto.setId(sale.getId());
+        dto.setInvoiceNumber(sale.getInvoiceNumber() != null ? sale.getInvoiceNumber() : "N/A");
+        dto.setTotalAmount(sale.getTotalAmount() != null ? sale.getTotalAmount() : BigDecimal.ZERO);
+        dto.setStatus(sale.getStatus() != null ? sale.getStatus().name() : "UNKNOWN");
+        dto.setPaymentMethod(sale.getPaymentMethod() != null ? sale.getPaymentMethod().name() : "UNKNOWN");
+        dto.setDeliveryMethod(sale.getDeliveryMethod() != null ? sale.getDeliveryMethod().name() : "UNKNOWN");
+        dto.setCreatedAt(sale.getCreatedAt());
+        dto.setUpdatedAt(sale.getUpdatedAt());
+        dto.setItems(List.of());
+        dto.setShippingAddress(null);
+        dto.setPaymentInfo(null);
+        return dto;
     }
 
     public Page<CustomerOrderResponseDTO> getCustomerOrders(Pageable pageable) {
@@ -46,16 +100,68 @@ public class CustomerOrderService {
 
     public CustomerOrderResponseDTO getOrderById(Long orderId) {
         User customer = getCurrentCustomer();
-        Sale sale = saleRepository.findByIdAndUserId(orderId, customer.getId())
-                .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
+        log.info("🔍 Buscando orden {} para el cliente {}", orderId, customer.getEmail());
+
+        Sale sale = saleRepository.findByIdAndUserIdWithDetails(orderId, customer.getId())
+                .orElseThrow(() -> {
+                    log.error("❌ Orden {} no encontrada para el cliente {}", orderId, customer.getEmail());
+                    return new RuntimeException("Pedido no encontrado");
+                });
+
+        log.info("✅ Orden {} encontrada para el cliente {}", orderId, customer.getEmail());
         return convertToCustomerOrderDTO(sale);
     }
 
     public CustomerOrderResponseDTO getOrderByInvoiceNumber(String invoiceNumber) {
         User customer = getCurrentCustomer();
+
         Sale sale = saleRepository.findByInvoiceNumberAndUserId(invoiceNumber, customer.getId())
-                .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
+                .orElseThrow(() -> {
+                    log.error("Pedido no encontrado. Invoice: {}, UserId: {}", invoiceNumber, customer.getId());
+                    return new RuntimeException("Pedido no encontrado");
+                });
+
         return convertToCustomerOrderDTO(sale);
+    }
+
+    // NUEVO: Método para obtener estadísticas de órdenes
+    public OrderStatsDTO getCustomerOrderStats() {
+        User customer = getCurrentCustomer();
+        log.info("📊 Obteniendo estadísticas de órdenes para el cliente: {}", customer.getEmail());
+
+        OrderStatsDTO stats = new OrderStatsDTO();
+
+        try {
+            // Obtener todas las órdenes del cliente
+            List<Sale> customerOrders = saleRepository.findByUserId(customer.getId());
+
+            // Calcular estadísticas
+            stats.setTotalOrders(customerOrders.size());
+            stats.setPendingOrders((int) customerOrders.stream()
+                    .filter(order -> order.getStatus() == SaleStatus.PENDING
+                            || order.getStatus() == SaleStatus.CONFIRMED)
+                    .count());
+            stats.setDeliveredOrders((int) customerOrders.stream()
+                    .filter(order -> order.getStatus() == SaleStatus.DELIVERED)
+                    .count());
+            stats.setCancelledOrders((int) customerOrders.stream()
+                    .filter(order -> order.getStatus() == SaleStatus.CANCELLED)
+                    .count());
+
+            log.info("✅ Estadísticas calculadas - Total: {}, Pendientes: {}, Entregados: {}, Cancelados: {}",
+                    stats.getTotalOrders(), stats.getPendingOrders(), stats.getDeliveredOrders(),
+                    stats.getCancelledOrders());
+
+        } catch (Exception e) {
+            log.error("❌ Error calculando estadísticas para el cliente {}: {}", customer.getEmail(), e.getMessage());
+            // En caso de error, devolver estadísticas en cero
+            stats.setTotalOrders(0);
+            stats.setPendingOrders(0);
+            stats.setDeliveredOrders(0);
+            stats.setCancelledOrders(0);
+        }
+
+        return stats;
     }
 
     @Transactional
@@ -208,35 +314,73 @@ public class CustomerOrderService {
     }
 
     private CustomerOrderResponseDTO convertToCustomerOrderDTO(Sale sale) {
-        CustomerOrderResponseDTO dto = new CustomerOrderResponseDTO();
-        dto.setId(sale.getId());
-        dto.setInvoiceNumber(sale.getInvoiceNumber());
-        dto.setTotalAmount(sale.getTotalAmount());
-        dto.setStatus(sale.getStatus().name());
-        dto.setPaymentMethod(sale.getPaymentMethod().name());
-        dto.setDeliveryMethod(sale.getDeliveryMethod().name());
-        dto.setCreatedAt(sale.getCreatedAt());
-        dto.setUpdatedAt(sale.getUpdatedAt());
+        try {
+            log.debug("🔄 Convirtiendo orden {} a DTO", sale.getId());
 
-        // Convertir dirección - AHORA FUNCIONA
-        if (sale.getShippingAddress() != null) {
-            dto.setShippingAddress(convertAddressToDTO(sale.getShippingAddress()));
+            CustomerOrderResponseDTO dto = new CustomerOrderResponseDTO();
+            dto.setId(sale.getId());
+            dto.setInvoiceNumber(sale.getInvoiceNumber() != null ? sale.getInvoiceNumber() : "N/A");
+            dto.setTotalAmount(sale.getTotalAmount() != null ? sale.getTotalAmount() : BigDecimal.ZERO);
+            dto.setStatus(sale.getStatus() != null ? sale.getStatus().name() : "UNKNOWN");
+            dto.setPaymentMethod(sale.getPaymentMethod() != null ? sale.getPaymentMethod().name() : "UNKNOWN");
+            dto.setDeliveryMethod(sale.getDeliveryMethod() != null ? sale.getDeliveryMethod().name() : "UNKNOWN");
+            dto.setCreatedAt(sale.getCreatedAt());
+            dto.setUpdatedAt(sale.getUpdatedAt());
+
+            // ✅ Manejar items con try-catch para LazyLoading
+            try {
+                if (sale.getItems() != null && Hibernate.isInitialized(sale.getItems())) {
+                    List<OrderItemResponseDTO> itemDTOs = sale.getItems().stream()
+                            .map(this::convertSaleItemToDTO)
+                            .collect(Collectors.toList());
+                    dto.setItems(itemDTOs);
+                    log.debug("🛍️ {} items convertidos para orden {}", itemDTOs.size(), sale.getId());
+                } else {
+                    log.warn("⚠️ Items no inicializados para orden {}", sale.getId());
+                    dto.setItems(List.of());
+                }
+            } catch (Exception e) {
+                log.warn("⚠️ Error accediendo a items de orden {}: {}", sale.getId(), e.getMessage());
+                dto.setItems(List.of());
+            }
+
+            // ✅ Manejar dirección de envío
+            try {
+                if (sale.getShippingAddress() != null && Hibernate.isInitialized(sale.getShippingAddress())) {
+                    dto.setShippingAddress(convertAddressToDTO(sale.getShippingAddress()));
+                    log.debug("📍 Dirección de envío convertida para orden {}", sale.getId());
+                } else {
+                    log.warn("⚠️ Dirección no inicializada para orden {}", sale.getId());
+                    dto.setShippingAddress(null);
+                }
+            } catch (Exception e) {
+                log.warn("⚠️ Error accediendo a dirección de orden {}: {}", sale.getId(), e.getMessage());
+                dto.setShippingAddress(null);
+            }
+
+            // ✅ Manejar pago
+            try {
+                if (sale.getPayment() != null && Hibernate.isInitialized(sale.getPayment())) {
+                    dto.setPaymentInfo(convertPaymentToDTO(sale.getPayment()));
+                    log.debug("💳 Información de pago convertida para orden {}", sale.getId());
+                } else {
+                    log.warn("⚠️ Pago no inicializado para orden {}", sale.getId());
+                    dto.setPaymentInfo(null);
+                }
+            } catch (Exception e) {
+                log.warn("⚠️ Error accediendo a pago de orden {}: {}", sale.getId(), e.getMessage());
+                dto.setPaymentInfo(null);
+            }
+
+            log.debug("✅ Conversión exitosa de la orden {}", sale.getId());
+            return dto;
+
+        } catch (Exception e) {
+            log.error("❌ Error crítico convirtiendo orden {} a DTO: {}", sale != null ? sale.getId() : "null",
+                    e.getMessage(), e);
+            // En lugar de lanzar excepción, retornar DTO básico
+            return createBasicOrderDTO(sale);
         }
-
-        // Convertir items
-        List<OrderItemResponseDTO> itemDTOs = saleItemRepository.findBySaleId(sale.getId())
-                .stream()
-                .map(this::convertSaleItemToDTO)
-                .collect(Collectors.toList());
-        dto.setItems(itemDTOs);
-
-        // Convertir información de pago
-        Optional<Payment> payment = paymentRepository.findBySaleId(sale.getId());
-        if (payment.isPresent()) {
-            dto.setPaymentInfo(convertPaymentToDTO(payment.get()));
-        }
-
-        return dto;
     }
 
     private AddressResponseDTO convertAddressToDTO(Address address) {

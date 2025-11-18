@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="header">
+        <header class="header">
+            <div class="container">
+                <nav class="nav">
+                    <!-- Logo -->
+                    <div class="nav-brand">
+                        <a href="/" class="logo">
+                            <span>🐾 PetLuz</span>
+                        </a>
+                    </div>
+
+                    <!-- Navegación principal -->
+                    <ul class="nav-menu">
+                        <li class="nav-item">
+                            <a href="/customer/products" class="nav-link">Productos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/user/dashboard" class="nav-link">Mi Cuenta</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/user/orders" class="nav-link">Mis Pedidos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/user/addresses" class="nav-link">Direcciones</a>
+                        </li>
+                    </ul>
+
+                    <!-- Acciones del usuario -->
+                    <div class="nav-actions">
+                        <!-- Botón del carrito -->
+                        <button class="cart-btn" id="cartToggle">
+                            <span class="cart-icon">🛒</span>
+                            <span class="cart-count" id="headerCartCount">0</span>
+                        </button>
+
+                        <!-- Menú de usuario -->
+                        <div class="user-menu">
+                            <button class="user-btn" id="userMenuToggle">
+                                <span class="user-avatar">
+                                    <img th:src="${user?.displayProfilePicture ?: '/images/default-avatar.png'}" 
+                                         alt="Avatar" 
+                                         onerror="this.src='/images/default-avatar.png'">
+                                </span>
+                                <span class="user-name" th:text="${user?.firstName}">Usuario</span>
+                            </button>
+                            <div class="user-dropdown" id="userDropdown">
+                                <a href="/user/profile" class="dropdown-item">
+                                    <span>👤</span> Mi Perfil
+                                </a>
+                                <a href="/user/orders" class="dropdown-item">
+                                    <span>📋</span> Mis Pedidos
+                                </a>
+                                <a href="/user/addresses" class="dropdown-item">
+                                    <span>📍</span> Direcciones
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a href="/auth/logout" class="dropdown-item logout">
+                                    <span>🚪</span> Cerrar Sesión
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Menú hamburguesa para móvil -->
+                    <button class="nav-toggle" id="navToggle">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <style>
+            .header {
+                background: white;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+            }
+
+            .nav {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 1rem 0;
+            }
+
+            .nav-brand .logo {
+                font-size: 1.5rem;
+                font-weight: bold;
+                text-decoration: none;
+                color: #333;
+            }
+
+            .nav-menu {
+                display: flex;
+                list-style: none;
+                margin: 0;
+                padding: 0;
+                gap: 2rem;
+            }
+
+            .nav-link {
+                text-decoration: none;
+                color: #333;
+                font-weight: 500;
+                transition: color 0.3s ease;
+            }
+
+            .nav-link:hover {
+                color: #667eea;
+            }
+
+            .nav-actions {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .cart-btn {
+                position: relative;
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 0.5rem;
+                font-size: 1.2rem;
+                transition: transform 0.2s ease;
+            }
+
+            .cart-btn:hover {
+                transform: scale(1.1);
+            }
+
+            .cart-count {
+                position: absolute;
+                top: -5px;
+                right: -5px;
+                background: #ff4444;
+                color: white;
+                border-radius: 50%;
+                width: 20px;
+                height: 20px;
+                font-size: 0.8rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+            }
+
+            .user-menu {
+                position: relative;
+            }
+
+            .user-btn {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 0.5rem;
+                border-radius: 50px;
+                transition: background 0.3s ease;
+            }
+
+            .user-btn:hover {
+                background: #f5f5f5;
+            }
+
+            .user-avatar {
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                overflow: hidden;
+            }
+
+            .user-avatar img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .user-name {
+                font-weight: 500;
+                color: #333;
+            }
+
+            .user-dropdown {
+                position: absolute;
+                top: 100%;
+                right: 0;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+                min-width: 200px;
+                padding: 0.5rem 0;
+                opacity: 0;
+                visibility: hidden;
+                transform: translateY(-10px);
+                transition: all 0.3s ease;
+            }
+
+            .user-dropdown.show {
+                opacity: 1;
+                visibility: visible;
+                transform: translateY(0);
+            }
+
+            .dropdown-item {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                padding: 0.75rem 1rem;
+                text-decoration: none;
+                color: #333;
+                transition: background 0.3s ease;
+            }
+
+            .dropdown-item:hover {
+                background: #f8f9fa;
+            }
+
+            .dropdown-item.logout {
+                color: #ff4444;
+            }
+
+            .dropdown-divider {
+                height: 1px;
+                background: #e9ecef;
+                margin: 0.5rem 0;
+            }
+
+            .nav-toggle {
+                display: none;
+                flex-direction: column;
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 0.5rem;
+            }
+
+            .nav-toggle span {
+                width: 25px;
+                height: 3px;
+                background: #333;
+                margin: 2px 0;
+                transition: 0.3s;
+            }
+
+            /* Responsive */
+            @media (max-width: 768px) {
+                .nav-menu {
+                    position: fixed;
+                    top: 70px;
+                    left: -100%;
+                    flex-direction: column;
+                    background: white;
+                    width: 100%;
+                    text-align: center;
+                    transition: 0.3s;
+                    box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
+                    padding: 2rem 0;
+                    gap: 0;
+                }
+
+                .nav-menu.active {
+                    left: 0;
+                }
+
+                .nav-item {
+                    margin: 1rem 0;
+                }
+
+                .nav-toggle {
+                    display: flex;
+                }
+
+                .nav-toggle.active span:nth-child(1) {
+                    transform: rotate(-45deg) translate(-5px, 6px);
+                }
+
+                .nav-toggle.active span:nth-child(2) {
+                    opacity: 0;
+                }
+
+                .nav-toggle.active span:nth-child(3) {
+                    transform: rotate(45deg) translate(-5px, -6px);
+                }
+
+                .user-name {
+                    display: none;
+                }
+            }
+        </style>
+
+        <script>
+            class HeaderManager {
+                constructor() {
+                    this.init();
+                }
+
+                init() {
+                    this.setupEventListeners();
+                    this.updateCartCount();
+                    this.loadUserData();
+                }
+
+                setupEventListeners() {
+                    // Toggle menú móvil
+                    const navToggle = document.getElementById('navToggle');
+                    const navMenu = document.querySelector('.nav-menu');
+                    
+                    navToggle?.addEventListener('click', () => {
+                        navMenu.classList.toggle('active');
+                        navToggle.classList.toggle('active');
+                    });
+
+                    // Toggle carrito sidebar
+                    const cartToggle = document.getElementById('cartToggle');
+                    cartToggle?.addEventListener('click', () => {
+                        window.dispatchEvent(new CustomEvent('toggleCartSidebar'));
+                    });
+
+                    // Toggle menú de usuario
+                    const userMenuToggle = document.getElementById('userMenuToggle');
+                    const userDropdown = document.getElementById('userDropdown');
+                    
+                    userMenuToggle?.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        userDropdown.classList.toggle('show');
+                    });
+
+                    // Cerrar menú al hacer clic fuera
+                    document.addEventListener('click', () => {
+                        userDropdown?.classList.remove('show');
+                    });
+
+                    // Prevenir cierre al hacer clic dentro del menú
+                    userDropdown?.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                    });
+
+                    // Escuchar actualizaciones del carrito
+                    window.addEventListener('cartUpdated', () => {
+                        this.updateCartCount();
+                    });
+                }
+
+                updateCartCount() {
+                    const cart = this.getCartFromStorage();
+                    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+                    const cartCountElement = document.getElementById('headerCartCount');
+                    if (cartCountElement) {
+                        cartCountElement.textContent = totalItems;
+                    }
+                    
+                }
+
+                getCartFromStorage() {
+                    return JSON.parse(localStorage.getItem('petluz_cart') || '[]');
+                }
+
+                async loadUserData() {
+                    try {
+                        const response = await fetch('/api/customer/profile');
+                        if (response.ok) {
+                            const userData = await response.json();
+                            this.updateUserAvatar(userData);
+                        }
+                    } catch (error) {
+                        console.error('Error loading user data:', error);
+                    }
+                }
+
+                updateUserAvatar(userData) {
+                    const avatarImg = document.querySelector('.user-avatar img');
+                    if (avatarImg && userData.profilePicture) {
+                        avatarImg.src = userData.profilePicture;
+                    }
+                }
+            }
+
+            // Inicializar cuando el DOM esté listo
+            document.addEventListener('DOMContentLoaded', () => {
+                new HeaderManager();
+            });
+        </script>
+    </div>
+</body>
+</html>

@@ -28,12 +28,7 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
 
         @Query("SELECT s FROM Sale s WHERE s.createdAt BETWEEN :startDate AND :endDate")
         List<Sale> findByDateRange(@Param("startDate") LocalDateTime startDate,
-                        @Param("startDate") LocalDateTime endDate);
-
-        @Query("SELECT s FROM Sale s WHERE s.createdAt BETWEEN :startDate AND :endDate AND s.status = :status")
-        List<Sale> findByDateRangeAndStatus(@Param("startDate") LocalDateTime startDate,
-                        @Param("endDate") LocalDateTime endDate,
-                        @Param("status") SaleStatus status);
+                        @Param("endDate") LocalDateTime endDate);
 
         @Query("SELECT COUNT(s) FROM Sale s WHERE s.status = :status")
         Long countByStatus(@Param("status") SaleStatus status);
@@ -70,4 +65,19 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
                         @Param("userId") Long userId);
 
         Page<Sale> findByUserId(Long userId, Pageable pageable);
+
+        @Query("SELECT s FROM Sale s " +
+                        "LEFT JOIN FETCH s.items si " +
+                        "LEFT JOIN FETCH si.product " +
+                        "LEFT JOIN FETCH s.shippingAddress " +
+                        "LEFT JOIN FETCH s.payment " +
+                        "WHERE s.id = :id AND s.user.id = :userId")
+        Optional<Sale> findByIdAndUserIdWithDetails(@Param("id") Long id, @Param("userId") Long userId);
+
+        @Query("SELECT s FROM Sale s LEFT JOIN FETCH s.user WHERE " +
+                        "LOWER(s.invoiceNumber) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+                        "LOWER(s.user.email) LIKE LOWER(CONCAT('%', :search, '%'))")
+        Page<Sale> findByInvoiceNumberContainingIgnoreCaseOrUserEmailContainingIgnoreCase(
+                        @Param("search") String search, Pageable pageable);
+
 }

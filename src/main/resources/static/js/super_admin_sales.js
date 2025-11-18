@@ -13,7 +13,7 @@ class SalesManager {
         this.setDefaultDates();
         this.loadSalesStats();
         this.loadSales();
-        
+
         // Actualizar cada 60 segundos
         setInterval(() => {
             this.loadSalesStats();
@@ -29,7 +29,7 @@ class SalesManager {
                 card.style.transform = 'translateY(-5px)';
                 card.style.boxShadow = '0 15px 40px rgba(106, 47, 180, 0.25)';
             });
-            
+
             card.addEventListener('mouseleave', () => {
                 card.style.transform = 'translateY(0)';
                 card.style.boxShadow = '0 8px 30px rgba(106, 47, 180, 0.15)';
@@ -53,16 +53,16 @@ class SalesManager {
         try {
             console.log('Cargando estadísticas de ventas...');
             const response = await fetch('/api/super-admin/sales/stats');
-            
+
             if (!response.ok) {
                 throw new Error(`Error HTTP: ${response.status}`);
             }
-            
+
             const stats = await response.json();
             console.log('Estadísticas recibidas:', stats);
-            
+
             this.updateSalesStats(stats);
-            
+
         } catch (error) {
             console.error('Error cargando estadísticas de ventas:', error);
             this.showError('Error al cargar las estadísticas de ventas');
@@ -71,10 +71,10 @@ class SalesManager {
 
     updateSalesStats(stats) {
         // Calcular ventas enviadas (si no viene en el DTO)
-        const shippedSales = (stats.totalSales || 0) - 
-                           (stats.pendingSales || 0) - 
-                           (stats.paidSales || 0) - 
-                           (stats.deliveredSales || 0);
+        const shippedSales = (stats.totalSales || 0) -
+            (stats.pendingSales || 0) -
+            (stats.paidSales || 0) -
+            (stats.deliveredSales || 0);
 
         const elementsMap = {
             'total-sales': stats.totalSales || 0,
@@ -109,7 +109,7 @@ class SalesManager {
         // Lógica simple para calcular tendencia
         const total = stats.totalSales || 0;
         const delivered = stats.deliveredSales || 0;
-        
+
         if (total === 0) return 0;
         return Math.round((delivered / total) * 100);
     }
@@ -118,12 +118,12 @@ class SalesManager {
         // Lógica simple para tendencia de ingresos
         const totalRevenue = stats.totalRevenue ? parseFloat(stats.totalRevenue) : 0;
         const todayRevenue = stats.todayRevenue ? parseFloat(stats.todayRevenue) : 0;
-        
+
         if (totalRevenue === 0) return '0%';
-        
+
         const dailyAverage = totalRevenue / 30; // Promedio mensual
         if (dailyAverage === 0) return '0%';
-        
+
         const trend = ((todayRevenue - dailyAverage) / dailyAverage) * 100;
         return `${trend > 0 ? '+' : ''}${Math.round(trend)}%`;
     }
@@ -132,38 +132,77 @@ class SalesManager {
         try {
             this.currentPage = page;
             const filters = this.getCurrentFilters();
-            
-            let url = `/api/super-admin/sales/paginated?page=${page}&size=10`;
-            
-            const params = new URLSearchParams();
-            if (filters.status) params.append('status', filters.status);
-            if (filters.startDate) params.append('startDate', filters.startDate);
-            if (filters.endDate) params.append('endDate', filters.endDate);
-            if (filters.search) params.append('search', filters.search);
 
-            if (params.toString()) {
-                url += `&${params.toString()}`;
+            let url;
+            const params = new URLSearchParams();
+
+            // Estrategia: usar endpoints existentes según los filtros
+            if (filters.status) {
+                // Usar endpoint por estado
+                url = `/api/super-admin/sales/status/${filters.status}`;
+            } else if (filters.startDate && filters.endDate) {
+                // Usar endpoint por rango de fechas
+                url = `/api/super-admin/sales/date-range?startDate=${filters.startDate}&endDate=${filters.endDate}`;
+            } else if (filters.search) {
+                // Para búsqueda, usar endpoint paginado y filtrar en frontend
+                url = `/api/super-admin/sales/paginated?page=${page}&size=10&sort=createdAt,desc`;
+            } else {
+                // Sin filtros, usar endpoint paginado normal
+                url = `/api/super-admin/sales/paginated?page=${page}&size=10&sort=createdAt,desc`;
             }
 
             this.showLoading(true);
             console.log('Cargando ventas desde:', url);
 
             const response = await fetch(url);
-            
+
             if (!response.ok) {
                 throw new Error(`Error HTTP: ${response.status}`);
             }
-            
-            const data = await response.json();
+
+            let data = await response.json();
             console.log('Ventas recibidas:', data);
-            
+
+            // Si hay búsqueda, filtrar en el frontend
+            if (filters.search && Array.isArray(data)) {
+                data = this.filterSalesBySearch(data, filters.search);
+            }
+
             this.displaySales(data);
-            
+
         } catch (error) {
             console.error('Error cargando ventas:', error);
             this.showError('Error al cargar las ventas: ' + error.message);
+
+            // Fallback: cargar sin filtros
+            this.loadSalesWithoutFilters(page);
         } finally {
             this.showLoading(false);
+        }
+    }
+
+    // Método auxiliar para filtrar por búsqueda en frontend
+    filterSalesBySearch(sales, searchTerm) {
+        const term = searchTerm.toLowerCase().trim();
+        return sales.filter(sale =>
+            (sale.invoiceNumber && sale.invoiceNumber.toLowerCase().includes(term)) ||
+            (sale.userEmail && sale.userEmail.toLowerCase().includes(term)) ||
+            (sale.userFullName && sale.userFullName.toLowerCase().includes(term))
+        );
+    }
+
+    // Método de fallback
+    async loadSalesWithoutFilters(page = 0) {
+        try {
+            const url = `/api/super-admin/sales/paginated?page=${page}&size=10&sort=createdAt,desc`;
+            const response = await fetch(url);
+
+            if (response.ok) {
+                const data = await response.json();
+                this.displaySales(data);
+            }
+        } catch (error) {
+            console.error('Error en fallback:', error);
         }
     }
 
@@ -252,10 +291,10 @@ class SalesManager {
                         <button class="action-btn edit" onclick="salesManager.openStatusModal(${sale.id}, '${sale.status}')" title="Cambiar estado">
                             <i class="fas fa-edit"></i>
                         </button>
-                        ${sale.status !== 'CANCELLED' && sale.status !== 'DELIVERED' ? 
-                            `<button class="action-btn cancel" onclick="salesManager.cancelSale(${sale.id})" title="Cancelar venta">
-                                <i class="fas fa-times"></i>
-                            </button>` : ''}
+                        ${sale.status !== 'CANCELLED' && sale.status !== 'DELIVERED' ?
+                `<button class="action-btn cancel" onclick="salesManager.openCancelModal(${sale.id})" title="Cancelar venta">
+                    <i class="fas fa-times"></i>
+                </button>` : ''}
                     </div>
                 </td>
             </tr>
@@ -293,7 +332,7 @@ class SalesManager {
     updatePagination(totalElements) {
         document.getElementById('currentPage').textContent = this.currentPage + 1;
         document.getElementById('totalPages').textContent = this.totalPages;
-        
+
         document.getElementById('prevPage').disabled = this.currentPage === 0;
         document.getElementById('nextPage').disabled = this.currentPage >= this.totalPages - 1;
     }
@@ -305,27 +344,77 @@ class SalesManager {
         }
     }
 
+    // En super_sales.js - modifica estos métodos:
+
     openStatusModal(saleId, currentStatus) {
         document.getElementById('currentSaleId').value = saleId;
-        document.getElementById('newStatus').value = currentStatus;
-        document.getElementById('statusNotes').value = '';
-        
+
+        // Desmarcar todos los radios primero
+        document.querySelectorAll('.status-radio').forEach(radio => {
+            radio.checked = false;
+        });
+
+        // Marcar el radio del estado actual
+        const currentRadio = document.querySelector(`.status-radio[value="${currentStatus}"]`);
+        if (currentRadio) {
+            currentRadio.checked = true;
+        }
+
         const modal = new bootstrap.Modal(document.getElementById('statusModal'));
         modal.show();
     }
 
+    // Nuevo método para abrir modal de cancelación
+    openCancelModal(saleId) {
+        document.getElementById('cancelSaleId').value = saleId;
+        const modal = new bootstrap.Modal(document.getElementById('cancelModal'));
+        modal.show();
+    }
+
+    // Método para confirmar la cancelación
+    async confirmCancelSale() {
+        const saleId = document.getElementById('cancelSaleId').value;
+
+        try {
+            const response = await fetch(`/api/super-admin/sales/${saleId}/cancel`, {
+                method: 'POST',
+                headers: getHeaders()
+            });
+
+            if (response.ok) {
+                bootstrap.Modal.getInstance(document.getElementById('cancelModal')).hide();
+                this.loadSales(this.currentPage);
+                this.loadSalesStats();
+                showAlert('Venta cancelada correctamente', 'success');
+            } else {
+                const errorText = await response.text();
+                throw new Error(errorText || 'Error cancelando venta');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showAlert('Error cancelando venta: ' + error.message, 'danger');
+        }
+    }
+
+    // Modifica el método updateSaleStatus para usar los radios
     async updateSaleStatus() {
         const saleId = document.getElementById('currentSaleId').value;
-        const newStatus = document.getElementById('newStatus').value;
-        const notes = document.getElementById('statusNotes').value;
+        const selectedRadio = document.querySelector('.status-radio:checked');
+
+        if (!selectedRadio) {
+            showAlert('Por favor selecciona un estado', 'warning');
+            return;
+        }
+
+        const newStatus = selectedRadio.value;
 
         try {
             const response = await fetch(`/api/super-admin/sales/${saleId}/status`, {
                 method: 'PATCH',
                 headers: getHeaders(),
                 body: JSON.stringify({
-                    status: newStatus,
-                    notes: notes
+                    status: newStatus
+                    // Se eliminó el campo notes
                 })
             });
 
@@ -345,27 +434,9 @@ class SalesManager {
         }
     }
 
+    // Modifica la función cancelSale para usar el modal
     async cancelSale(saleId) {
-        if (confirm('¿Estás seguro de que deseas cancelar esta venta?\n\nEsta acción no se puede deshacer.')) {
-            try {
-                const response = await fetch(`/api/super-admin/sales/${saleId}/cancel`, {
-                    method: 'POST',
-                    headers: getHeaders()
-                });
-
-                if (response.ok) {
-                    this.loadSales(this.currentPage);
-                    this.loadSalesStats();
-                    showAlert('Venta cancelada correctamente', 'success');
-                } else {
-                    const errorText = await response.text();
-                    throw new Error(errorText || 'Error cancelando venta');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                showAlert('Error cancelando venta: ' + error.message, 'danger');
-            }
-        }
+        this.openCancelModal(saleId);
     }
 
     clearFilters() {
@@ -381,7 +452,7 @@ class SalesManager {
         try {
             const filters = this.getCurrentFilters();
             let url = '/api/super-admin/sales/export';
-            
+
             const params = new URLSearchParams();
             if (filters.status) params.append('status', filters.status);
             if (filters.startDate) params.append('startDate', filters.startDate);
@@ -395,7 +466,7 @@ class SalesManager {
             showAlert('Generando archivo de exportación...', 'info');
 
             const response = await fetch(url);
-            
+
             if (response.ok) {
                 const blob = await response.blob();
                 const url = window.URL.createObjectURL(blob);
@@ -563,7 +634,7 @@ function exportSales() {
 }
 
 // Inicializar sales manager cuando se carga la página
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     console.log('Inicializando Sales Manager...');
     window.salesManager = new SalesManager();
 });

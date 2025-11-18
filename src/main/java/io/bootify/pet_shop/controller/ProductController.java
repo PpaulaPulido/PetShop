@@ -38,14 +38,14 @@ public class ProductController {
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ProductResponseDTO> updateProduct(
-            @PathVariable Long id, 
+            @PathVariable Long id,
             @ModelAttribute ProductRequestDTO request) {
         return ResponseEntity.ok(productService.updateProduct(id, request));
     }
 
     @PatchMapping("/{id}/stock")
     public ResponseEntity<ProductResponseDTO> updateStock(
-            @PathVariable Long id, 
+            @PathVariable Long id,
             @RequestBody StockUpdateRequestDTO request) {
         return ResponseEntity.ok(productService.updateStock(id, request));
     }

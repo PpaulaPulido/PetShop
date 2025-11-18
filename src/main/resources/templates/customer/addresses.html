@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Direcciones - PetLuz</title>
+    <link rel="stylesheet" th:href="@{/css/base_customer.css}">
+    <link rel="stylesheet" th:href="@{/css/customer_addresses.css}">
+</head>
+<body>
+    <!-- Header -->
+    <div th:replace="shared/header :: header"></div>
+
+    <!-- Sidebar del carrito -->
+    <div th:replace="shared/cart-sidebar :: cart-sidebar"></div>
+
+    <main class="addresses-container">
+        <div class="container">
+            <!-- Header de la página -->
+            <section class="addresses-header">
+                <div class="header-content">
+                    <h1>📍 Mis Direcciones</h1>
+                    <p>Gestiona tus direcciones de envío en Colombia</p>
+                </div>
+                <a href="/user/addresses/new" class="btn btn-primary">
+                    ➕ Agregar Nueva Dirección
+                </a>
+            </section>
+
+            <!-- Lista de direcciones -->
+            <section class="addresses-list-section">
+                <div class="section-header">
+                    <h2>Mis Direcciones Guardadas</h2>
+                    <span class="addresses-count" id="addressesCount">0 direcciones</span>
+                </div>
+
+                <!-- Estados de carga y vacío -->
+                <div class="addresses-state" id="addressesState">
+                    <div class="loading-addresses">
+                        <div class="loading-spinner"></div>
+                        <p>Cargando tus direcciones...</p>
+                    </div>
+                </div>
+
+                <!-- Grid de direcciones -->
+                <div class="addresses-grid" id="addressesGrid" style="display: none;">
+                    <!-- Las direcciones se cargarán aquí dinámicamente -->
+                </div>
+
+                <!-- Estado vacío -->
+                <div class="empty-addresses" id="emptyAddresses" style="display: none;">
+                    <div class="empty-state">
+                        <div class="empty-icon">📍</div>
+                        <h3>No tienes direcciones guardadas</h3>
+                        <p>Agrega tu primera dirección para recibir tus pedidos</p>
+                        <a href="/user/addresses/new" class="btn btn-primary">
+                            Agregar Primera Dirección
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Información sobre direcciones -->
+            <section class="addresses-info">
+                <div class="info-cards">
+                    <div class="info-card">
+                        <div class="info-icon">🚚</div>
+                        <div class="info-content">
+                            <h4>Envío a Toda Colombia</h4>
+                            <p>Realizamos envíos a todos los departamentos y municipios de Colombia</p>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon">⏰</div>
+                        <div class="info-content">
+                            <h4>Tiempos de Entrega</h4>
+                            <p>Los tiempos varían según la ciudad: Bogotá 1-2 días, otras ciudades 3-5 días</p>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon">📞</div>
+                        <div class="info-content">
+                            <h4>¿Problemas con tu dirección?</h4>
+                            <p>Contacta a nuestro equipo de soporte para ayudarte</p>
+                            <a href="/contact" class="btn-link">Contactar Soporte</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Modal de confirmación de eliminación -->
+    <div class="modal-overlay" id="deleteModalOverlay" style="display: none;">
+        <div class="modal" id="deleteModal">
+            <div class="modal-header">
+                <h3>Eliminar Dirección</h3>
+                <button type="button" class="modal-close" id="closeDeleteModal">✕</button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que quieres eliminar esta dirección?</p>
+                <div class="delete-warning">
+                    <p>⚠️ Esta acción no se puede deshacer.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelDeleteBtn">
+                    Cancelar
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    Sí, Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div th:replace="shared/footer :: footer-pedLUz"></div>
+
+    <!-- Notificaciones -->
+    <div id="notificationContainer"></div>
+
+    <script th:src="@{/js/customer_addresses_list.js}"></script>
+</body>
+</html>

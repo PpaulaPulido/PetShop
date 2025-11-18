@@ -9,6 +9,7 @@ import io.bootify.pet_shop.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,55 +37,93 @@ public class SaleService {
     }
 
     // ========== MÉTODOS DE CONSULTA ==========
-
+    
+    @Transactional(readOnly = true)
     public List<SaleResponseDTO> getAllSales() {
         User currentUser = getCurrentUser();
         log.info("🛒 SUPER_ADMIN {} consultando todas las ventas", currentUser.getEmail());
-        
+
         return saleRepository.findAllOrderByCreatedAtDesc().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public Page<SaleResponseDTO> getAllSales(Pageable pageable) {
         User currentUser = getCurrentUser();
         log.info("🛒 SUPER_ADMIN {} consultando ventas paginadas", currentUser.getEmail());
-        
+
         return saleRepository.findAll(pageable)
                 .map(this::convertToDTO);
     }
 
+    @Transactional(readOnly = true)
     public SaleResponseDTO getSaleById(Long id) {
         Sale sale = saleRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Venta no encontrada"));
         return convertToDTO(sale);
     }
 
+    @Transactional(readOnly = true)
     public SaleResponseDTO getSaleByInvoiceNumber(String invoiceNumber) {
         Sale sale = saleRepository.findByInvoiceNumber(invoiceNumber)
                 .orElseThrow(() -> new RuntimeException("Venta no encontrada"));
         return convertToDTO(sale);
     }
 
+    @Transactional(readOnly = true)
     public List<SaleResponseDTO> getSalesByStatus(SaleStatus status) {
         return saleRepository.findByStatus(status).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<SaleResponseDTO> getSalesByUser(Long userId) {
         return saleRepository.findByUserId(userId).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<SaleResponseDTO> getSalesByDateRange(LocalDate startDate, LocalDate endDate) {
         LocalDateTime start = startDate.atStartOfDay();
         LocalDateTime end = endDate.atTime(LocalTime.MAX);
-        
+
         return saleRepository.findByDateRange(start, end).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public Page<SaleResponseDTO> getSalesWithFilters(String search, SaleStatus status,
+            LocalDate startDate, LocalDate endDate,
+            Pageable pageable) {
+        User currentUser = getCurrentUser();
+        log.info("🛒 SUPER_ADMIN {} consultando ventas con filtros", currentUser.getEmail());
+
+        // Si hay búsqueda por texto, buscar por número de factura o email de usuario
+        if (search != null && !search.trim().isEmpty()) {
+            return saleRepository.findByInvoiceNumberContainingIgnoreCaseOrUserEmailContainingIgnoreCase(
+                    search.trim(), pageable).map(this::convertToDTO);
+        }
+
+        // Si hay filtro por estado
+        if (status != null) {
+            return saleRepository.findByStatus(status, pageable).map(this::convertToDTO);
+        }
+
+        // Si hay filtro por fecha
+        if (startDate != null && endDate != null) {
+            LocalDateTime start = startDate.atStartOfDay();
+            LocalDateTime end = endDate.atTime(LocalTime.MAX);
+            List<Sale> sales = saleRepository.findByDateRange(start, end);
+            // Convertir List a Page manualmente
+            return new PageImpl<>(sales, pageable, sales.size()).map(this::convertToDTO);
+        }
+
+        // Sin filtros, devolver todo paginado
+        return saleRepository.findAll(pageable).map(this::convertToDTO);
     }
 
     // ========== MÉTODOS DE GESTIÓN ==========
@@ -95,7 +134,7 @@ public class SaleService {
         Sale sale = saleRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Venta no encontrada"));
 
-        log.info("✏️ SUPER_ADMIN {} actualizando estado de venta {}: {} -> {}", 
+        log.info("✏️ SUPER_ADMIN {} actualizando estado de venta {}: {} -> {}",
                 currentUser.getEmail(), sale.getInvoiceNumber(), sale.getStatus(), request.getStatus());
 
         // Validaciones de transición de estado
@@ -136,37 +175,38 @@ public class SaleService {
 
     // ========== MÉTODOS DE ESTADÍSTICAS ==========
 
+    @Transactional(readOnly = true)
     public SalesStatsResponse getSalesStats() {
         User currentUser = getCurrentUser();
         log.info("📊 SUPER_ADMIN {} consultando estadísticas de ventas", currentUser.getEmail());
 
         SalesStatsResponse stats = new SalesStatsResponse();
-        
+
         // Totales por estado
         stats.setTotalSales(saleRepository.count());
         stats.setPendingSales(saleRepository.countByStatus(SaleStatus.PENDING));
         stats.setPaidSales(saleRepository.countByStatus(SaleStatus.PAID));
         stats.setDeliveredSales(saleRepository.countByStatus(SaleStatus.DELIVERED));
-        
+
         // Ingresos
         LocalDateTime todayStart = LocalDate.now().atStartOfDay();
         LocalDateTime todayEnd = LocalDate.now().atTime(LocalTime.MAX);
-        
+
         BigDecimal totalRevenue = saleRepository.getTotalRevenueByDateRange(
-            LocalDateTime.of(2020, 1, 1, 0, 0), // Desde el inicio
-            LocalDateTime.now()
-        );
+                LocalDateTime.of(2020, 1, 1, 0, 0), // Desde el inicio
+                LocalDateTime.now());
         stats.setTotalRevenue(totalRevenue != null ? totalRevenue : BigDecimal.ZERO);
-        
+
         BigDecimal todayRevenue = saleRepository.getTotalRevenueByDateRange(todayStart, todayEnd);
         stats.setTodayRevenue(todayRevenue != null ? todayRevenue : BigDecimal.ZERO);
-        
+
         // Productos con stock bajo
         stats.setLowStockProducts(productRepository.countLowStockProducts());
-        
+
         return stats;
     }
 
+    @Transactional(readOnly = true)
     public List<Object[]> getTopSellingProducts() {
         return saleItemRepository.findTopSellingProducts();
     }
@@ -178,68 +218,109 @@ public class SaleService {
         if (currentStatus == SaleStatus.CANCELLED && newStatus != SaleStatus.CANCELLED) {
             throw new RuntimeException("No se puede reactivar una venta cancelada");
         }
-        
+
         if (currentStatus == SaleStatus.DELIVERED && newStatus != SaleStatus.DELIVERED) {
             throw new RuntimeException("No se puede modificar una venta ya entregada");
         }
+        
+        // Validación adicional: no se puede cambiar a un estado anterior
+        if (isStatusDowngrade(currentStatus, newStatus)) {
+            throw new RuntimeException("No se puede retroceder el estado de la venta");
+        }
+    }
+    
+    private boolean isStatusDowngrade(SaleStatus current, SaleStatus newStatus) {
+        // Definir el orden de los estados
+        SaleStatus[] statusOrder = {
+            SaleStatus.PENDING,
+            SaleStatus.CONFIRMED, 
+            SaleStatus.PAID,
+            SaleStatus.SHIPPED,
+            SaleStatus.DELIVERED
+        };
+        
+        int currentIndex = -1;
+        int newIndex = -1;
+        
+        for (int i = 0; i < statusOrder.length; i++) {
+            if (statusOrder[i] == current) currentIndex = i;
+            if (statusOrder[i] == newStatus) newIndex = i;
+        }
+        
+        return currentIndex != -1 && newIndex != -1 && newIndex < currentIndex;
     }
 
     private void processDelivery(Sale sale) {
         // Marcar productos como entregados (stock ya fue descontado al crear la venta)
         log.info("📦 Procesando entrega para venta {}", sale.getInvoiceNumber());
+        // Aquí podrías agregar lógica adicional como enviar notificaciones, etc.
     }
 
     private void releaseStock(Sale sale) {
         // Liberar stock reservado al cancelar una venta
         for (SaleItem item : sale.getItems()) {
             Product product = item.getProduct();
-            product.setStock(product.getStock() + item.getQuantity());
+            int newStock = product.getStock() + item.getQuantity();
+            product.setStock(newStock);
             productRepository.save(product);
+            log.info("🔄 Stock liberado: producto {} +{} unidades", 
+                    product.getName(), item.getQuantity());
         }
         log.info("🔄 Stock liberado para venta cancelada {}", sale.getInvoiceNumber());
     }
 
+    @Transactional(readOnly = true)
     private SaleResponseDTO convertToDTO(Sale sale) {
         SaleResponseDTO dto = new SaleResponseDTO();
         dto.setId(sale.getId());
         dto.setInvoiceNumber(sale.getInvoiceNumber());
-        dto.setUserId(sale.getUser().getId());
-        dto.setUserEmail(sale.getUser().getEmail());
-        dto.setUserFullName(sale.getUser().getFullName());
+        
+        // Acceder al usuario dentro de la transacción
+        User user = sale.getUser();
+        dto.setUserId(user.getId());
+        dto.setUserEmail(user.getEmail());
+        dto.setUserFullName(user.getFullName());
+        
         dto.setTotalAmount(sale.getTotalAmount());
         dto.setStatus(sale.getStatus());
         dto.setPaymentMethod(sale.getPaymentMethod());
         dto.setDeliveryMethod(sale.getDeliveryMethod());
         dto.setCreatedAt(sale.getCreatedAt());
         dto.setUpdatedAt(sale.getUpdatedAt());
-        
+
         // Convertir items
         List<SaleItemResponseDTO> itemDTOs = saleItemRepository.findItemsWithProductBySaleId(sale.getId())
                 .stream()
                 .map(this::convertItemToDTO)
                 .collect(Collectors.toList());
         dto.setItems(itemDTOs);
-        
+
         // Convertir pago si existe
         paymentRepository.findBySaleId(sale.getId()).ifPresent(payment -> {
             dto.setPayment(convertPaymentToDTO(payment));
         });
-        
+
         return dto;
     }
 
+    @Transactional(readOnly = true)
     private SaleItemResponseDTO convertItemToDTO(SaleItem item) {
         SaleItemResponseDTO dto = new SaleItemResponseDTO();
         dto.setId(item.getId());
-        dto.setProductId(item.getProduct().getId());
-        dto.setProductName(item.getProduct().getName());
-        dto.setProductImage(item.getProduct().getDisplayImage());
+        
+        // Acceder al producto dentro de la transacción
+        Product product = item.getProduct();
+        dto.setProductId(product.getId());
+        dto.setProductName(product.getName());
+        dto.setProductImage(product.getDisplayImage());
+        
         dto.setQuantity(item.getQuantity());
         dto.setUnitPrice(item.getUnitPrice());
         dto.setSubtotal(item.getSubtotal());
         return dto;
     }
 
+    @Transactional(readOnly = true)
     private PaymentResponseDTO convertPaymentToDTO(Payment payment) {
         PaymentResponseDTO dto = new PaymentResponseDTO();
         dto.setId(payment.getId());

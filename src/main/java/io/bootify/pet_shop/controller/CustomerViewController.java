@@ -1,5 +1,7 @@
 package io.bootify.pet_shop.controller;
 
+import io.bootify.pet_shop.services.CartService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -7,49 +9,33 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/customer") // Cambiar la ruta base
+@RequestMapping("/customer")
+@RequiredArgsConstructor
 public class CustomerViewController {
+
+    private final CartService cartService;
 
     @GetMapping("/products")
     public String products(Model model) {
-        model.addAttribute("pageTitle", "Productos - PetShop");
+        model.addAttribute("pageTitle", "Productos - PetLuz");
+        model.addAttribute("cartItemCount", cartService.getCartItemCount());
         return "customer/products";
     }
 
     @GetMapping("/products/{id}")
     public String productDetails(@PathVariable Long id, Model model) {
-        model.addAttribute("pageTitle", "Detalles del Producto - PetShop");
+        model.addAttribute("pageTitle", "Detalles del Producto - PetLuz");
         model.addAttribute("productId", id);
+        model.addAttribute("cartItemCount", cartService.getCartItemCount());
         return "customer/product-details";
     }
 
-    @GetMapping("/about")
-    public String about(Model model) {
-        model.addAttribute("pageTitle", "Sobre Nosotros - PetShop");
-        return "customer/about";
-    }
-
-    @GetMapping("/contact")
-    public String contact(Model model) {
-        model.addAttribute("pageTitle", "Contacto - PetShop");
-        return "customer/contact";
-    }
-
-    @GetMapping("/faq")
-    public String faq(Model model) {
-        model.addAttribute("pageTitle", "Preguntas Frecuentes - PetShop");
-        return "customer/faq";
-    }
 
     @GetMapping("/terms")
     public String terms(Model model) {
-        model.addAttribute("pageTitle", "Términos y Condiciones - PetShop");
+        model.addAttribute("pageTitle", "Términos y Condiciones - PetLuz");
+        model.addAttribute("cartItemCount", cartService.getCartItemCount());
         return "customer/terms";
     }
 
-    @GetMapping("/privacy")
-    public String privacy(Model model) {
-        model.addAttribute("pageTitle", "Política de Privacidad - PetShop");
-        return "customer/privacy";
-    }
 }

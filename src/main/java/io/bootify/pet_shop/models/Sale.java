@@ -41,7 +41,6 @@ public class Sale {
     @Enumerated(EnumType.STRING)
     private DeliveryMethod deliveryMethod;
 
-    // NUEVO: Instrucciones de entrega
     @Column(name = "delivery_instructions", length = 500)
     private String deliveryInstructions;
 

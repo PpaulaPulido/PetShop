@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finalizar Compra - PetLuz</title>
+    <link rel="stylesheet" th:href="@{/css/base_customer.css}">
+    <link rel="stylesheet" th:href="@{/css/checkout.css}">
+</head>
+
+<body>
+    <!-- Header -->
+    <div th:replace="shared/header :: header"></div>
+
+    <!-- Sidebar del carrito -->
+    <div th:replace="shared/cart-sidebar :: cart-sidebar"></div>
+
+    <main class="checkout-container">
+        <div class="container">
+            <!-- Progreso de compra -->
+            <section class="checkout-progress">
+                <div class="progress-steps">
+                    <div class="step completed">
+                        <div class="step-number">1</div>
+                        <span>Carrito</span>
+                    </div>
+                    <div class="step active">
+                        <div class="step-number">2</div>
+                        <span>Envío & Pago</span>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <span>Confirmación</span>
+                    </div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 50%;"></div>
+                </div>
+            </section>
+
+            <div class="checkout-layout">
+                <!-- Columna izquierda - Información de envío y pago -->
+                <div class="checkout-main">
+                    <!-- Información de Envío -->
+                    <section class="checkout-section">
+                        <h2>📦 Información de Envío</h2>
+
+                        <!-- Direcciones guardadas -->
+                        <div class="address-selection">
+                            <label class="section-label">Seleccionar dirección de envío *</label>
+                            <div class="addresses-grid" id="addressesGrid">
+                                <!-- Las direcciones se cargarán aquí -->
+                                <div class="loading-addresses">Cargando direcciones...</div>
+                            </div>
+
+                            <button type="button" class="btn btn-outline btn-block" id="addAddressBtn">
+                                + Agregar Nueva Dirección
+                            </button>
+                        </div>
+
+                        <!-- Método de envío -->
+                        <div class="shipping-method">
+                            <label class="section-label">Método de envío *</label>
+                            <div class="shipping-options" id="shippingOptions">
+                                <div class="shipping-option selected" data-method="STANDARD_SHIPPING">
+                                    <div class="option-info">
+                                        <h4>Envío Estándar</h4>
+                                        <p>Entrega en 5-7 días hábiles</p>
+                                    </div>
+                                    <div class="option-price">$5.99</div>
+                                </div>
+                                <div class="shipping-option" data-method="EXPRESS_SHIPPING">
+                                    <div class="option-info">
+                                        <h4>Envío Express</h4>
+                                        <p>Entrega en 2-3 días hábiles</p>
+                                    </div>
+                                    <div class="option-price">$12.99</div>
+                                </div>
+                                <div class="shipping-option" data-method="STORE_PICKUP">
+                                    <div class="option-info">
+                                        <h4>Recoger en Tienda</h4>
+                                        <p>Recoge tu pedido sin costo</p>
+                                    </div>
+                                    <div class="option-price">Gratis</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Instrucciones de entrega -->
+                        <div class="delivery-instructions">
+                            <label class="section-label">Instrucciones de entrega (opcional)</label>
+                            <textarea id="deliveryInstructions"
+                                placeholder="Ej: Llamar antes de entregar, dejar con conserje, etc."
+                                rows="3"></textarea>
+                        </div>
+                    </section>
+
+                    <!-- Información de Pago -->
+                    <section class="checkout-section">
+                        <h2>💳 Información de Pago</h2>
+
+                        <!-- Métodos de pago -->
+                        <div class="payment-methods">
+                            <label class="section-label">Seleccionar método de pago *</label>
+                            <div class="payment-options" id="paymentOptions">
+                                <div class="payment-option selected" data-method="MERCADO_PAGO">
+                                    <div class="payment-icon">🟡</div>
+                                    <div class="payment-info">
+                                        <h4>Mercado Pago</h4>
+                                        <p>Paga de forma segura con Mercado Pago</p>
+                                        <small>Tarjetas de crédito, débito o saldo</small>
+                                    </div>
+                                </div>
+                                <div class="payment-option" data-method="CASH_ON_DELIVERY">
+                                    <div class="payment-icon">💰</div>
+                                    <div class="payment-info">
+                                        <h4>Pago Contra Entrega</h4>
+                                        <p>Paga en efectivo cuando recibas tu pedido</p>
+                                        <small>Solo disponible para envíos a domicilio</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Información adicional para Mercado Pago -->
+                        <div class="payment-info" id="mercadoPagoInfo" style="display: none;">
+                            <div class="info-box">
+                                <h4>💡 ¿Cómo funciona Mercado Pago?</h4>
+                                <ul>
+                                    <li>Serás redirigido a Mercado Pago para completar tu pago</li>
+                                    <li>Acepta tarjetas de crédito, débito y saldo en cuenta</li>
+                                    <li>Pago 100% seguro y protegido</li>
+                                    <li>Recibirás confirmación inmediata</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Información adicional para Contra Entrega -->
+                        <div class="payment-info" id="cashOnDeliveryInfo">
+                            <div class="info-box">
+                                <h4>💡 ¿Cómo funciona Pago Contra Entrega?</h4>
+                                <ul>
+                                    <li>Pagas en efectivo cuando recibas tu pedido</li>
+                                    <li>Prepara el monto exacto para facilitar la entrega</li>
+                                    <li>El repartidor llevará cambio limitado</li>
+                                    <li>Tu pedido se preparará una vez confirmada la orden</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Columna derecha - Resumen del pedido -->
+                <aside class="checkout-sidebar">
+                    <div class="order-summary">
+                        <h3>Resumen del Pedido</h3>
+
+                        <!-- Productos -->
+                        <div class="summary-items" id="summaryItems">
+                            <div class="loading-items">Cargando productos...</div>
+                        </div>
+
+                        <!-- Costos -->
+                        <div class="summary-costs">
+                            <div class="cost-row">
+                                <span>Subtotal:</span>
+                                <span id="summarySubtotal">$0.00</span>
+                            </div>
+                            <div class="cost-row">
+                                <span>Envío:</span>
+                                <span id="summaryShipping">$0.00</span>
+                            </div>
+                            <div class="cost-row">
+                                <span>Impuestos (19%):</span>
+                                <span id="summaryTax">$0.00</span>
+                            </div>
+                            <div class="cost-row total">
+                                <span>Total:</span>
+                                <span id="summaryTotal">$0.00</span>
+                            </div>
+                        </div>
+
+                        <!-- Información importante -->
+                        <div class="checkout-notice">
+                            <div class="notice-item">
+                                <span>📦</span>
+                                <span>Revisa que tu dirección sea correcta</span>
+                            </div>
+                            <div class="notice-item">
+                                <span>⏰</span>
+                                <span>Tu pedido se procesará inmediatamente</span>
+                            </div>
+                            <div class="notice-item">
+                                <span>📞</span>
+                                <span>Mantén tu teléfono disponible</span>
+                            </div>
+                        </div>
+
+                        <!-- Términos y condiciones -->
+                        <div class="terms-agreement">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="agreeTerms" required>
+                                <span>Acepto los <a href="/customer/terms" target="_blank">términos y condiciones</a>
+                                    *</span>
+                            </label>
+                        </div>
+
+                        <!-- Botón de pago -->
+                        <button type="button" class="btn btn-primary btn-payment btn-block" id="proceedPaymentBtn"
+                            disabled>
+                            Proceder al Pago
+                        </button>
+
+                        <!-- Seguridad -->
+                        <div class="security-notice">
+                            <p>🔒 Transacción segura y encriptada</p>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal para agregar dirección -->
+    <div class="modal-overlay" id="addressModalOverlay" style="display: none;">
+        <div class="modal" id="addressModal">
+            <div class="modal-header">
+                <h3>Agregar Nueva Dirección</h3>
+                <button type="button" class="modal-close" id="closeAddressModal">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="newAddressForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="newAddressLine1">Dirección Línea 1 *</label>
+                            <input type="text" id="newAddressLine1" name="addressLine1" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="newAddressLine2">Dirección Línea 2</label>
+                            <input type="text" id="newAddressLine2" name="addressLine2">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="newCity">Ciudad *</label>
+                            <input type="text" id="newCity" name="city" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="newDepartment">Departamento *</label>
+                            <select id="newDepartment" name="department" required>
+                                <option value="">Seleccionar...</option>
+                                <option value="BOGOTA_DC">Bogotá D.C.</option>
+                                <option value="ANTIOQUIA">Antioquia</option>
+                                <option value="VALLE_DEL_CAUCA">Valle del Cauca</option>
+                                <option value="CUNDINAMARCA">Cundinamarca</option>
+                                <option value="ATLANTICO">Atlántico</option>
+                                <!-- Más departamentos -->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="newZipCode">Código Postal *</label>
+                            <input type="text" id="newZipCode" name="zipCode" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="newAddressType">Tipo de Dirección</label>
+                            <select id="newAddressType" name="addressType">
+                                <option value="HOME">Casa</option>
+                                <option value="WORK">Trabajo</option>
+                                <option value="APARTMENT">Apartamento</option>
+                                <option value="OFFICE">Oficina</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Guardar Dirección</button>
+                        <button type="button" class="btn btn-secondary" id="cancelAddressModal">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div th:replace="shared/footer :: footer-pedLUz"></div>
+
+    <!-- Notificaciones -->
+    <div id="notificationContainer"></div>
+
+    <script th:src="@{/js/checkout.js}"></script>
+    <!-- En profile.html y confirmation.html, agrega esto antes del </body> -->
+    <script>
+        // Forzar actualización del carrito cuando se carga estas páginas específicas
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('🔄 Página de perfil/confirmación - Actualizando carrito...');
+
+            // Esperar a que el CartSidebar se inicialice
+            setTimeout(() => {
+                if (window.cartSidebar) {
+                    window.cartSidebar.loadCartItems();
+                } else if (window.refreshCart) {
+                    window.refreshCart();
+                }
+            }, 500);
+
+            // También actualizar cuando la página gana foco
+            document.addEventListener('visibilitychange', function () {
+                if (!document.hidden) {
+                    console.log('📄 Página visible - Actualizando carrito...');
+                    setTimeout(() => {
+                        if (window.cartSidebar) {
+                            window.cartSidebar.loadCartItems();
+                        } else if (window.refreshCart) {
+                            window.refreshCart();
+                        }
+                    }, 100);
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,54 +1,147 @@
 <!DOCTYPE html>
-<html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Cuenta - PetShop</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>Dashboard - PetLuz</title>
+    <link rel="stylesheet" th:href="@{/css/base_customer.css}">
+    <link rel="stylesheet" th:href="@{/css/customer_dashboard.css}">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container">
-            <a class="navbar-brand" href="/">
-                <i class="fas fa-paw text-primary"></i> PetShop
-            </a>
-            <div class="navbar-nav ms-auto">
-                <a href="/user/profile" class="btn btn-outline-primary me-2">Mi Perfil</a>
-                <a href="/auth/logout" class="btn btn-outline-secondary">Cerrar Sesión</a>
-            </div>
-        </div>
-    </nav>
+    <!-- Header con navegación y carrito -->
+    <div th:replace="shared/header :: header"></div>
 
-    <div class="container mt-4">
-        <div class="alert alert-success">
-            <h4><i class="fas fa-check-circle"></i> ¡Login exitoso!</h4>
-            <p>Bienvenido a tu cuenta de PetShop.</p>
-        </div>
-        
-        <h1>Mi Cuenta</h1>
-        <p>Bienvenido a tu panel de usuario.</p>
-        
-        <div class="row mt-4">
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Mis Pedidos</h5>
-                        <p class="card-text">Revisa el historial de tus pedidos.</p>
-                        <a href="/user/orders" class="btn btn-primary">Ver Pedidos</a>
+    <!-- Sidebar del carrito -->
+    <div th:replace="shared/cart-sidebar :: cart-sidebar"></div>
+
+    <main class="dashboard-container">
+        <div class="container">
+            <!-- Banner de bienvenida -->
+            <section class="welcome-banner">
+                <div class="welcome-content">
+                    <h1>Bienvenido, <span id="userName" th:text="${user?.firstName}">Usuario</span>! 🐾</h1>
+                    <p>Gestiona tus pedidos, direcciones y preferencias desde aquí.</p>
+                </div>
+                <div class="profile-completion" th:if="${profileCompletion}">
+                    <div class="completion-bar">
+                        <div class="completion-fill" th:style="'width: ' + ${profileCompletion} + '%;'"></div>
+                    </div>
+                    <p>Perfil completado al <span th:text="${profileCompletion}">0</span>%</p>
+                </div>
+            </section>
+
+            <!-- Estadísticas rápidas -->
+            <section class="quick-stats">
+                <div class="stats-grid">
+                    <!-- Pedidos Pendientes -->
+                    <div class="stat-card">
+                        <div class="stat-icon">📦</div>
+                        <div class="stat-info">
+                            <h3 id="pendingOrders">0</h3>
+                            <p>Pedidos Pendientes</p>
+                        </div>
+                    </div>
+
+                    <!-- Total Pedidos -->
+                    <div class="stat-card">
+                        <div class="stat-icon">🛒</div>
+                        <div class="stat-info">
+                            <h3 id="totalOrders">0</h3>
+                            <p>Total de Pedidos</p>
+                        </div>
+                    </div>
+
+                    <!-- Productos en Carrito -->
+                    <div class="stat-card">
+                        <div class="stat-icon">🛍️</div>
+                        <div class="stat-info">
+                            <h3 id="cartItemsCount">0</h3>
+                            <p>Productos en Carrito</p>
+                        </div>
+                    </div>
+
+                    <!-- Direcciones Guardadas -->
+                    <div class="stat-card">
+                        <div class="stat-icon">📍</div>
+                        <div class="stat-info">
+                            <h3 id="savedAddresses">0</h3>
+                            <p>Direcciones Guardadas</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Mi Perfil</h5>
-                        <p class="card-text">Actualiza tu información personal.</p>
-                        <a href="/user/profile" class="btn btn-primary">Editar Perfil</a>
-                    </div>
+            </section>
+
+            <!-- Acciones rápidas -->
+            <section class="quick-actions">
+                <h2>Acciones Rápidas</h2>
+                <div class="actions-grid">
+                    <a href="/user/cart" class="action-card">
+                        <div class="action-icon">🛒</div>
+                        <h3>Ver Carrito</h3>
+                        <p>Revisa y gestiona tus productos</p>
+                    </a>
+
+                    <a href="/user/orders" class="action-card">
+                        <div class="action-icon">📋</div>
+                        <h3>Mis Pedidos</h3>
+                        <p>Revisa el estado de tus pedidos</p>
+                    </a>
+
+                    <a href="/user/profile" class="action-card">
+                        <div class="action-icon">👤</div>
+                        <h3>Mi Perfil</h3>
+                        <p>Actualiza tu información personal</p>
+                    </a>
+
+                    <a href="/user/addresses" class="action-card">
+                        <div class="action-icon">📍</div>
+                        <h3>Mis Direcciones</h3>
+                        <p>Gestiona tus direcciones de envío</p>
+                    </a>
+
+                    <a href="/customer/products" class="action-card">
+                        <div class="action-icon">🐕</div>
+                        <h3>Seguir Comprando</h3>
+                        <p>Descubre nuevos productos</p>
+                    </a>
+
+                    <a href="#" class="action-card" id="quickCheckout">
+                        <div class="action-icon">🚀</div>
+                        <h3>Pago Rápido</h3>
+                        <p>Finaliza tu compra actual</p>
+                    </a>
                 </div>
-            </div>
+            </section>
+
+            <!-- Pedidos Recientes -->
+            <section class="recent-orders">
+                <div class="section-header">
+                    <h2>Pedidos Recientes</h2>
+                    <a href="/user/orders" class="view-all">Ver todos</a>
+                </div>
+                <div class="orders-list" id="recentOrders">
+                    <!-- Los pedidos se cargarán dinámicamente -->
+                    <div class="loading">Cargando pedidos recientes...</div>
+                </div>
+            </section>
+
+            <!-- Productos Recomendados -->
+            <section class="recommended-products">
+                <div class="section-header">
+                    <h2>Productos Recomendados</h2>
+                    <a href="/customer/products" class="view-all">Ver todos</a>
+                </div>
+                <div class="products-grid" id="recommendedProducts">
+                    <!-- Los productos se cargarán dinámicamente -->
+                    <div class="loading">Cargando productos recomendados...</div>
+                </div>
+            </section>
         </div>
-    </div>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="shared/footer :: footer-pedLUz"></div>
+    
+    <script th:src="@{/js/customer_dashboard.js}"></script>
 </body>
 </html>

@@ -1,11 +1,315 @@
 <!DOCTYPE html>
-<html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <title>User Profile</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">Mi Perfil - PetLuz</title>
+    <link rel="stylesheet" th:href="@{/css/base_customer.css}">
+    <link rel="stylesheet" th:href="@{/css/customer_profile.css}">
 </head>
+
 <body>
-    <h1>Mi Perfil</h1>
-    <p>Página de perfil de usuario</p>
-    <a href="/user/dashboard">Volver al Dashboard</a>
+    <!-- Header -->
+    <div th:replace="shared/header :: header"></div>
+
+    <!-- Sidebar del carrito -->
+    <div th:replace="shared/cart-sidebar :: cart-sidebar"></div>
+
+    <main class="profile-container">
+        <div class="container">
+            <!-- Header del perfil -->
+            <section class="profile-header">
+                <div class="header-content">
+                    <h1>Mi Perfil 👤</h1>
+                    <p>Gestiona tu información personal y preferencias</p>
+                </div>
+                <div class="profile-completion">
+                    <div class="completion-info">
+                        <span>Perfil completado al <strong id="completionPercent">0%</strong></span>
+                        <div class="completion-bar">
+                            <div class="completion-fill" id="completionBar"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="profile-layout">
+                <!-- Sidebar de navegación -->
+                <aside class="profile-sidebar">
+                    <nav class="sidebar-nav">
+                        <button class="nav-item active" data-tab="personal-info">
+                            <span>👤</span>
+                            Información Personal
+                        </button>
+                        <button class="nav-item" data-tab="contact-info">
+                            <span>📞</span>
+                            Información de Contacto
+                        </button>
+                        <button class="nav-item" data-tab="preferences">
+                            <span>⚙️</span>
+                            Preferencias
+                        </button>
+                        <button class="nav-item" data-tab="security">
+                            <span>🔒</span>
+                            Seguridad
+                        </button>
+                    </nav>
+                </aside>
+
+                <!-- Contenido principal -->
+                <div class="profile-content">
+                    <!-- Información Personal -->
+                    <div class="tab-content active" id="personal-info-tab">
+                        <div class="tab-header">
+                            <h2>Información Personal</h2>
+                            <p>Actualiza tu información básica</p>
+                        </div>
+
+                        <form class="profile-form" id="personalInfoForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="firstName">Nombre *</label>
+                                    <input type="text" id="firstName" name="firstName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="lastName">Apellido *</label>
+                                    <input type="text" id="lastName" name="lastName" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="displayName">Nombre para mostrar</label>
+                                <input type="text" id="displayName" name="displayName"
+                                    placeholder="Como quieres que te llamemos">
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="dateOfBirth">Fecha de Nacimiento</label>
+                                    <input type="date" id="dateOfBirth" name="dateOfBirth">
+                                </div>
+                                <div class="form-group">
+                                    <label for="gender">Género</label>
+                                    <select id="gender" name="gender">
+                                        <option value="">Seleccionar...</option>
+                                        <option value="MALE">Masculino</option>
+                                        <option value="FEMALE">Femenino</option>
+                                        <option value="OTHER">Otro</option>
+                                        <option value="PREFER_NOT_TO_SAY">Prefiero no decir</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                <button type="button" class="btn btn-secondary" onclick="resetPersonalForm()">
+                                    Cancelar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Información de Contacto -->
+                    <div class="tab-content" id="contact-info-tab">
+                        <div class="tab-header">
+                            <h2>Información de Contacto</h2>
+                            <p>Gestiona tus números de contacto</p>
+                        </div>
+
+                        <form class="profile-form" id="contactInfoForm">
+                            <div class="form-group">
+                                <label for="email">Correo Electrónico *</label>
+                                <input type="email" id="email" name="email" readonly>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="phone">Teléfono Principal *</label>
+                                    <input type="tel" id="phone" name="phone" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="alternatePhone">Teléfono Alternativo</label>
+                                    <input type="tel" id="alternatePhone" name="alternatePhone">
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                <button type="button" class="btn btn-secondary" onclick="resetContactForm()">
+                                    Cancelar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Preferencias -->
+                    <div class="tab-content" id="preferences-tab">
+                        <div class="tab-header">
+                            <h2>Preferencias</h2>
+                            <p>Configura tus preferencias de comunicación</p>
+                        </div>
+
+                        <form class="profile-form" id="preferencesForm">
+                            <div class="preferences-list">
+                                <div class="preference-item">
+                                    <div class="preference-info">
+                                        <h4>Notificaciones por Email</h4>
+                                        <p>Recibir notificaciones sobre tus pedidos y promociones</p>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="emailNotifications" name="emailNotifications">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+
+                                <div class="preference-item">
+                                    <div class="preference-info">
+                                        <h4>Notificaciones por SMS</h4>
+                                        <p>Recibir notificaciones importantes por mensaje de texto</p>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="smsNotifications" name="smsNotifications">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+
+                                <div class="preference-item">
+                                    <div class="preference-info">
+                                        <h4>Boletín Informativo</h4>
+                                        <p>Recibir novedades y ofertas especiales</p>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="newsletterSubscription"
+                                            name="newsletterSubscription">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Guardar Preferencias</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Seguridad -->
+                    <div class="tab-content" id="security-tab">
+                        <div class="tab-header">
+                            <h2>Seguridad</h2>
+                            <p>Gestiona la seguridad de tu cuenta</p>
+                        </div>
+
+                        <div class="security-sections">
+                            <!-- Cambio de contraseña -->
+                            <section class="security-section">
+                                <h3>Cambiar Contraseña</h3>
+                                <form class="security-form" id="changePasswordForm">
+                                    <div class="form-group">
+                                        <label for="currentPassword">Contraseña Actual</label>
+                                        <input type="password" id="currentPassword" name="currentPassword" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="newPassword">Nueva Contraseña</label>
+                                        <input type="password" id="newPassword" name="newPassword" required
+                                            minlength="8" placeholder="Mínimo 8 caracteres">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="confirmPassword">Confirmar Nueva Contraseña</label>
+                                        <input type="password" id="confirmPassword" name="confirmPassword" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Cambiar Contraseña</button>
+                                </form>
+                            </section>
+
+                            <!-- Foto de perfil -->
+                            <section class="security-section">
+                                <h3>Foto de Perfil</h3>
+                                <div class="profile-picture-section">
+                                    <div class="current-avatar">
+                                        <img id="currentProfilePicture" src="/images/default-avatar.png"
+                                            alt="Foto de perfil actual">
+                                    </div>
+                                    <div class="avatar-actions">
+                                        <form id="profilePictureForm" enctype="multipart/form-data">
+                                            <input type="file" id="profilePictureFile" name="file" accept="image/*"
+                                                style="display: none;">
+                                            <button type="button" class="btn btn-secondary"
+                                                onclick="document.getElementById('profilePictureFile').click()">
+                                                Cambiar Foto
+                                            </button>
+                                            <button type="button" class="btn btn-outline"
+                                                onclick="deleteProfilePicture()">
+                                                Eliminar Foto
+                                            </button>
+                                        </form>
+                                        <p class="help-text">Formatos: JPG, PNG, GIF. Máx: 10MB</p>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- Información de seguridad -->
+                            <section class="security-section">
+                                <h3>Información de Seguridad</h3>
+                                <div class="security-info">
+                                    <div class="info-item">
+                                        <span class="info-label">Último acceso:</span>
+                                        <span id="lastLoginInfo">Cargando...</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Cuenta creada:</span>
+                                        <span id="accountCreatedInfo">Cargando...</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Estado de la cuenta:</span>
+                                        <span class="status-badge verified">Activa</span>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="shared/footer :: footer-pedLUz"></div>
+
+    <!-- Notificaciones -->
+    <div id="notificationContainer"></div>
+
+    <script th:src="@{/js/customer_profile.js}"></script>
+    <!-- En profile.html y confirmation.html, agrega esto antes del </body> -->
+    <script>
+        // Forzar actualización del carrito cuando se carga estas páginas específicas
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('🔄 Página de perfil/confirmación - Actualizando carrito...');
+
+            // Esperar a que el CartSidebar se inicialice
+            setTimeout(() => {
+                if (window.cartSidebar) {
+                    window.cartSidebar.loadCartItems();
+                } else if (window.refreshCart) {
+                    window.refreshCart();
+                }
+            }, 500);
+
+            // También actualizar cuando la página gana foco
+            document.addEventListener('visibilitychange', function () {
+                if (!document.hidden) {
+                    console.log('📄 Página visible - Actualizando carrito...');
+                    setTimeout(() => {
+                        if (window.cartSidebar) {
+                            window.cartSidebar.loadCartItems();
+                        } else if (window.refreshCart) {
+                            window.refreshCart();
+                        }
+                    }, 100);
+                }
+            });
+        });
+    </script>
 </body>
+
 </html>

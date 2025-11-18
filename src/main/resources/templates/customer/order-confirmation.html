@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmación de Pedido - PetLuz</title>
+    <link rel="stylesheet" th:href="@{/css/base_customer.css}">
+    <link rel="stylesheet" th:href="@{/css/order_confirmation.css}">
+</head>
+<body>
+    <!-- Header -->
+    <div th:replace="shared/header :: header"></div>
+
+    <!-- Sidebar del carrito -->
+    <div th:replace="shared/cart-sidebar :: cart-sidebar"></div>
+
+    <main class="confirmation-container">
+        <div class="container">
+            <!-- Encabezado de confirmación -->
+            <section class="confirmation-header">
+                <div class="success-animation">
+                    <div class="success-icon">✅</div>
+                    <h1>¡Pedido Confirmado!</h1>
+                    <p class="success-message">Tu pedido ha sido procesado exitosamente</p>
+                </div>
+            </section>
+
+            <div class="confirmation-layout">
+                <!-- Columna izquierda - Información del pedido -->
+                <div class="confirmation-main">
+                    <!-- Resumen del pedido -->
+                    <section class="order-summary-section">
+                        <h2>📦 Resumen del Pedido</h2>
+                        <div class="order-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Número de Pedido:</span>
+                                <span class="detail-value" id="orderNumber">Cargando...</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Fecha y Hora:</span>
+                                <span class="detail-value" id="orderDate">Cargando...</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Estado:</span>
+                                <span class="status-badge confirmed" id="orderStatus">Confirmado</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Método de Pago:</span>
+                                <span class="detail-value" id="paymentMethod">Cargando...</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Método de Envío:</span>
+                                <span class="detail-value" id="deliveryMethod">Cargando...</span>
+                            </div>
+                            <div class="detail-row total">
+                                <span class="detail-label">Total Pagado:</span>
+                                <span class="detail-value" id="orderTotal">Cargando...</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Productos del pedido -->
+                    <section class="order-products-section">
+                        <h2>🛍️ Productos en tu Pedido</h2>
+                        <div class="products-list" id="productsList">
+                            <div class="loading-products">Cargando productos...</div>
+                        </div>
+                    </section>
+
+                    <!-- Información de envío -->
+                    <section class="shipping-info-section">
+                        <h2>📍 Información de Envío</h2>
+                        <div class="shipping-details" id="shippingDetails">
+                            <div class="loading-address">Cargando dirección...</div>
+                        </div>
+                    </section>
+
+                    <!-- Información de pago -->
+                    <section class="payment-info-section" id="paymentInfoSection">
+                        <h2>💳 Información de Pago</h2>
+                        <div class="payment-details" id="paymentDetails">
+                            <div class="loading-payment">Cargando información de pago...</div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Columna derecha - Siguientes pasos y acciones -->
+                <aside class="confirmation-sidebar">
+                    <div class="next-steps">
+                        <h3>📋 Siguientes Pasos</h3>
+                        <div class="steps-timeline">
+                            <div class="step-item completed">
+                                <div class="step-icon">1</div>
+                                <div class="step-content">
+                                    <h4>Pedido Confirmado</h4>
+                                    <p>Tu pedido ha sido recibido y confirmado</p>
+                                </div>
+                            </div>
+                            <div class="step-item active">
+                                <div class="step-icon">2</div>
+                                <div class="step-content">
+                                    <h4>Preparando Pedido</h4>
+                                    <p>Estamos preparando tus productos para el envío</p>
+                                    <small id="preparationTime">Tiempo estimado: 24-48 horas</small>
+                                </div>
+                            </div>
+                            <div class="step-item">
+                                <div class="step-icon">3</div>
+                                <div class="step-content">
+                                    <h4>En Camino</h4>
+                                    <p>Tu pedido ha sido enviado</p>
+                                    <small id="deliveryEstimate">Fecha estimada de entrega</small>
+                                </div>
+                            </div>
+                            <div class="step-item">
+                                <div class="step-icon">4</div>
+                                <div class="step-content">
+                                    <h4>Entregado</h4>
+                                    <p>¡Tu pedido ha llegado!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Acciones rápidas -->
+                    <div class="quick-actions">
+                        <h3>🚀 Acciones Rápidas</h3>
+                        <div class="actions-grid">
+                            <a href="/user/orders" class="action-card">
+                                <div class="action-icon">📋</div>
+                                <div class="action-content">
+                                    <h4>Ver Mis Pedidos</h4>
+                                    <p>Revisa el estado de todos tus pedidos</p>
+                                </div>
+                            </a>
+                            <a href="/customer/products" class="action-card">
+                                <div class="action-icon">🛒</div>
+                                <div class="action-content">
+                                    <h4>Seguir Comprando</h4>
+                                    <p>Descubre más productos para tus mascotas</p>
+                                </div>
+                            </a>
+                            <button class="action-card" id="downloadInvoiceBtn">
+                                <div class="action-icon">📄</div>
+                                <div class="action-content">
+                                    <h4>Descargar Factura</h4>
+                                    <p>Obtén tu factura en formato PDF</p>
+                                </div>
+                            </button>
+                            <button class="action-card" id="trackOrderBtn">
+                                <div class="action-icon">📍</div>
+                                <div class="action-content">
+                                    <h4>Seguir Pedido</h4>
+                                    <p>Rastrea tu pedido en tiempo real</p>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Soporte -->
+                    <div class="support-section">
+                        <h3>❓ ¿Necesitas Ayuda?</h3>
+                        <div class="support-options">
+                            <div class="support-item">
+                                <span class="support-icon">📞</span>
+                                <div class="support-info">
+                                    <strong>Línea de Soporte</strong>
+                                    <p>+57 3114506070</p>
+                                </div>
+                            </div>
+                            <div class="support-item">
+                                <span class="support-icon">📧</span>
+                                <div class="support-info">
+                                    <strong>Correo Electrónico</strong>
+                                    <p>soporte@petluz.com</p>
+                                </div>
+                            </div>
+                            <div class="support-item">
+                                <span class="support-icon">💬</span>
+                                <div class="support-info">
+                                    <strong>Chat en Vivo</strong>
+                                    <p>Disponible 24/7</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+
+            <!-- Recomendaciones -->
+            <section class="recommendations-section">
+                <div class="section-header">
+                    <h2>🎁 Productos que te podrían gustar</h2>
+                    <p>Basado en tu pedido actual</p>
+                </div>
+                <div class="recommendations-grid" id="recommendationsGrid">
+                    <!-- Los productos recomendados se cargarán aquí -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="shared/footer :: footer-pedLUz"></div>
+
+    <!-- Notificaciones -->
+    <div id="notificationContainer"></div>
+
+    <script th:src="@{/js/order_confirmation.js}"></script>
+</body>
+</html>
