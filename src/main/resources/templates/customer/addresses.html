@@ -8,21 +8,17 @@
     <link rel="stylesheet" th:href="@{/css/customer_addresses.css}">
 </head>
 <body>
-    <!-- Header -->
     <div th:replace="shared/header :: header"></div>
-
-    <!-- Sidebar del carrito -->
     <div th:replace="shared/cart-sidebar :: cart-sidebar"></div>
 
     <main class="addresses-container">
         <div class="container">
-            <!-- Header de la página -->
             <section class="addresses-header">
                 <div class="header-content">
                     <h1>📍 Mis Direcciones</h1>
                     <p>Gestiona tus direcciones de envío en Colombia</p>
                 </div>
-                <a href="/user/addresses/new" class="btn btn-primary">
+                <a href="/user/addresses/new" class="btn-address">
                     ➕ Agregar Nueva Dirección
                 </a>
             </section>
@@ -42,12 +38,9 @@
                     </div>
                 </div>
 
-                <!-- Grid de direcciones -->
                 <div class="addresses-grid" id="addressesGrid" style="display: none;">
-                    <!-- Las direcciones se cargarán aquí dinámicamente -->
                 </div>
 
-                <!-- Estado vacío -->
                 <div class="empty-addresses" id="emptyAddresses" style="display: none;">
                     <div class="empty-state">
                         <div class="empty-icon">📍</div>
@@ -82,7 +75,6 @@
                         <div class="info-content">
                             <h4>¿Problemas con tu dirección?</h4>
                             <p>Contacta a nuestro equipo de soporte para ayudarte</p>
-                            <a href="/contact" class="btn-link">Contactar Soporte</a>
                         </div>
                     </div>
                 </div>
@@ -90,20 +82,20 @@
         </div>
     </main>
 
-    <!-- Modal de confirmación de eliminación -->
-    <div class="modal-overlay" id="deleteModalOverlay" style="display: none;">
-        <div class="modal" id="deleteModal">
-            <div class="modal-header">
+    <!-- Modal de confirmación de eliminación - CLASES RENOMBRADAS -->
+    <div class="address-modal-overlay" id="deleteModalOverlay" style="display: none;">
+        <div class="address-modal" id="deleteModal">
+            <div class="address-modal-header">
                 <h3>Eliminar Dirección</h3>
-                <button type="button" class="modal-close" id="closeDeleteModal">✕</button>
+                <button type="button" class="address-modal-close" id="closeDeleteModal">✕</button>
             </div>
-            <div class="modal-body">
+            <div class="address-modal-body">
                 <p>¿Estás seguro de que quieres eliminar esta dirección?</p>
-                <div class="delete-warning">
+                <div class="address-delete-warning">
                     <p>⚠️ Esta acción no se puede deshacer.</p>
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="address-modal-footer">
                 <button type="button" class="btn btn-secondary" id="cancelDeleteBtn">
                     Cancelar
                 </button>
@@ -114,12 +106,10 @@
         </div>
     </div>
 
-    <!-- Footer -->
     <div th:replace="shared/footer :: footer-pedLUz"></div>
-
-    <!-- Notificaciones -->
     <div id="notificationContainer"></div>
-
+    <script th:src="@{/js/customer_header.js}"></script>
     <script th:src="@{/js/customer_addresses_list.js}"></script>
 </body>
+
 </html>

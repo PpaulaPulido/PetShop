@@ -63,9 +63,6 @@ class AddressesList {
                 <div class="address-header">
                     <span class="address-type">${this.formatAddressType(address.addressType)}</span>
                     <div class="address-actions">
-                        <a href="/user/addresses/edit/${address.id}" class="btn-icon btn-edit" title="Editar">
-                            ✏️
-                        </a>
                         <button class="btn-icon btn-delete" data-address-id="${address.id}" title="Eliminar">
                             🗑️
                         </button>
