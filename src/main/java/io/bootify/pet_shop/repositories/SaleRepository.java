@@ -80,4 +80,8 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
         Page<Sale> findByInvoiceNumberContainingIgnoreCaseOrUserEmailContainingIgnoreCase(
                         @Param("search") String search, Pageable pageable);
 
+        @Query("SELECT s.status, COUNT(s) FROM Sale s WHERE s.createdAt BETWEEN :startDate AND :endDate GROUP BY s.status")
+        List<Object[]> countSalesByStatusInDateRange(@Param("startDate") LocalDateTime startDate,
+                        @Param("endDate") LocalDateTime endDate);
+
 }

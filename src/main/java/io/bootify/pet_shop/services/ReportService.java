@@ -28,7 +28,7 @@ public class ReportService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final SaleRepository saleRepository;
-    private final SaleItemRepository saleItemRepository; 
+    private final SaleItemRepository saleItemRepository;
 
     public Map<String, Object> getDashboardStats() {
         Map<String, Object> stats = new HashMap<>();
@@ -57,17 +57,13 @@ public class ReportService {
             LocalDateTime todayStart = LocalDate.now().atStartOfDay();
             LocalDateTime todayEnd = LocalDate.now().atTime(LocalTime.MAX);
 
-            BigDecimal totalRevenue = safeBigDecimal(() -> 
-                saleRepository.getTotalRevenueByDateRange(
+            BigDecimal totalRevenue = safeBigDecimal(() -> saleRepository.getTotalRevenueByDateRange(
                     LocalDateTime.of(2020, 1, 1, 0, 0),
-                    LocalDateTime.now()
-                )
-            );
+                    LocalDateTime.now()));
             stats.put("totalRevenue", totalRevenue);
 
-            BigDecimal todayRevenue = safeBigDecimal(() -> 
-                saleRepository.getTotalRevenueByDateRange(todayStart, todayEnd)
-            );
+            BigDecimal todayRevenue = safeBigDecimal(
+                    () -> saleRepository.getTotalRevenueByDateRange(todayStart, todayEnd));
             stats.put("todayRevenue", todayRevenue);
 
         } catch (Exception e) {
@@ -95,10 +91,24 @@ public class ReportService {
             report.put("revenueInRange", revenueInRange);
 
             // Ventas por estado
+
             Map<String, Long> salesByStatus = new HashMap<>();
+            try {
+                List<Object[]> statusResults = saleRepository.countSalesByStatusInDateRange(start, end);
+                for (Object[] result : statusResults) {
+                    if (result != null && result.length >= 2) {
+                        SaleStatus status = (SaleStatus) result[0];
+                        Long count = result[1] != null ? ((Number) result[1]).longValue() : 0L;
+                        salesByStatus.put(status.name(), count);
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Error processing sales by status", e);
+            }
+
+            // Asegurar que todos los estados estén presentes
             for (SaleStatus status : SaleStatus.values()) {
-                Long count = (long) safeList(() -> saleRepository.findByDateRangeAndStatus(start, end, status)).size();
-                salesByStatus.put(status.name(), count);
+                salesByStatus.putIfAbsent(status.name(), 0L);
             }
             report.put("salesByStatus", salesByStatus);
 
@@ -116,7 +126,7 @@ public class ReportService {
         try {
             Long totalProducts = safeCount(productRepository::count);
             Long activeProducts = safeCount(productRepository::countActiveProducts);
-            
+
             report.put("totalProducts", totalProducts);
             report.put("activeProducts", activeProducts);
             report.put("inactiveProducts", totalProducts - activeProducts);
@@ -166,9 +176,7 @@ public class ReportService {
                 LocalDateTime start = monthStart.atStartOfDay();
                 LocalDateTime end = monthEnd.atTime(LocalTime.MAX);
 
-                BigDecimal monthlyRevenue = safeBigDecimal(() -> 
-                    saleRepository.getTotalRevenueByDateRange(start, end)
-                );
+                BigDecimal monthlyRevenue = safeBigDecimal(() -> saleRepository.getTotalRevenueByDateRange(start, end));
                 String monthKey = monthStart.getMonth().toString().substring(0, 3) + " " + monthStart.getYear();
                 monthlySales.put(monthKey, monthlyRevenue);
             }
@@ -210,12 +218,12 @@ public class ReportService {
             List<Map<String, Object>> topProducts = new ArrayList<>();
             try {
                 List<Object[]> topProductsResults = saleItemRepository.findTopSellingProducts();
-                
+
                 for (Object[] result : topProductsResults) {
                     if (result != null && result.length >= 3) {
                         String productName = result[1] != null ? result[1].toString() : "Producto Desconocido";
                         Long totalSold = result[2] != null ? ((Number) result[2]).longValue() : 0L;
-                        
+
                         Map<String, Object> productData = new HashMap<>();
                         productData.put("name", productName);
                         productData.put("sales", totalSold);
@@ -264,17 +272,16 @@ public class ReportService {
     private List<Map<String, Object>> getSampleTopProducts() {
         log.info("🔄 Usando datos de ejemplo para productos más vendidos");
         return List.of(
-            Map.of("name", "Alimento Premium para Perros Adultos", "sales", 45L),
-            Map.of("name", "Juguete Interactivo para Gatos", "sales", 38L),
-            Map.of("name", "Cama Ortopédica Comfort", "sales", 32L),
-            Map.of("name", "Correa Retráctil Ajustable", "sales", 28L),
-            Map.of("name", "Shampoo Natural Antipulgas", "sales", 24L),
-            Map.of("name", "Snacks Dentales para Perros", "sales", 21L),
-            Map.of("name", "Arena Sanitaria Absorbente", "sales", 19L),
-            Map.of("name", "Transportadora para Mascotas", "sales", 17L),
-            Map.of("name", "Cepillo de Pelos para Gatos", "sales", 15L),
-            Map.of("name", "Comedero Automático", "sales", 13L)
-        );
+                Map.of("name", "Alimento Premium para Perros Adultos", "sales", 45L),
+                Map.of("name", "Juguete Interactivo para Gatos", "sales", 38L),
+                Map.of("name", "Cama Ortopédica Comfort", "sales", 32L),
+                Map.of("name", "Correa Retráctil Ajustable", "sales", 28L),
+                Map.of("name", "Shampoo Natural Antipulgas", "sales", 24L),
+                Map.of("name", "Snacks Dentales para Perros", "sales", 21L),
+                Map.of("name", "Arena Sanitaria Absorbente", "sales", 19L),
+                Map.of("name", "Transportadora para Mascotas", "sales", 17L),
+                Map.of("name", "Cepillo de Pelos para Gatos", "sales", 15L),
+                Map.of("name", "Comedero Automático", "sales", 13L));
     }
 
     // Métodos auxiliares para manejo seguro de errores
@@ -352,12 +359,11 @@ public class ReportService {
 
     private void setDefaultChartsData(Map<String, Object> chartsData) {
         chartsData.put("stockDistribution", Map.of(
-            "Sin Stock", 0L,
-            "Stock Crítico", 0L,
-            "Stock Bajo", 0L,
-            "Stock Normal", 0L,
-            "Stock Excelente", 0L
-        ));
+                "Sin Stock", 0L,
+                "Stock Crítico", 0L,
+                "Stock Bajo", 0L,
+                "Stock Normal", 0L,
+                "Stock Excelente", 0L));
         chartsData.put("monthlySalesTrend", new HashMap<>());
         chartsData.put("productsByCategory", new HashMap<>());
         chartsData.put("productStatus", Map.of("Activos", 0L, "Inactivos", 0L));

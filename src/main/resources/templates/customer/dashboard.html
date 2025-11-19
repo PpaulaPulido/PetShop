@@ -8,15 +8,11 @@
     <link rel="stylesheet" th:href="@{/css/customer_dashboard.css}">
 </head>
 <body>
-    <!-- Header con navegación y carrito -->
     <div th:replace="shared/header :: header"></div>
-
-    <!-- Sidebar del carrito -->
     <div th:replace="shared/cart-sidebar :: cart-sidebar"></div>
 
     <main class="dashboard-container">
         <div class="container">
-            <!-- Banner de bienvenida -->
             <section class="welcome-banner">
                 <div class="welcome-content">
                     <h1>Bienvenido, <span id="userName" th:text="${user?.firstName}">Usuario</span>! 🐾</h1>
@@ -113,35 +109,321 @@
                 </div>
             </section>
 
-            <!-- Pedidos Recientes -->
-            <section class="recent-orders">
-                <div class="section-header">
-                    <h2>Pedidos Recientes</h2>
-                    <a href="/user/orders" class="view-all">Ver todos</a>
-                </div>
-                <div class="orders-list" id="recentOrders">
-                    <!-- Los pedidos se cargarán dinámicamente -->
-                    <div class="loading">Cargando pedidos recientes...</div>
+            <!-- Sección ¿Por qué PetLuz? -->
+            <section class="why-petluz">
+                <div class="why-content">
+                    <div class="why-text">
+                        <h2>¿Por qué elegir PetLuz?</h2>
+                        <div class="features-list">
+                            <div class="feature-item">
+                                <span class="feature-icon">🚚</span>
+                                <div class="feature-text">
+                                    <h4>Envío Express</h4>
+                                    <p>Recibe tus productos en 24-48 horas</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">⭐</span>
+                                <div class="feature-text">
+                                    <h4>Calidad Premium</h4>
+                                    <p>Productos seleccionados para tu mascota</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">💝</span>
+                                <div class="feature-text">
+                                    <h4>Atención Personalizada</h4>
+                                    <p>Expertos en cuidado animal</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">🛡️</span>
+                                <div class="feature-text">
+                                    <h4>Garantía de Satisfacción</h4>
+                                    <p>Tu felicidad es nuestra prioridad</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="why-image">
+                        <div class="image-container" id="whyPetluzImage">
+                            <img src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80" 
+                                 alt="Mascotas felices con PetLuz">
+                            <canvas class="particles-canvas" id="whyPetluzParticles"></canvas>
+                        </div>
+                    </div>
                 </div>
             </section>
 
-            <!-- Productos Recomendados -->
-            <section class="recommended-products">
-                <div class="section-header">
-                    <h2>Productos Recomendados</h2>
-                    <a href="/customer/products" class="view-all">Ver todos</a>
+            <!-- Galería de Mascotas -->
+            <section class="pet-gallery">
+                <h2>Nuestra Comunidad de Mascotas Felices 🐾</h2>
+                <div class="gallery-grid">
+                    <div class="gallery-item">
+                        <div class="gallery-image">
+                            <img src="https://images.unsplash.com/photo-1552053831-71594a27632d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" 
+                                 alt="Perro feliz con juguete">
+                            <div class="gallery-overlay">
+                                <h3>Max</h3>
+                                <p>Amante de los juguetes interactivos</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gallery-item">
+                        <div class="gallery-image">
+                            <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" 
+                                 alt="Gato elegante">
+                            <div class="gallery-overlay">
+                                <h3>Luna</h3>
+                                <p>Fanática de las camas suaves</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gallery-item">
+                        <div class="gallery-image">
+                            <img src="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" 
+                                 alt="Perro en el parque">
+                            <div class="gallery-overlay">
+                                <h3>Rocky</h3>
+                                <p>Energético y aventurero</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gallery-item">
+                        <div class="gallery-image">
+                            <img src="https://images.unsplash.com/photo-1543852786-1cf6624b9987?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" 
+                                 alt="Gato juguetón">
+                            <div class="gallery-overlay">
+                                <h3>Simba</h3>
+                                <p>Curioso y juguetón</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="products-grid" id="recommendedProducts">
-                    <!-- Los productos se cargarán dinámicamente -->
-                    <div class="loading">Cargando productos recomendados...</div>
+            </section>
+
+            <!-- Tips y Consejos para Mascotas -->
+            <section class="pet-tips">
+                <h2>Tips y Consejos para tu Mascota 🐕</h2>
+                <div class="tips-grid">
+                    <div class="tip-card">
+                        <div class="tip-image">
+                            <img src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" 
+                                 alt="Alimentación saludable para mascotas">
+                            <div class="tip-overlay"></div>
+                        </div>
+                        <div class="tip-content">
+                            <div class="tip-icon">🍖</div>
+                            <h3 class="tip-title">Alimentación Saludable</h3>
+                            <div class="tip-text">
+                                <p>Consejos para una nutrición balanceada:</p>
+                                <ul>
+                                    <li>Establece horarios regulares de comida</li>
+                                    <li>Proporciona agua fresca siempre disponible</li>
+                                    <li>Elige alimento según edad y tamaño</li>
+                                    <li>Evita alimentos humanos peligrosos</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-image">
+                            <img src="https://images.unsplash.com/photo-1559190394-df5a28aab5c5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" 
+                                 alt="Ejercicio para mascotas">
+                            <div class="tip-overlay"></div>
+                        </div>
+                        <div class="tip-content">
+                            <div class="tip-icon">🚶‍♂️</div>
+                            <h3 class="tip-title">Ejercicio y Actividad</h3>
+                            <div class="tip-text">
+                                <p>Mantén a tu mascota activa y feliz:</p>
+                                <ul>
+                                    <li>Paseos diarios según la raza</li>
+                                    <li>Juegos interactivos y juguetes</li>
+                                    <li>Espacio para correr y explorar</li>
+                                    <li>Socialización con otras mascotas</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-image">
+                            <img src="https://images.unsplash.com/photo-1518373714866-3f1478910cc0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" 
+                                 alt="Cuidado de la salud de mascotas">
+                            <div class="tip-overlay"></div>
+                        </div>
+                        <div class="tip-content">
+                            <div class="tip-icon">💊</div>
+                            <h3 class="tip-title">Cuidado de la Salud</h3>
+                            <div class="tip-text">
+                                <p>Prevención y cuidados básicos:</p>
+                                <ul>
+                                    <li>Visitas regulares al veterinario</li>
+                                    <li>Vacunación al día</li>
+                                    <li>Control de parásitos</li>
+                                    <li>Observa cambios de comportamiento</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Nueva Sección: Razas Populares -->
+            <section class="popular-breeds">
+                <h2>Razas Populares de Mascotas 🐶🐱</h2>
+                <div class="breeds-grid">
+                    <div class="breed-card">
+                        <div class="breed-image">
+                            <img src="https://images.unsplash.com/photo-1552053831-71594a27632d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                                 alt="Golden Retriever">
+                        </div>
+                        <div class="breed-content">
+                            <h3>Golden Retriever</h3>
+                            <div class="breed-info">
+                                <span class="breed-size">Tamaño: Grande</span>
+                                <span class="breed-energy">Energía: Alta</span>
+                            </div>
+                            <p>Conocidos por su naturaleza amigable y leal. Perfectos para familias y excelentes con niños.</p>
+                            <div class="breed-characteristics">
+                                <span class="characteristic">🏠 Familiar</span>
+                                <span class="characteristic">🎾 Activo</span>
+                                <span class="characteristic">❤️ Cariñoso</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="breed-card">
+                        <div class="breed-image">
+                            <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                                 alt="Siamés">
+                        </div>
+                        <div class="breed-content">
+                            <h3>Siamés</h3>
+                            <div class="breed-info">
+                                <span class="breed-size">Tamaño: Mediano</span>
+                                <span class="breed-energy">Energía: Media</span>
+                            </div>
+                            <p>Inteligentes y vocales, les encanta la compañía humana y son muy comunicativos.</p>
+                            <div class="breed-characteristics">
+                                <span class="characteristic">🗣️ Vocal</span>
+                                <span class="characteristic">🧠 Inteligente</span>
+                                <span class="characteristic">🤝 Social</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="breed-card">
+                        <div class="breed-image">
+                            <img src="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                                 alt="Border Collie">
+                        </div>
+                        <div class="breed-content">
+                            <h3>Border Collie</h3>
+                            <div class="breed-info">
+                                <span class="breed-size">Tamaño: Mediano</span>
+                                <span class="breed-energy">Energía: Muy Alta</span>
+                            </div>
+                            <p>Considerada la raza más inteligente, necesita mucho ejercicio y estimulación mental.</p>
+                            <div class="breed-characteristics">
+                                <span class="characteristic">🧠 Inteligente</span>
+                                <span class="characteristic">⚡ Energético</span>
+                                <span class="characteristic">🎯 Trabajador</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Nueva Sección: Cuidados Especiales -->
+            <section class="special-care">
+                <h2>Cuidados Especiales por Edad 🐾</h2>
+                <div class="care-grid">
+                    <div class="care-card">
+                        <div class="care-header">
+                            <div class="care-icon">🐣</div>
+                            <h3>Cachorros & Gatitos</h3>
+                            <span class="care-age">0-1 año</span>
+                        </div>
+                        <div class="care-image">
+                            <img src="https://images.unsplash.com/photo-1548767797-d8c844163c4c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                                 alt="Cachorros y gatitos">
+                        </div>
+                        <div class="care-content">
+                            <h4>Cuidados Esenciales</h4>
+                            <ul>
+                                <li>Vacunación completa y desparasitación</li>
+                                <li>Alimentación especial para crecimiento</li>
+                                <li>Socialización temprana</li>
+                                <li>Entrenamiento básico</li>
+                                <li>Visitas veterinarias frecuentes</li>
+                            </ul>
+                            <div class="care-tip">
+                                <strong>💡 Tip:</strong> Establece rutinas desde pequeño para crear buenos hábitos.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="care-card">
+                        <div class="care-header">
+                            <div class="care-icon">🐕</div>
+                            <h3>Adultos Jóvenes</h3>
+                            <span class="care-age">1-7 años</span>
+                        </div>
+                        <div class="care-image">
+                            <img src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                                 alt="Mascotas adultas">
+                        </div>
+                        <div class="care-content">
+                            <h4>Mantenimiento Óptimo</h4>
+                            <ul>
+                                <li>Ejercicio regular y estimulación mental</li>
+                                <li>Dieta balanceada para mantenimiento</li>
+                                <li>Chequeos veterinarios anuales</li>
+                                <li>Cuidado dental preventivo</li>
+                                <li>Actividades de enriquecimiento</li>
+                            </ul>
+                            <div class="care-tip">
+                                <strong>💡 Tip:</strong> La prevención es clave para una vida larga y saludable.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="care-card">
+                        <div class="care-header">
+                            <div class="care-icon">🐾</div>
+                            <h3>Mascotas Senior</h3>
+                            <span class="care-age">7+ años</span>
+                        </div>
+                        <div class="care-image">
+                            <img src="https://images.unsplash.com/photo-1518373714866-3f1478910cc0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                                 alt="Mascotas senior">
+                        </div>
+                        <div class="care-content">
+                            <h4>Cuidados Geriátricos</h4>
+                            <ul>
+                                <li>Dieta especial para senior</li>
+                                <li>Chequeos veterinarios cada 6 meses</li>
+                                <li>Ejercicio moderado y adaptado</li>
+                                <li>Control de dolor articular</li>
+                                <li>Comodidad y accesibilidad en casa</li>
+                            </ul>
+                            <div class="care-tip">
+                                <strong>💡 Tip:</strong> Observa cambios de comportamiento que puedan indicar problemas de salud.
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
         </div>
     </main>
 
-    <!-- Footer -->
     <div th:replace="shared/footer :: footer-pedLUz"></div>
     
+    <script th:src="@{/js/customer_header.js}"></script>
+    <script th:src="@{/js/customer_effects.js}"></script>
     <script th:src="@{/js/customer_dashboard.js}"></script>
 </body>
 </html>
