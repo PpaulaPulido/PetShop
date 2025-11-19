@@ -10,7 +10,6 @@ class HeaderManager {
         this.setupEventListeners();
         this.setupScrollEffects();
         this.updateCartCount();
-        this.loadUserData();
         this.initParticleSystem();
         this.createMobileOverlay();
         
@@ -357,17 +356,7 @@ class HeaderManager {
         try {
             return JSON.parse(localStorage.getItem('petluz_cart') || '[]');
         } catch (error) {
-            console.error('Error reading cart from storage:', error);
             return [];
-        }
-    }
-
-    async loadUserData() {
-        try {
-            // Simular carga de datos de usuario
-            console.log('Cargando datos de usuario...');
-        } catch (error) {
-            console.error('Error loading user data:', error);
         }
     }
 

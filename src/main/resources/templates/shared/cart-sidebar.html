@@ -152,7 +152,6 @@
                     const cartFooter = document.getElementById('cartFooter');
 
                     if (!cartData.items || cartData.items.length === 0) {
-                        console.log('🛒 Carrito vacío detectado');
                         cartItemsContainer.innerHTML = `
                     <div class="empty-cart">
                         <p>Tu carrito está vacío</p>
@@ -220,7 +219,6 @@
                     const headerCartCount = document.getElementById('headerCartCount');
                     if (headerCartCount) {
                         headerCartCount.textContent = totalItems;
-                        console.log(`🔢 Contador del header actualizado: ${totalItems}`);
                     }
 
                     // También actualizar el título si existe
