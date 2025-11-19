@@ -12,34 +12,21 @@ class OrderConfirmation {
     }
 
     getOrderIdFromURL() {
-        // Obtener orderId de la URL (ej: /user/order-confirmation?orderId=123)
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get('orderId') || this.getOrderIdFromLocalStorage();
     }
 
     getOrderIdFromLocalStorage() {
-        // Intentar obtener el último orderId del localStorage
         return localStorage.getItem('lastOrderId');
     }
 
     setupEventListeners() {
-        // Botón de descargar factura
         document.getElementById('downloadInvoiceBtn')?.addEventListener('click', () => {
             this.downloadInvoice();
         });
 
-        // Botón de seguir pedido
         document.getElementById('trackOrderBtn')?.addEventListener('click', () => {
             this.trackOrder();
-        });
-
-        // Clic en productos recomendados
-        document.getElementById('recommendationsGrid')?.addEventListener('click', (e) => {
-            const productCard = e.target.closest('.recommendation-card');
-            if (productCard) {
-                const productId = productCard.dataset.productId;
-                this.viewProductDetails(productId);
-            }
         });
     }
 
@@ -60,7 +47,6 @@ class OrderConfirmation {
 
             this.orderData = await response.json();
             this.displayOrderData();
-            this.loadRecommendations();
             
         } catch (error) {
             console.error('Error loading order data:', error);
@@ -181,10 +167,8 @@ class OrderConfirmation {
         const statusElement = document.getElementById('orderStatus');
         if (!statusElement) return;
 
-        // Remover todas las clases de estado
         statusElement.className = 'status-badge';
         
-        // Agregar clase según el estado
         const statusClasses = {
             'PENDING': 'pending',
             'CONFIRMED': 'confirmed',
@@ -205,12 +189,10 @@ class OrderConfirmation {
         const status = this.orderData.status;
         const steps = document.querySelectorAll('.step-item');
 
-        // Reset all steps
         steps.forEach(step => {
             step.classList.remove('completed', 'active');
         });
 
-        // Update based on current status
         switch (status) {
             case 'PENDING':
                 steps[0].classList.add('completed');
@@ -243,7 +225,6 @@ class OrderConfirmation {
 
         if (!this.orderData) return;
 
-        // Tiempo de preparación basado en el método de envío
         let preparationTime = '24-48 horas';
         let deliveryEstimate = 'Calculando...';
 
@@ -280,7 +261,6 @@ class OrderConfirmation {
         
         while (count < businessDays) {
             createdDate.setDate(createdDate.getDate() + 1);
-            // Saltar fines de semana
             if (createdDate.getDay() !== 0 && createdDate.getDay() !== 6) {
                 count++;
             }
@@ -294,43 +274,6 @@ class OrderConfirmation {
         });
     }
 
-    async loadRecommendations() {
-        try {
-            const response = await fetch('/api/customer/products?size=4');
-            if (response.ok) {
-                const products = await response.json();
-                this.displayRecommendations(products);
-            }
-        } catch (error) {
-            console.error('Error loading recommendations:', error);
-            // Ocultar sección de recomendaciones si hay error
-            document.querySelector('.recommendations-section').style.display = 'none';
-        }
-    }
-
-    displayRecommendations(products) {
-        const recommendationsGrid = document.getElementById('recommendationsGrid');
-        if (!recommendationsGrid || !products || products.length === 0) {
-            document.querySelector('.recommendations-section').style.display = 'none';
-            return;
-        }
-
-        recommendationsGrid.innerHTML = products.map(product => `
-            <div class="recommendation-card" data-product-id="${product.id}">
-                <div class="recommendation-image">
-                    <img src="${product.imageUrl || product.displayImage || '/images/default-product.png'}" 
-                         alt="${product.name}"
-                         onerror="this.src='/images/default-product.png'">
-                </div>
-                <div class="recommendation-info">
-                    <h4 class="recommendation-name">${product.name}</h4>
-                    <div class="recommendation-price">$${product.price?.toFixed(2) || '0.00'}</div>
-                    <p class="recommendation-category">${product.type || 'Producto'}</p>
-                </div>
-            </div>
-        `).join('');
-    }
-
     async downloadInvoice() {
         try {
             if (!this.orderId) {
@@ -340,13 +283,8 @@ class OrderConfirmation {
 
             this.showNotification('Generando factura...', 'info');
 
-            // Simular generación de PDF (aquí integrarías con tu servicio de PDF)
             setTimeout(() => {
                 this.showNotification('Factura generada exitosamente', 'success');
-                
-                // En un caso real, aquí descargarías el PDF
-                // window.open(`/api/customer/orders/${this.orderId}/invoice`, '_blank');
-                
             }, 2000);
 
         } catch (error) {
@@ -361,12 +299,7 @@ class OrderConfirmation {
             return;
         }
 
-        // Redirigir a la página de seguimiento
         window.location.href = `/user/order-details/${this.orderId}`;
-    }
-
-    viewProductDetails(productId) {
-        window.location.href = `/customer/products/${productId}`;
     }
 
     // Métodos auxiliares
@@ -480,35 +413,13 @@ class OrderConfirmation {
             `;
         }
 
-        // Ocultar sidebar
         document.querySelector('.confirmation-sidebar').style.display = 'none';
-        document.querySelector('.recommendations-section').style.display = 'none';
     }
 
     showNotification(message, type = 'info') {
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
         notification.textContent = message;
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 1rem 1.5rem;
-            border-radius: 6px;
-            color: white;
-            z-index: 2000;
-            font-weight: 500;
-            max-width: 300px;
-            transition: all 0.3s ease;
-        `;
-        
-        if (type === 'success') {
-            notification.style.background = '#28a745';
-        } else if (type === 'error') {
-            notification.style.background = '#dc3545';
-        } else {
-            notification.style.background = '#17a2b8';
-        }
         
         const container = document.getElementById('notificationContainer');
         if (container) {
@@ -532,7 +443,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Manejar errores no capturados
 window.addEventListener('error', (event) => {
     console.error('Error no capturado:', event.error);
 });

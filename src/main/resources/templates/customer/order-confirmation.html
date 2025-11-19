@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,16 +8,13 @@
     <link rel="stylesheet" th:href="@{/css/base_customer.css}">
     <link rel="stylesheet" th:href="@{/css/order_confirmation.css}">
 </head>
-<body>
-    <!-- Header -->
-    <div th:replace="shared/header :: header"></div>
 
-    <!-- Sidebar del carrito -->
+<body>
+    <div th:replace="shared/header :: header"></div>
     <div th:replace="shared/cart-sidebar :: cart-sidebar"></div>
 
     <main class="confirmation-container">
         <div class="container">
-            <!-- Encabezado de confirmación -->
             <section class="confirmation-header">
                 <div class="success-animation">
                     <div class="success-icon">✅</div>
@@ -156,56 +154,16 @@
                             </button>
                         </div>
                     </div>
-
-                    <!-- Soporte -->
-                    <div class="support-section">
-                        <h3>❓ ¿Necesitas Ayuda?</h3>
-                        <div class="support-options">
-                            <div class="support-item">
-                                <span class="support-icon">📞</span>
-                                <div class="support-info">
-                                    <strong>Línea de Soporte</strong>
-                                    <p>+57 3114506070</p>
-                                </div>
-                            </div>
-                            <div class="support-item">
-                                <span class="support-icon">📧</span>
-                                <div class="support-info">
-                                    <strong>Correo Electrónico</strong>
-                                    <p>soporte@petluz.com</p>
-                                </div>
-                            </div>
-                            <div class="support-item">
-                                <span class="support-icon">💬</span>
-                                <div class="support-info">
-                                    <strong>Chat en Vivo</strong>
-                                    <p>Disponible 24/7</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </aside>
             </div>
-
-            <!-- Recomendaciones -->
-            <section class="recommendations-section">
-                <div class="section-header">
-                    <h2>🎁 Productos que te podrían gustar</h2>
-                    <p>Basado en tu pedido actual</p>
-                </div>
-                <div class="recommendations-grid" id="recommendationsGrid">
-                    <!-- Los productos recomendados se cargarán aquí -->
-                </div>
-            </section>
         </div>
     </main>
 
-    <!-- Footer -->
     <div th:replace="shared/footer :: footer-pedLUz"></div>
 
-    <!-- Notificaciones -->
     <div id="notificationContainer"></div>
-
+    <script th:src="@{/js/customer_header.js}"></script>
     <script th:src="@{/js/order_confirmation.js}"></script>
 </body>
+
 </html>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,49 +8,44 @@
     <link rel="stylesheet" th:href="@{/css/base_customer.css}">
     <link rel="stylesheet" th:href="@{/css/customer_cart.css}">
 </head>
-<body>
-    <!-- Header -->
-    <div th:replace="shared/header :: header"></div>
 
-    <!-- Sidebar del carrito (para quick actions) -->
+<body>
+    <div th:replace="shared/header :: header"></div>
     <div th:replace="shared/cart-sidebar :: cart-sidebar"></div>
 
-    <main class="cart-container">
+    <main class="cart-page-container">
         <div class="container">
-            <!-- Header del carrito -->
-            <section class="cart-header">
-                <div class="header-content">
-                    <h1>🛒 Mi Carrito de Compras</h1>
+            <section class="cart-page-header">
+                <div class="cart-page-header-content">
+                    <h1>Mi Carrito de Compras</h1>
                     <p>Revisa y gestiona los productos en tu carrito</p>
                 </div>
-                <div class="cart-stats">
+                <div class="cart-page-stats">
                     <span id="cartPageItemsCount">0 productos</span>
                     <span id="cartPageTotalAmount">Total: $0.00</span>
                 </div>
             </section>
 
-            <div class="cart-layout">
+            <div class="cart-page-layout">
                 <!-- Columna principal - Lista de productos -->
-                <div class="cart-main">
+                <div class="cart-page-main">
                     <!-- Estado del carrito -->
                     <div class="cart-page-state" id="cartPageState">
-                        <div class="loading-cart">
+                        <div class="cart-page-loading">
                             <p>Cargando tu carrito...</p>
                         </div>
                     </div>
 
-                    <!-- Lista de productos (se carga dinámicamente) -->
-                    <div class="cart-page-items" id="cartPageItems" style="display: none;">
-                        <!-- Los items se cargarán aquí -->
+                    <div class="cart-page-items-list" id="cartPageItems" style="display: none;">
                     </div>
 
                     <!-- Carrito vacío -->
-                    <div class="empty-cart" id="cartPageEmpty" style="display: none;">
-                        <div class="empty-state">
-                            <div class="empty-icon">🛒</div>
+                    <div class="cart-page-empty" id="cartPageEmpty" style="display: none;">
+                        <div class="cart-page-empty-state">
+                            <div class="cart-page-empty-icon">🛒</div>
                             <h2>Tu carrito está vacío</h2>
                             <p>¡Descubre nuestros productos para mascotas y llena tu carrito de amor!</p>
-                            <a href="/customer/products" class="btn btn-primary">
+                            <a href="/customer/products" class="cart-page-btn cart-page-btn-primary">
                                 Comenzar a Comprar
                             </a>
                         </div>
@@ -57,43 +53,32 @@
                 </div>
 
                 <!-- Sidebar - Resumen y acciones -->
-                <aside class="cart-sidebar-content">
-                    <div class="cart-summary">
+                <aside class="cart-page-sidebar">
+                    <div class="cart-page-summary">
                         <h3>Resumen del Pedido</h3>
-                        
-                        <div class="summary-details">
-                            <div class="summary-row">
-                                <span>Subtotal:</span>
-                                <span id="summarySubtotal">$0.00</span>
-                            </div>
-                            <div class="summary-row">
-                                <span>Envío estimado:</span>
-                                <span id="summaryShipping">$5.99</span>
-                            </div>
-                            <div class="summary-row">
-                                <span>Impuestos (19%):</span>
-                                <span id="summaryTax">$0.00</span>
-                            </div>
-                            <div class="summary-row total">
-                                <span>Total estimado:</span>
+
+                        <div class="cart-page-summary-details">
+                            <div class="cart-page-summary-row cart-page-summary-row-total">
+                                <span>Total del Carrito:</span>
                                 <span id="summaryTotal">$0.00</span>
                             </div>
                         </div>
 
-                        <div class="summary-actions">
-                            <a href="/user/checkout" class="btn btn-primary btn-block" id="checkoutBtn" style="display: none;">
+                        <div class="cart-page-summary-actions">
+                            <a href="/user/checkout" class="cart-page-btn cart-page-btn-primary cart-page-btn-block"
+                                id="checkoutBtn" style="display: none;">
                                 Proceder al Checkout
                             </a>
-                            <a href="/customer/products" class="btn btn-outline btn-block">
+                            <a href="/customer/products"
+                                class="cart-page-btn cart-page-btn-outline cart-page-btn-block">
                                 Continuar Comprando
                             </a>
                         </div>
 
                         <!-- Beneficios -->
-                        <div class="cart-benefits">
+                        <div class="cart-page-benefits">
                             <h4>✅ Beneficios de tu compra:</h4>
                             <ul>
-                                <li>🚚 Envío gratis en compras sobre $100.000</li>
                                 <li>🔒 Pago 100% seguro</li>
                                 <li>📦 Entrega en todo Colombia</li>
                                 <li>🐾 Productos de calidad para tus mascotas</li>
@@ -106,20 +91,20 @@
     </main>
 
     <!-- Modal para confirmar eliminación -->
-    <div class="modal-overlay" id="deleteModalOverlay" style="display: none;">
-        <div class="modal">
-            <div class="modal-header">
+    <div class="cart-modal-overlay" id="deleteModalOverlay" style="display: none;">
+        <div class="cart-modal">
+            <div class="cart-modal-header">
                 <h3>¿Eliminar producto?</h3>
-                <button type="button" class="modal-close" id="closeDeleteModal">✕</button>
+                <button type="button" class="cart-modal-close" id="closeDeleteModal">✕</button>
             </div>
-            <div class="modal-body">
+            <div class="cart-modal-body">
                 <p>¿Estás seguro de que quieres eliminar <strong id="deleteProductName"></strong> de tu carrito?</p>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="cancelDelete">
+            <div class="cart-modal-footer">
+                <button type="button" class="cart-page-btn cart-page-btn-secondary" id="cancelDelete">
                     Cancelar
                 </button>
-                <button type="button" class="btn btn-danger" id="confirmDelete">
+                <button type="button" class="cart-page-btn cart-page-btn-danger" id="confirmDelete">
                     Sí, Eliminar
                 </button>
             </div>
@@ -127,40 +112,40 @@
     </div>
 
     <!-- Modal para ver detalles del producto -->
-    <div class="modal-overlay product-modal" id="productModalOverlay" style="display: none;">
-        <div class="modal">
-            <div class="modal-header">
+    <div class="cart-modal-overlay cart-product-modal" id="productModalOverlay" style="display: none;">
+        <div class="cart-modal">
+            <div class="cart-modal-header">
                 <h3>Detalles del Producto</h3>
-                <button type="button" class="modal-close" id="closeProductModal">✕</button>
+                <button type="button" class="cart-modal-close" id="closeProductModal">✕</button>
             </div>
-            <div class="modal-body">
-                <div class="product-modal-content">
-                    <div class="product-modal-image">
-                        <img id="productModalImage" src="" alt="Producto" onerror="this.src='/images/default-product.png'">
+            <div class="cart-modal-body">
+                <div class="cart-product-modal-content">
+                    <div class="cart-product-modal-image">
+                        <img id="productModalImage" src="" alt="Producto"
+                            onerror="this.src='/images/default-product.png'">
                     </div>
-                    <div class="product-modal-info">
-                        <h2 id="productModalName" class="product-modal-name"></h2>
-                        <div id="productModalPrice" class="product-modal-price"></div>
-                        <p id="productModalDescription" class="product-modal-description"></p>
-                        <div id="productModalStock" class="product-modal-stock"></div>
+                    <div class="cart-product-modal-info">
+                        <h2 id="productModalName" class="cart-product-modal-name"></h2>
+                        <div id="productModalPrice" class="cart-product-modal-price"></div>
+                        <p id="productModalDescription" class="cart-product-modal-description"></p>
+                        <div id="productModalStock" class="cart-product-modal-stock"></div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="customerCart.hideProductModal()">
+            <div class="cart-modal-footer">
+                <button type="button" class="cart-page-btn cart-page-btn-primary"
+                    onclick="customerCart.hideProductModal()">
                     Cerrar
                 </button>
             </div>
         </div>
     </div>
-
-    <!-- Footer -->
     <div th:replace="shared/footer :: footer-pedLUz"></div>
 
-    <!-- Notificaciones -->
     <div id="notificationContainer"></div>
-
+    <script th:src="@{/js/customer_header.js}"></script>
     <script th:src="@{/js/customer_cart.js}"></script>
-
+    <script th:src="@{/js/customer_effects.js}"></script>
 </body>
+
 </html>

@@ -19,29 +19,22 @@
                     </div>
                 </div>
 
+                <!-- Mover el cart-summary aquí, después de los items -->
                 <div class="cart-summary" id="cartSummary" style="display: none;">
-                    <div class="summary-row">
-                        <span>Subtotal:</span>
-                        <span id="cartSubtotal">$0.00</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Envío:</span>
-                        <span id="cartShipping">$0.00</span>
-                    </div>
                     <div class="summary-row total">
                         <span>Total:</span>
                         <span id="cartTotal">$0.00</span>
                     </div>
                 </div>
-            </div>
 
-            <div class="cart-footer" id="cartFooter" style="display: none;">
-                <a href="/user/cart" class="btn btn-secondary btn-block">
-                    Ver Carrito Completo
-                </a>
-                <a href="/user/checkout" class="btn btn-primary btn-block">
-                    Finalizar Compra
-                </a>
+                <div class="cart-footer" id="cartFooter" style="display: none;">
+                    <a href="/user/cart" class="btn btn-car-sidebar">
+                        Ver Carrito Completo
+                    </a>
+                    <a href="/user/checkout" class="btn btn-primary btn-block">
+                        Finalizar Compra
+                    </a>
+                </div>
             </div>
         </aside>
 
@@ -58,7 +51,6 @@
                     this.setupEventListeners();
                     this.loadCartItems();
                     this.initialized = true;
-
                 }
 
                 setupEventListeners() {
@@ -83,23 +75,6 @@
                     window.addEventListener('cartUpdated', () => {
                         this.loadCartItems();
                     });
-
-                    // Escuchar evento específico de orden creada
-                    window.addEventListener('orderCreated', () => {
-                        this.loadCartItems();
-                    });
-
-                    //Actualizar cuando la página gana foco (cuando el usuario vuelve de otra pestaña)
-                    document.addEventListener('visibilitychange', () => {
-                        if (!document.hidden) {
-                            this.loadCartItems();
-                        }
-                    });
-
-                    //Actualizar periódicamente (cada 30 segundos) por si hay cambios
-                    setInterval(() => {
-                        this.loadCartItems();
-                    }, 30000);
 
                     // Prevenir cierre al hacer clic dentro del sidebar
                     const cartSidebar = document.getElementById('cartSidebar');
@@ -135,8 +110,6 @@
                         if (response.ok) {
                             const cartData = await response.json();
                             this.displayCartItems(cartData);
-
-                            //Actualizar también el contador del header
                             this.updateHeaderCartCount(cartData);
                         } else {
                             this.displayCartItems({ items: [] });
@@ -153,39 +126,37 @@
 
                     if (!cartData.items || cartData.items.length === 0) {
                         cartItemsContainer.innerHTML = `
-                    <div class="empty-cart">
-                        <p>Tu carrito está vacío</p>
-                        <a href="/customer/products" class="btn btn-primary">Comenzar a comprar</a>
-                    </div>
-                `;
+                            <div class="empty-cart">
+                                <p>Tu carrito está vacío</p>
+                                <a href="/customer/products" class="btn btn-primary">Comenzar a comprar</a>
+                            </div>
+                        `;
                         cartSummary.style.display = 'none';
                         cartFooter.style.display = 'none';
-
                         this.updateHeaderCartCount({ items: [] });
                         return;
                     }
 
-
                     // Mostrar items
                     cartItemsContainer.innerHTML = cartData.items.map(item => `
-                <div class="cart-item" data-product-id="${item.productId}">
-                    <div class="cart-item-image">
-                        <img src="${item.productImage}" 
-                             alt="${item.productName}"
-                             onerror="this.src='/images/default-product.png'">
-                    </div>
-                    <div class="cart-item-details">
-                        <div class="cart-item-name">${item.productName}</div>
-                        <div class="cart-item-price">$${item.productPrice.toFixed(2)}</div>
-                        <div class="cart-item-actions">
-                            <button class="quantity-btn decrease" data-product-id="${item.productId}">-</button>
-                            <span class="quantity-display">${item.quantity}</span>
-                            <button class="quantity-btn increase" data-product-id="${item.productId}">+</button>
-                            <button class="remove-btn" data-product-id="${item.productId}" title="Eliminar">🗑️</button>
+                        <div class="cart-item" data-product-id="${item.productId}">
+                            <div class="cart-item-image">
+                                <img src="${item.productImage}" 
+                                     alt="${item.productName}"
+                                     onerror="this.src='/images/default-product.png'">
+                            </div>
+                            <div class="cart-item-details">
+                                <div class="cart-item-name">${item.productName}</div>
+                                <div class="cart-item-price">$${item.productPrice.toFixed(2)}</div>
+                                <div class="cart-item-actions">
+                                    <button class="quantity-btn decrease" data-product-id="${item.productId}">-</button>
+                                    <span class="quantity-display">${item.quantity}</span>
+                                    <button class="quantity-btn increase" data-product-id="${item.productId}">+</button>
+                                    <button class="remove-btn" data-product-id="${item.productId}" title="Eliminar">🗑️</button>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            `).join('');
+                    `).join('');
 
                     // Actualizar resumen
                     this.updateCartSummary(cartData);
@@ -197,21 +168,15 @@
                     // Agregar event listeners a los botones
                     this.addCartItemEventListeners();
                 }
-
+                
                 updateCartSummary(cartData) {
-                    const subtotal = cartData.totalAmount || cartData.items.reduce((sum, item) =>
+                    const total = cartData.totalAmount || cartData.items.reduce((sum, item) =>
                         sum + (item.productPrice * item.quantity), 0
                     );
 
-                    const shipping = subtotal > 50000 ? 0 : 15000; // Envío gratis sobre $50
-                    const total = subtotal + shipping;
-
-                    document.getElementById('cartSubtotal').textContent = `$${subtotal.toFixed(2)}`;
-                    document.getElementById('cartShipping').textContent = shipping === 0 ? 'Gratis' : `$${shipping.toFixed(2)}`;
                     document.getElementById('cartTotal').textContent = `$${total.toFixed(2)}`;
                 }
 
-                //Método para actualizar el contador del header
                 updateHeaderCartCount(cartData) {
                     const totalItems = cartData.items ?
                         cartData.items.reduce((sum, item) => sum + item.quantity, 0) : 0;
@@ -220,16 +185,9 @@
                     if (headerCartCount) {
                         headerCartCount.textContent = totalItems;
                     }
-
-                    // También actualizar el título si existe
-                    const cartItemsCountElement = document.getElementById('cartItemsCount');
-                    if (cartItemsCountElement) {
-                        cartItemsCountElement.textContent = `${totalItems} ${totalItems === 1 ? 'producto' : 'productos'}`;
-                    }
                 }
 
                 addCartItemEventListeners() {
-                    // Botones de incrementar/decrementar cantidad
                     document.querySelectorAll('.quantity-btn.increase').forEach(btn => {
                         btn.addEventListener('click', (e) => {
                             const productId = e.target.dataset.productId;
@@ -244,7 +202,6 @@
                         });
                     });
 
-                    // Botones de eliminar
                     document.querySelectorAll('.remove-btn').forEach(btn => {
                         btn.addEventListener('click', (e) => {
                             const productId = e.target.dataset.productId;
@@ -255,12 +212,10 @@
 
                 async updateCartItemQuantity(productId, action) {
                     try {
-                        // Obtener cantidad actual
                         const currentItem = document.querySelector(`[data-product-id="${productId}"]`);
                         const quantityDisplay = currentItem?.querySelector('.quantity-display');
                         let currentQuantity = parseInt(quantityDisplay?.textContent || 1);
 
-                        // Calcular nueva cantidad
                         let newQuantity = action === 'increase' ? currentQuantity + 1 : currentQuantity - 1;
 
                         if (newQuantity < 1) {
@@ -268,7 +223,6 @@
                             return;
                         }
 
-                        // Actualizar en el backend
                         const response = await fetch(`/api/customer/cart/items/${productId}?quantity=${newQuantity}`, {
                             method: 'PUT',
                             headers: {
@@ -308,15 +262,15 @@
                     notification.className = `notification notification-${type}`;
                     notification.textContent = message;
                     notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                padding: 1rem 1.5rem;
-                border-radius: 6px;
-                color: white;
-                z-index: 2000;
-                font-weight: 500;
-            `;
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        padding: 1rem 1.5rem;
+                        border-radius: 6px;
+                        color: white;
+                        z-index: 2000;
+                        font-weight: 500;
+                    `;
 
                     if (type === 'success') {
                         notification.style.background = '#28a745';
@@ -336,18 +290,7 @@
 
             // Inicializar cuando el DOM esté listo
             document.addEventListener('DOMContentLoaded', () => {
-                // Crear instancia global para acceso desde otras páginas
                 window.cartSidebar = new CartSidebar();
-
-                // Forzar una actualización después de un tiempo por si la página se cargó después de crear una orden
-                setTimeout(() => {
-                    window.cartSidebar?.loadCartItems();
-                }, 1000);
-
-                //Actualizar también cuando la página se carga completamente
-                window.addEventListener('load', () => {
-                    window.cartSidebar?.loadCartItems();
-                });
             });
 
             window.refreshCart = function () {
@@ -356,5 +299,4 @@
         </script>
     </div>
 </body>
-
 </html>

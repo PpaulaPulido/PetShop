@@ -24,4 +24,8 @@ public class SaleResponseDTO {
     private LocalDateTime updatedAt;
     private List<SaleItemResponseDTO> items;
     private PaymentResponseDTO payment;
+    private BigDecimal subtotalAmount;
+    private BigDecimal shippingCost;
+    private BigDecimal taxAmount;
+    private BigDecimal discountAmount;
 }

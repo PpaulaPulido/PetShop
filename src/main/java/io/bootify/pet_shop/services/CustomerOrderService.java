@@ -180,8 +180,21 @@ public class CustomerOrderService {
         // Validar stock y precios
         validateCartItems(cart);
 
-        // Crear la venta
-        Sale sale = createSale(customer, shippingAddress, request, cart);
+        // Calcular subtotal (solo productos)
+        BigDecimal subtotal = calculateCartTotal(cart);
+
+        // Usar los valores del frontend o calcularlos si no vienen
+        BigDecimal shippingCost = request.getShippingCost() != null ? request.getShippingCost()
+                : calculateShippingCost(request.getDeliveryMethod());
+
+        BigDecimal taxAmount = request.getTaxAmount() != null ? request.getTaxAmount() : calculateTaxAmount(subtotal);
+
+        BigDecimal totalAmount = request.getTotalAmount() != null ? request.getTotalAmount()
+                : subtotal.add(shippingCost).add(taxAmount);
+
+        // Crear la venta con todos los montos
+        Sale sale = createSale(customer, shippingAddress, request, cart, subtotal, shippingCost, taxAmount,
+                totalAmount);
         Sale savedSale = saleRepository.save(sale);
 
         // Crear items de la venta y actualizar stock
@@ -192,8 +205,6 @@ public class CustomerOrderService {
 
         // Vaciar carrito
         clearCart(cart);
-
-        log.info("✅ Customer {} creó pedido {}", customer.getEmail(), savedSale.getInvoiceNumber());
 
         return convertToCustomerOrderDTO(savedSale);
     }
@@ -246,21 +257,48 @@ public class CustomerOrderService {
         }
     }
 
-    private Sale createSale(User customer, Address shippingAddress, CreateOrderRequest request, Cart cart) {
+    private Sale createSale(User customer, Address shippingAddress, CreateOrderRequest request,
+            Cart cart, BigDecimal subtotal, BigDecimal shippingCost,
+            BigDecimal taxAmount, BigDecimal totalAmount) {
         Sale sale = new Sale();
         sale.setUser(customer);
-        sale.setShippingAddress(shippingAddress); // AHORA FUNCIONA
+        sale.setShippingAddress(shippingAddress);
         sale.setStatus(SaleStatus.PENDING);
         sale.setPaymentMethod(PaymentMethod.valueOf(request.getPaymentMethod()));
         sale.setDeliveryMethod(DeliveryMethod.valueOf(request.getDeliveryMethod()));
-        sale.setDeliveryInstructions(request.getDeliveryInstructions()); // AHORA FUNCIONA
-        sale.setTotalAmount(calculateCartTotal(cart));
+        sale.setDeliveryInstructions(request.getDeliveryInstructions());
+
+        // SETEAR TODOS LOS MONTOS
+        sale.setSubtotalAmount(subtotal);
+        sale.setShippingCost(shippingCost);
+        sale.setTaxAmount(taxAmount);
+        sale.setTotalAmount(totalAmount);
 
         // Generar número de factura único
         String invoiceNumber = "INV-" + System.currentTimeMillis() + "-" + customer.getId();
         sale.setInvoiceNumber(invoiceNumber);
 
         return sale;
+    }
+
+    private BigDecimal calculateShippingCost(String deliveryMethod) {
+        switch (DeliveryMethod.valueOf(deliveryMethod)) {
+            case STANDARD_SHIPPING:
+                return new BigDecimal("8000");
+            case EXPRESS_SHIPPING:
+                return new BigDecimal("15000");
+            case STORE_PICKUP:
+                return BigDecimal.ZERO;
+            case SAME_DAY_DELIVERY:
+                return new BigDecimal("20000");
+            default:
+                return new BigDecimal("8000");
+        }
+    }
+
+    private BigDecimal calculateTaxAmount(BigDecimal subtotal) {
+        // 19% de impuestos en Colombia
+        return subtotal.multiply(new BigDecimal("0.19"));
     }
 
     private void createSaleItems(Sale sale, Cart cart) {
