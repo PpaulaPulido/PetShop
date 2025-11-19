@@ -8,17 +8,18 @@ class PetLuzEffects {
         this.setupParticleSystems();
         this.setupScrollAnimations();
         this.setupHoverEffects();
+        this.setupProductsHeaderParticles();
     }
 
     // Efectos de zoom en imágenes
     setupImageZoomEffects() {
         const zoomImages = document.querySelectorAll('.gallery-image img, .tip-image img, .product-image');
-        
+
         zoomImages.forEach(img => {
             img.addEventListener('mouseenter', () => {
                 img.style.transform = 'scale(1.1)';
             });
-            
+
             img.addEventListener('mouseleave', () => {
                 img.style.transform = 'scale(1)';
             });
@@ -30,10 +31,10 @@ class PetLuzEffects {
         const whyPetluzCanvas = document.getElementById('whyPetluzParticles');
         if (whyPetluzCanvas && window.ParticleSystem) {
             this.whyPetluzParticles = new window.ParticleSystem('whyPetluzParticles');
-            this.whyPetluzParticles.createParticles = function() {
+            this.whyPetluzParticles.createParticles = function () {
                 this.particles = [];
                 const particleCount = 15;
-                
+
                 for (let i = 0; i < particleCount; i++) {
                     this.particles.push({
                         x: Math.random() * this.canvas.width,
@@ -46,7 +47,7 @@ class PetLuzEffects {
                     });
                 }
             };
-            
+
             this.whyPetluzParticles.setupCanvas();
             this.whyPetluzParticles.createParticles();
             this.whyPetluzParticles.animate();
@@ -72,7 +73,7 @@ class PetLuzEffects {
         const elementsToAnimate = document.querySelectorAll(
             '.stat-card, .action-card, .tip-card, .gallery-item, .feature-item'
         );
-        
+
         elementsToAnimate.forEach(el => {
             el.classList.add('scroll-animate');
             this.observer.observe(el);
@@ -81,9 +82,9 @@ class PetLuzEffects {
 
     animateOnScroll(element) {
         element.classList.add('animated');
-        
+
         // Animación escalonada para elementos en grid
-        if (element.classList.contains('stat-card') || 
+        if (element.classList.contains('stat-card') ||
             element.classList.contains('action-card') ||
             element.classList.contains('tip-card') ||
             element.classList.contains('gallery-item')) {
@@ -96,24 +97,24 @@ class PetLuzEffects {
     setupHoverEffects() {
         // Efecto de tilt en tarjetas
         const cards = document.querySelectorAll('.stat-card, .action-card, .tip-card, .product-card');
-        
+
         cards.forEach(card => {
             card.addEventListener('mousemove', (e) => {
                 if (window.innerWidth > 768) {
                     const rect = card.getBoundingClientRect();
                     const x = e.clientX - rect.left;
                     const y = e.clientY - rect.top;
-                    
+
                     const centerX = rect.width / 2;
                     const centerY = rect.height / 2;
-                    
+
                     const rotateY = (x - centerX) / 25;
                     const rotateX = (centerY - y) / 25;
-                    
+
                     card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-10px)`;
                 }
             });
-            
+
             card.addEventListener('mouseleave', () => {
                 card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
             });
@@ -121,15 +122,15 @@ class PetLuzEffects {
 
         // Efecto de ripple en botones
         const buttons = document.querySelectorAll('.btn-add-to-cart, .btn-primary');
-        
+
         buttons.forEach(button => {
-            button.addEventListener('click', function(e) {
+            button.addEventListener('click', function (e) {
                 const ripple = document.createElement('span');
                 const rect = this.getBoundingClientRect();
                 const size = Math.max(rect.width, rect.height);
                 const x = e.clientX - rect.left - size / 2;
                 const y = e.clientY - rect.top - size / 2;
-                
+
                 ripple.style.cssText = `
                     position: absolute;
                     border-radius: 50%;
@@ -142,11 +143,11 @@ class PetLuzEffects {
                     top: ${y}px;
                     pointer-events: none;
                 `;
-                
+
                 this.style.position = 'relative';
                 this.style.overflow = 'hidden';
                 this.appendChild(ripple);
-                
+
                 setTimeout(() => ripple.remove(), 600);
             });
         });
@@ -172,7 +173,7 @@ class PetLuzEffects {
         let current = 0;
         const increment = target / 30;
         const stepTime = duration / 30;
-        
+
         const timer = setInterval(() => {
             current += increment;
             if (current >= target) {
@@ -188,7 +189,7 @@ class PetLuzEffects {
     typeWriterEffect(element, text, speed = 50) {
         let i = 0;
         element.textContent = '';
-        
+
         function type() {
             if (i < text.length) {
                 element.textContent += text.charAt(i);
@@ -204,7 +205,7 @@ class PetLuzEffects {
         window.addEventListener('scroll', () => {
             const scrolled = window.pageYOffset;
             const parallaxElements = document.querySelectorAll('.parallax');
-            
+
             parallaxElements.forEach(element => {
                 const speed = element.dataset.speed || 0.5;
                 element.style.transform = `translateY(${scrolled * speed}px)`;
@@ -215,12 +216,12 @@ class PetLuzEffects {
     // Efecto de revelación gradual al hacer scroll
     setupStaggeredReveal() {
         const revealElements = document.querySelectorAll('.stagger-reveal');
-        
+
         revealElements.forEach((element, index) => {
             element.style.opacity = '0';
             element.style.transform = 'translateY(30px)';
             element.style.transition = `all 0.6s ease ${index * 0.1}s`;
-            
+
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
@@ -229,7 +230,7 @@ class PetLuzEffects {
                     }
                 });
             });
-            
+
             observer.observe(element);
         });
     }
@@ -237,14 +238,14 @@ class PetLuzEffects {
     // Efecto de hover con gradiente animado
     setupGradientHover() {
         const gradientElements = document.querySelectorAll('.gradient-hover');
-        
+
         gradientElements.forEach(element => {
             element.addEventListener('mouseenter', () => {
                 element.style.background = 'linear-gradient(45deg, var(--primary-color), var(--secondary-color))';
                 element.style.backgroundSize = '200% 200%';
                 element.style.animation = 'gradientShift 2s ease infinite';
             });
-            
+
             element.addEventListener('mouseleave', () => {
                 element.style.background = '';
                 element.style.backgroundSize = '';
@@ -315,6 +316,199 @@ class PetLuzEffects {
         setTimeout(() => {
             element.style.animation = '';
         }, duration);
+    }
+
+    // Efecto de carga escalonada para productos
+    setupProductStaggerAnimation() {
+        const productCards = document.querySelectorAll('.product-card');
+
+        productCards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+        });
+    }
+
+    // Efecto de filtro blur al abrir modales
+    setupModalEffects() {
+        const modals = document.querySelectorAll('.product-modal');
+
+        modals.forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    this.closeModal(modal);
+                }
+            });
+        });
+    }
+
+    closeModal(modal) {
+        modal.style.animation = 'fadeOut 0.3s ease forwards';
+        setTimeout(() => {
+            modal.classList.remove('active');
+            modal.style.animation = '';
+        }, 300);
+    }
+
+    // Efecto de búsqueda con resultados
+    setupSearchEffects() {
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                if (e.target.value.length > 2) {
+                    this.pulseElement(document.querySelector('.search-btn'));
+                }
+            });
+        }
+    }
+
+    // Efecto de aplicación de filtros
+    setupFilterEffects() {
+        const applyBtn = document.getElementById('applyFilters');
+        if (applyBtn) {
+            applyBtn.addEventListener('click', () => {
+                this.pulseElement(applyBtn);
+            });
+        }
+    }
+
+    // Efecto de cambio de vista (grid/list)
+    setupViewModeEffects() {
+        const viewBtns = document.querySelectorAll('.view-btn');
+
+        viewBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                this.pulseElement(btn);
+            });
+        });
+    }
+
+    // Efecto de hover en cards de producto mejorado
+    setupProductCardEffects() {
+        const productCards = document.querySelectorAll('.product-card');
+
+        productCards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                if (window.innerWidth > 768) {
+                    card.style.transform = 'translateY(-10px) scale(1.02)';
+                }
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+    }
+
+    // Sistema de partículas simples - solo bolitas en movimiento
+    setupProductsHeaderParticles() {
+        const productsHeader = document.querySelector('.products-header');
+        if (!productsHeader) return;
+
+        // Crear canvas para partículas
+        const canvas = document.createElement('canvas');
+        canvas.className = 'products-header-particles';
+        canvas.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        `;
+
+        productsHeader.style.position = 'relative';
+        productsHeader.appendChild(canvas);
+
+        // Inicializar partículas simples
+        this.initCleanParticles(canvas);
+    }
+
+    initCleanParticles(canvas) {
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        // Ajustar tamaño del canvas
+        const resizeCanvas = () => {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            createParticles();
+        };
+
+        // Clase de partícula simple - solo bolitas
+        class CleanParticle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 3 + 1; 
+                this.speedX = (Math.random() - 0.5) * 1.5; 
+                this.speedY = (Math.random() - 0.5) * 1.5;
+                this.color = this.getRandomColor();
+                this.opacity = Math.random() * 0.6 + 0.2;
+                this.originalSize = this.size;
+            }
+
+            getRandomColor() {
+                const colors = [
+                    'rgba(255, 255, 255, 0.8)',    
+                    'rgba(255, 209, 102, 0.7)',   
+                    'rgba(142, 68, 255, 0.6)',    
+                    'rgba(255, 255, 255, 0.9)',    
+                    'rgba(244, 240, 255, 0.7)'    
+                ];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
+
+            update() {
+                // Movimiento simple
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                // Rebote en los bordes
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.opacity;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        // Crear partículas iniciales
+        const createParticles = () => {
+            particles = [];
+            const particleCount = 35; // Más partículas para mejor efecto
+            
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new CleanParticle());
+            }
+        };
+
+        // Animación limpia - sin estelas
+        const animate = () => {
+            // Limpiar completamente el canvas en cada frame
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Actualizar y dibujar partículas
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+
+            requestAnimationFrame(animate);
+        };
+
+        // Inicializar
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        animate();
     }
 }
 

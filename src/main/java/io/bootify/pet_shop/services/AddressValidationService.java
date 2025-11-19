@@ -31,7 +31,6 @@ public class AddressValidationService {
                 URLEncoder.encode(query, StandardCharsets.UTF_8)
             );
 
-            // Agregar headers para cumplir con la política de uso de Nominatim
             HttpHeaders headers = new HttpHeaders();
             headers.set("User-Agent", "PetShopApp/1.0 (pulidoibarra15@gmail.com)");
             headers.setAccept(List.of(MediaType.APPLICATION_JSON));
@@ -42,14 +41,23 @@ public class AddressValidationService {
                 url, HttpMethod.GET, entity, String.class);
             
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                return parseValidationResponse(response.getBody());
+                AddressValidationResponse validationResponse = parseValidationResponse(response.getBody());
+                
+                if (!validationResponse.isValid()) {
+                    // Modificar la respuesta para que sea válida pero con advertencia
+                    validationResponse.setValid(true);
+                    validationResponse.setMessage("Dirección aceptada (verificación limitada)");
+                    validationResponse.setConfidence(0.3);
+                }
+                
+                return validationResponse;
             }
             
         } catch (Exception e) {
             log.error("Error validando dirección: {}", e.getMessage());
+            log.warn("Continuando sin validación debido a error del servicio");
         }
         
-        // En caso de error, considerar la dirección como válida pero loguear el problema
         return createFallbackResponse();
     }
 
@@ -79,9 +87,11 @@ public class AddressValidationService {
             java.util.List<?> results = mapper.readValue(responseBody, java.util.List.class);
             
             AddressValidationResponse validationResponse = new AddressValidationResponse();
-            validationResponse.setValid(!results.isEmpty());
             
-            if (!results.isEmpty()) {
+            boolean hasResults = !results.isEmpty();
+            validationResponse.setValid(hasResults);
+            
+            if (hasResults) {
                 validationResponse.setMessage("Dirección verificada correctamente");
                 validationResponse.setConfidence(0.8);
                 
@@ -91,23 +101,22 @@ public class AddressValidationService {
                     validationResponse.setVerifiedAddress(firstResult.get("display_name").toString());
                 }
             } else {
-                validationResponse.setMessage("La dirección no pudo ser verificada. Por favor verifica los datos.");
-                validationResponse.setConfidence(0.0);
+                validationResponse.setMessage("La dirección no pudo ser verificada automáticamente, pero será aceptada");
+                validationResponse.setConfidence(0.2);
             }
             
             return validationResponse;
             
         } catch (Exception e) {
-            log.error("Error parseando respuesta de validación: {}", e.getMessage());
             return createFallbackResponse();
         }
     }
 
     private AddressValidationResponse createFallbackResponse() {
         AddressValidationResponse fallbackResponse = new AddressValidationResponse();
-        fallbackResponse.setValid(true); // Por defecto aceptamos la dirección
-        fallbackResponse.setMessage("No se pudo verificar la dirección automáticamente, pero se aceptará el registro");
-        fallbackResponse.setConfidence(0.5);
+        fallbackResponse.setValid(true);
+        fallbackResponse.setMessage("Servicio de validación no disponible - Dirección aceptada");
+        fallbackResponse.setConfidence(0.1);
         return fallbackResponse;
     }
 }

@@ -24,6 +24,13 @@ class ProductsManager {
         await this.loadCategories();
         await this.loadProducts();
         await this.loadCartCount();
+        
+        // Inicializar efectos
+        if (window.petLuzEffects) {
+            window.petLuzEffects.setupProductStaggerAnimation();
+            window.petLuzEffects.setupModalEffects();
+            window.petLuzEffects.setupProductCardEffects();
+        }
     }
 
     setupEventListeners() {
@@ -81,7 +88,10 @@ class ProductsManager {
         // Reset búsqueda
         document.getElementById('resetSearch').addEventListener('click', () => this.clearSearch());
 
-        // Escuchar eventos del carrito GLOBALMENTE
+        // Modal
+        document.getElementById('modalClose').addEventListener('click', () => this.closeModal());
+
+        // Escuchar eventos del carrito
         window.addEventListener('cartUpdated', (event) => {
             const totalItems = event.detail?.totalItems;
             if (totalItems !== undefined) {
@@ -102,7 +112,6 @@ class ProductsManager {
                 throw new Error('Error al cargar categorías');
             }
         } catch (error) {
-            console.error('Error loading categories:', error);
             this.loadFallbackCategories();
         }
     }
@@ -194,8 +203,6 @@ class ProductsManager {
                 params.append('sort', this.sortBy);
             }
 
-            console.log('Loading products with params:', params.toString());
-            
             const response = await fetch(`/api/customer/products?${params}`);
             
             if (response.ok) {
@@ -210,7 +217,6 @@ class ProductsManager {
                 throw new Error(`Error ${response.status}: ${response.statusText}`);
             }
         } catch (error) {
-            console.error('Error loading products:', error);
             this.showError('Error al cargar los productos: ' + error.message);
         }
     }
@@ -231,12 +237,12 @@ class ProductsManager {
 
         container.innerHTML = products.map(product => `
             <div class="product-card ${this.viewMode}-view">
-                <img src="${product.displayImage || '/images/default-product.png'}" 
+                <img src="${product.imageUrl || '/images/default-product.png'}" 
                      alt="${product.name}" 
                      class="product-image"
                      onerror="this.src='/images/default-product.png'">
                 <div class="product-info">
-                    <span class="product-category">${product.type || 'General'}</span>
+                    <span class="product-category">${this.formatProductType(product.type)}</span>
                     <h3 class="product-name">${product.name}</h3>
                     <p class="product-description">${product.description || 'Sin descripción disponible'}</p>
                     
@@ -250,17 +256,17 @@ class ProductsManager {
                         <button class="btn-add-to-cart" 
                                 data-product-id="${product.id}"
                                 ${product.stock === 0 ? 'disabled' : ''}>
-                            🛒 ${product.stock === 0 ? 'Agotado' : 'Agregar'}
+                            ${product.stock === 0 ? 'Agotado' : 'Agregar al Carrito'}
                         </button>
-                        <a href="/customer/products/${product.id}" class="btn-view-details">
-                            👀 Ver
-                        </a>
+                        <button class="btn-view-details" data-product-id="${product.id}">
+                            Ver Detalles
+                        </button>
                     </div>
                 </div>
             </div>
         `).join('');
 
-        // Agregar event listeners a los botones de agregar al carrito
+        // Agregar event listeners
         container.querySelectorAll('.btn-add-to-cart:not(:disabled)').forEach(button => {
             button.addEventListener('click', (e) => {
                 const productId = e.target.dataset.productId;
@@ -268,7 +274,30 @@ class ProductsManager {
             });
         });
 
+        container.querySelectorAll('.btn-view-details').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const productId = e.target.dataset.productId;
+                this.showProductModal(productId);
+            });
+        });
+
         this.updateResultsInfo(products.length);
+        
+        // Aplicar animaciones escalonadas
+        if (window.petLuzEffects) {
+            window.petLuzEffects.setupProductStaggerAnimation();
+        }
+    }
+
+    formatProductType(type) {
+        const types = {
+            'FOOD': 'Alimento',
+            'TOY': 'Juguetes',
+            'ACCESSORY': 'Accesorios',
+            'HEALTH': 'Salud',
+            'HYGIENE': 'Higiene'
+        };
+        return types[type] || type;
     }
 
     getStockClass(stock) {
@@ -278,9 +307,82 @@ class ProductsManager {
     }
 
     getStockText(stock) {
-        if (stock === 0) return '❌ Agotado';
-        if (stock <= 5) return `⚠️ Solo ${stock} disponibles`;
-        return `✅ En stock (${stock})`;
+        if (stock === 0) return 'Agotado';
+        if (stock <= 5) return `Solo ${stock} disponibles`;
+        return `En stock (${stock})`;
+    }
+
+    async showProductModal(productId) {
+        try {
+            const response = await fetch(`/api/customer/products/${productId}`);
+            if (response.ok) {
+                const product = await response.json();
+                this.displayProductModal(product);
+            } else {
+                throw new Error('Error al cargar el producto');
+            }
+        } catch (error) {
+            this.showNotification('Error al cargar los detalles del producto', 'error');
+        }
+    }
+
+    displayProductModal(product) {
+        const modalBody = document.getElementById('modalBody');
+        const modal = document.getElementById('productModal');
+
+        modalBody.innerHTML = `
+            <div class="modal-image">
+                <img src="${product.imageUrl || '/images/default-product.png'}" 
+                     alt="${product.name}"
+                     onerror="this.src='/images/default-product.png'">
+            </div>
+            <div class="modal-info">
+                <span class="modal-category">${this.formatProductType(product.type)}</span>
+                <h2 class="modal-title">${product.name}</h2>
+                <p class="modal-description">${product.description || 'Este producto no tiene descripción disponible.'}</p>
+                
+                <div class="modal-price">$${product.price.toFixed(2)}</div>
+                
+                <div class="modal-stock ${this.getStockClass(product.stock)}">
+                    ${this.getStockText(product.stock)}
+                </div>
+                
+                <div class="product-details">
+                    <h4>Información del Producto</h4>
+                    <ul>
+                        <li><strong>Categoría:</strong> ${product.categoryName || 'General'}</li>
+                        <li><strong>Tipo:</strong> ${this.formatProductType(product.type)}</li>
+                        <li><strong>Disponibilidad:</strong> ${product.stock > 0 ? 'En stock' : 'Agotado'}</li>
+                    </ul>
+                </div>
+                
+                <div class="modal-actions">
+                    <button class="btn-add-to-cart" 
+                            data-product-id="${product.id}"
+                            ${product.stock === 0 ? 'disabled' : ''}>
+                        ${product.stock === 0 ? 'Producto Agotado' : 'Agregar al Carrito'}
+                    </button>
+                    <button class="btn-view-details" onclick="productsManager.closeModal()">
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // Event listener para agregar al carrito desde el modal
+        modalBody.querySelector('.btn-add-to-cart:not(:disabled)')?.addEventListener('click', () => {
+            this.addToCart(product.id);
+            this.closeModal();
+        });
+
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    closeModal() {
+        const modal = document.getElementById('productModal');
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
     }
 
     updateResultsInfo(displayedCount) {
@@ -318,23 +420,15 @@ class ProductsManager {
                 this.updateCartCountFromStorage();
             }
         } catch (error) {
-            console.error('Error loading cart count:', error);
             this.updateCartCountFromStorage();
         }
     }
 
     updateCartCountDisplay(count) {
         const headerCartCount = document.getElementById('headerCartCount');
-        const dashboardCartCount = document.getElementById('cartItemsCount');
-        
         if (headerCartCount) {
             headerCartCount.textContent = count;
         }
-        if (dashboardCartCount) {
-            dashboardCartCount.textContent = count;
-        }
-        
-        this.updateLocalStorageCartCount(count);
     }
 
     updateCartCountFromStorage() {
@@ -343,19 +437,8 @@ class ProductsManager {
         this.updateCartCountDisplay(totalItems);
     }
 
-    updateLocalStorageCartCount(count) {
-        const cart = this.getCartFromStorage();
-        const currentCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-        
-        if (currentCount !== count) {
-            console.log('Discrepancia en contador del carrito:', currentCount, 'vs', count);
-        }
-    }
-
     async addToCart(productId) {
         try {
-            console.log('Adding product to cart:', productId);
-            
             const response = await fetch(`/api/customer/cart/items/${productId}?quantity=1`, {
                 method: 'POST',
                 headers: {
@@ -365,10 +448,9 @@ class ProductsManager {
 
             if (response.ok) {
                 const cartData = await response.json();
-                
                 const totalItems = cartData.totalItems || cartData.items.reduce((sum, item) => sum + item.quantity, 0);
-                this.updateCartCountDisplay(totalItems);
                 
+                this.updateCartCountDisplay(totalItems);
                 this.updateLocalStorageCart(cartData);
                 
                 window.dispatchEvent(new CustomEvent('cartUpdated', { 
@@ -376,13 +458,16 @@ class ProductsManager {
                 }));
                 
                 this.showNotification('Producto agregado al carrito', 'success');
+                
+                // Efecto de pulso
+                if (window.petLuzEffects) {
+                    window.petLuzEffects.pulseElement(document.querySelector(`[data-product-id="${productId}"]`));
+                }
             } else {
-                const errorText = await response.text();
-                throw new Error(errorText || 'Error al agregar al carrito');
+                throw new Error('Error al agregar al carrito');
             }
         } catch (error) {
-            console.error('Error adding to cart:', error);
-            this.showNotification('Error al agregar el producto: ' + error.message, 'error');
+            this.showNotification('Error al agregar el producto', 'error');
         }
     }
 
@@ -403,7 +488,6 @@ class ProductsManager {
         try {
             return JSON.parse(localStorage.getItem('petluz_cart') || '[]');
         } catch (error) {
-            console.error('Error parsing cart from localStorage:', error);
             return [];
         }
     }
@@ -416,17 +500,9 @@ class ProductsManager {
     }
 
     applyFilters() {
-        this.filters.types = Array.from(document.querySelectorAll('input[name="type"]:checked'))
-            .map(checkbox => checkbox.value);
-
-        const inStockChecked = document.querySelector('input[name="stock"][value="in_stock"]:checked');
-        const lowStockChecked = document.querySelector('input[name="stock"][value="low_stock"]:checked');
-        
-        this.filters.inStock = inStockChecked !== null;
-        this.filters.lowStock = lowStockChecked !== null;
-
+        this.updateTypeFilters();
+        this.updateStockFilters();
         this.applyPriceFilter();
-
         this.currentPage = 0;
         this.loadProducts();
         this.closeMobileFilters();
@@ -572,7 +648,11 @@ class ProductsManager {
     }
 }
 
+// Hacer disponible globalmente
+let productsManager;
+
 // Inicializar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
-    new ProductsManager();
+    productsManager = new ProductsManager();
+    window.productsManager = productsManager;
 });

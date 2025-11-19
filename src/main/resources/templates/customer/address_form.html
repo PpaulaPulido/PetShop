@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${isEdit ? 'Editar Dirección - PetLuz' : 'Nueva Dirección - PetLuz'}">Nueva Dirección - PetLuz</title>
+    <title th:text="${isEdit ? 'Editar Dirección - PetLuz' : 'Nueva Dirección - PetLuz'}">Nueva Dirección - PetLuz
+    </title>
     <link rel="stylesheet" th:href="@{/css/base_customer.css}">
     <link rel="stylesheet" th:href="@{/css/customer_address_form.css}">
-    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
+
 <body>
-    <!-- Header -->
     <div th:replace="shared/header :: header"></div>
 
-    <!-- Sidebar del carrito -->
     <div th:replace="shared/cart-sidebar :: cart-sidebar"></div>
 
     <main class="address-form-container">
@@ -24,7 +24,8 @@
                 <span class="separator">/</span>
                 <a href="/user/addresses">Mis Direcciones</a>
                 <span class="separator">/</span>
-                <span class="current" th:text="${isEdit ? 'Editar Dirección' : 'Nueva Dirección'}">Nueva Dirección</span>
+                <span class="current" th:text="${isEdit ? 'Editar Dirección' : 'Nueva Dirección'}">Nueva
+                    Dirección</span>
             </nav>
 
             <!-- Header del formulario -->
@@ -38,13 +39,12 @@
                 </a>
             </section>
 
-            <!-- Formulario -->
             <div class="form-layout">
                 <!-- Columna del formulario -->
                 <div class="form-column">
                     <form id="addressForm" class="address-form">
                         <input type="hidden" id="addressId" th:value="${address?.id}">
-                        
+
                         <!-- Información básica -->
                         <section class="form-section">
                             <h2>📝 Información Básica</h2>
@@ -53,26 +53,31 @@
                                     <label for="addressType">Tipo de Dirección *</label>
                                     <select id="addressType" name="addressType" required>
                                         <option value="">Selecciona el tipo</option>
-                                        <option value="HOME" th:selected="${address?.addressType == 'HOME'}">Casa</option>
-                                        <option value="APARTMENT" th:selected="${address?.addressType == 'APARTMENT'}">Apartamento</option>
-                                        <option value="WORK" th:selected="${address?.addressType == 'WORK'}">Trabajo</option>
-                                        <option value="OFFICE" th:selected="${address?.addressType == 'OFFICE'}">Oficina</option>
-                                        <option value="OTHER" th:selected="${address?.addressType == 'OTHER'}">Otro</option>
+                                        <option value="HOME" th:selected="${address?.addressType == 'HOME'}">Casa
+                                        </option>
+                                        <option value="APARTMENT" th:selected="${address?.addressType == 'APARTMENT'}">
+                                            Apartamento</option>
+                                        <option value="WORK" th:selected="${address?.addressType == 'WORK'}">Trabajo
+                                        </option>
+                                        <option value="OFFICE" th:selected="${address?.addressType == 'OFFICE'}">Oficina
+                                        </option>
+                                        <option value="OTHER" th:selected="${address?.addressType == 'OTHER'}">Otro
+                                        </option>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label for="contactName">Nombre de Contacto *</label>
-                                    <input type="text" id="contactName" name="contactName" 
-                                           th:value="${address?.contactName}"
-                                           placeholder="Ej: Juan Pérez" required maxlength="100">
+                                    <input type="text" id="contactName" name="contactName"
+                                        th:value="${address?.contactName}" placeholder="Ej: Juan Pérez" required
+                                        maxlength="100">
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="contactPhone">Teléfono de Contacto *</label>
-                                    <input type="tel" id="contactPhone" name="contactPhone" 
-                                           th:value="${address?.contactPhone}"
-                                           placeholder="Ej: 3001234567" required pattern="[0-9]{10}">
+                                    <input type="tel" id="contactPhone" name="contactPhone"
+                                        th:value="${address?.contactPhone}" placeholder="Ej: 3001234567" required
+                                        pattern="[0-9]{10}">
                                     <small>10 dígitos sin espacios ni caracteres especiales</small>
                                 </div>
                             </div>
@@ -85,9 +90,8 @@
                                 <div class="form-group full-width">
                                     <label for="addressSearch">Buscar Dirección en el Mapa *</label>
                                     <div class="search-container">
-                                        <input type="text" id="addressSearch" 
-                                               placeholder="Ej: Calle 100 # 15-20, Bogotá" 
-                                               class="search-input">
+                                        <input type="text" id="addressSearch"
+                                            placeholder="Ej: Calle 100 # 15-20, Bogotá" class="search-input">
                                         <button type="button" id="searchBtn" class="search-btn">🔍</button>
                                     </div>
                                     <small>Escribe tu dirección completa y selecciónala en el mapa</small>
@@ -116,10 +120,10 @@
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="zipCode">Código Postal</label>
-                                    <input type="text" id="zipCode" name="zipCode" 
-                                           th:value="${address?.zipCode}"
-                                           placeholder="Ej: 110011" pattern="[0-9]{6}">
-                                    <small>6 dígitos del código postal (opcional)</small>
+                                    <input type="text" id="zipCode" name="zipCode" th:value="${address?.zipCode}"
+                                        placeholder="Se autocompletará desde el mapa (opcional)" pattern="[0-9]{6}"
+                                        title="Código postal - Opcional">
+                                    <small>Opcional - Se autocompletará desde la ubicación en el mapa</small>
                                 </div>
                             </div>
                         </section>
@@ -127,13 +131,13 @@
                         <!-- Dirección detallada -->
                         <section class="form-section">
                             <h2>🏠 Dirección Detallada</h2>
-                            
+
                             <div class="form-row">
                                 <div class="form-group full-width">
                                     <label for="addressLine1">Dirección Principal *</label>
-                                    <input type="text" id="addressLine1" name="addressLine1" 
-                                           th:value="${address?.addressLine1}"
-                                           placeholder="Ej: Calle 100 # 15-20" required>
+                                    <input type="text" id="addressLine1" name="addressLine1"
+                                        th:value="${address?.addressLine1}" placeholder="Ej: Calle 100 # 15-20"
+                                        required>
                                     <small>Dirección completa que se mostrará en los pedidos</small>
                                 </div>
                             </div>
@@ -141,18 +145,17 @@
                             <div class="form-row">
                                 <div class="form-group full-width">
                                     <label for="addressLine2">Barrio/Urbanización/Complemento</label>
-                                    <input type="text" id="addressLine2" name="addressLine2" 
-                                           th:value="${address?.addressLine2}"
-                                           placeholder="Ej: Chapinero, Unidad Residencial...">
+                                    <input type="text" id="addressLine2" name="addressLine2"
+                                        th:value="${address?.addressLine2}"
+                                        placeholder="Ej: Chapinero, Unidad Residencial...">
                                 </div>
                             </div>
 
                             <div class="form-row">
                                 <div class="form-group full-width">
                                     <label for="landmark">Punto de Referencia</label>
-                                    <input type="text" id="landmark" name="landmark" 
-                                           th:value="${address?.landmark}"
-                                           placeholder="Ej: Frente al centro comercial, cerca de...">
+                                    <input type="text" id="landmark" name="landmark" th:value="${address?.landmark}"
+                                        placeholder="Ej: Frente al centro comercial, cerca de...">
                                 </div>
                             </div>
                         </section>
@@ -163,10 +166,10 @@
                             <div class="form-row">
                                 <div class="form-group full-width">
                                     <label for="deliveryInstructions">Instrucciones Especiales (Opcional)</label>
-                                    <textarea id="deliveryInstructions" name="deliveryInstructions" 
-                                              th:text="${address?.deliveryInstructions}"
-                                              placeholder="Ej: Timbre 2 veces, dejar en portería, llamar antes de llegar..."
-                                              rows="3" maxlength="500"></textarea>
+                                    <textarea id="deliveryInstructions" name="deliveryInstructions"
+                                        th:text="${address?.deliveryInstructions}"
+                                        placeholder="Ej: Timbre 2 veces, dejar en portería, llamar antes de llegar..."
+                                        rows="3" maxlength="500"></textarea>
                                     <small class="char-counter">0/500 caracteres</small>
                                 </div>
                             </div>
@@ -176,8 +179,8 @@
                         <section class="form-section">
                             <div class="form-options">
                                 <label class="checkbox-label">
-                                    <input type="checkbox" id="isPrimary" name="isPrimary" 
-                                           th:checked="${address?.isPrimary}">
+                                    <input type="checkbox" id="isPrimary" name="isPrimary"
+                                        th:checked="${address?.isPrimary}">
                                     <span class="checkmark"></span>
                                     Establecer como dirección principal
                                 </label>
@@ -190,7 +193,8 @@
                                 Cancelar
                             </a>
                             <button type="submit" class="btn btn-primary" id="submitBtn">
-                                <span th:text="${isEdit ? 'Actualizar Dirección' : 'Crear Dirección'}">Crear Dirección</span>
+                                <span th:text="${isEdit ? 'Actualizar Dirección' : 'Crear Dirección'}">Crear
+                                    Dirección</span>
                             </button>
                         </section>
                     </form>
@@ -221,7 +225,8 @@
                     <section class="preview-section">
                         <h2>👀 Previsualización</h2>
                         <div class="address-preview" id="addressPreview">
-                            <p class="preview-placeholder">La dirección aparecerá aquí después de buscarla en el mapa...</p>
+                            <p class="preview-placeholder">La dirección aparecerá aquí después de buscarla en el mapa...
+                            </p>
                         </div>
                     </section>
                 </div>
@@ -229,15 +234,14 @@
         </div>
     </main>
 
-    <!-- Footer -->
     <div th:replace="shared/footer :: footer-pedLUz"></div>
-
-    <!-- Notificaciones -->
     <div id="notificationContainer"></div>
-
-    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <!-- OpenStreetMap Nominatim para geocoding -->
+    <script th:src="@{/js/customer_header.js}"></script>
+    <script th:src="@{/js/patterns-dictionary.js}"></script>
+    <script th:src="@{/js/customer_effects.js}"></script>
     <script th:src="@{/js/customer_address_form.js}"></script>
+    <script th:src="@{/js/customer_validations.js}"></script>
 </body>
+
 </html>

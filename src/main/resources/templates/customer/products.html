@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,32 +8,38 @@
     <link rel="stylesheet" th:href="@{/css/base_customer.css}">
     <link rel="stylesheet" th:href="@{/css/customer_products.css}">
 </head>
+
 <body>
-    <!-- Header con navegación y carrito -->
     <div th:replace="shared/header :: header"></div>
 
-    <!-- Sidebar del carrito -->
     <div th:replace="shared/cart-sidebar :: cart-sidebar"></div>
 
-    <!-- Filtros móviles -->
+    <div class="product-modal" id="productModal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">✕</button>
+            <div class="modal-body" id="modalBody">
+            </div>
+        </div>
+    </div>
+
     <div class="mobile-filters-toggle">
         <button class="btn-filter-mobile" id="filterToggle">
-            <span>🔍 Filtros</span>
+            <span>Filtros</span>
         </button>
     </div>
 
     <main class="products-container">
         <div class="container">
-            <!-- Header de productos -->
+
             <section class="products-header">
                 <div class="header-content">
-                    <h1>Nuestros Productos 🐾</h1>
+                    <h1>Nuestros Productos</h1>
                     <p>Encuentra todo lo que necesitas para tu mascota</p>
                 </div>
                 <div class="header-actions">
                     <div class="search-box">
                         <input type="text" id="searchInput" placeholder="Buscar productos...">
-                        <button class="search-btn" id="searchBtn">🔍</button>
+                        <button class="search-btn" id="searchBtn">Buscar</button>
                     </div>
                     <div class="sort-options">
                         <select id="sortSelect">
@@ -44,7 +51,7 @@
                     </div>
                 </div>
             </section>
-
+            
             <div class="products-layout">
                 <!-- Sidebar de filtros -->
                 <aside class="filters-sidebar" id="filtersSidebar">
@@ -57,7 +64,6 @@
                     <div class="filter-group">
                         <h4>Categorías</h4>
                         <div class="filter-options" id="categoryFilters">
-                            <!-- Las categorías se cargarán dinámicamente -->
                             <div class="loading">Cargando categorías...</div>
                         </div>
                     </div>
@@ -130,23 +136,21 @@
                     <div class="results-info">
                         <p id="resultsCount">Cargando productos...</p>
                         <div class="view-options">
-                            <button class="view-btn active" data-view="grid">⏹️</button>
-                            <button class="view-btn" data-view="list">📄</button>
+                            <button class="view-btn active" data-view="grid">Grid</button>
+                            <button class="view-btn" data-view="list">Lista</button>
                         </div>
                     </div>
 
-                    <!-- Grid/Lista de productos -->
                     <div class="products-view">
-                        <div class="products-grid" id="productsGrid">
-                            <!-- Los productos se cargarán dinámicamente -->
+                        <div class="products-grid grid-view" id="productsGrid">
                             <div class="loading">Cargando productos...</div>
                         </div>
 
                         <!-- Paginación -->
                         <div class="pagination" id="pagination" style="display: none;">
-                            <button class="pagination-btn" id="prevPage" disabled>← Anterior</button>
+                            <button class="pagination-btn" id="prevPage" disabled>Anterior</button>
                             <span class="pagination-info" id="pageInfo">Página 1 de 1</span>
-                            <button class="pagination-btn" id="nextPage" disabled>Siguiente →</button>
+                            <button class="pagination-btn" id="nextPage" disabled>Siguiente</button>
                         </div>
                     </div>
 
@@ -163,9 +167,10 @@
         </div>
     </main>
 
-    <!-- Footer -->
     <div th:replace="shared/footer :: footer-pedLUz"></div>
-
+    <script th:src="@{/js/customer_header.js}"></script>
+    <script th:src="@{/js/customer_effects.js}"></script>
     <script th:src="@{/js/customer_products.js}"></script>
 </body>
+
 </html>

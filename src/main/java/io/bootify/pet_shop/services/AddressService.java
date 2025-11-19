@@ -1,7 +1,6 @@
 package io.bootify.pet_shop.services;
 
 import io.bootify.pet_shop.dto.AddressResponseDTO;
-import io.bootify.pet_shop.dto.AddressValidationResponse;
 import io.bootify.pet_shop.models.Address;
 import io.bootify.pet_shop.models.User;
 import io.bootify.pet_shop.repositories.AddressRepository;
@@ -18,7 +17,6 @@ public class AddressService {
 
     private final AddressRepository addressRepository;
     private final SecurityService securityService;
-    private final AddressValidationService addressValidationService; // AÑADIDO
 
     public List<AddressResponseDTO> getCustomerAddresses() {
         User customer = getCurrentCustomer();
@@ -39,17 +37,13 @@ public class AddressService {
     public AddressResponseDTO createAddress(Address address) {
         User customer = getCurrentCustomer();
 
-        // Validar la dirección antes de guardar
-        AddressValidationResponse validation = addressValidationService.validateAddress(address);
-
-        if (!validation.isValid()) {
-            throw new RuntimeException(validation.getMessage());
-        }
-
         address.setUser(customer);
         address.setIsActive(true);
 
-        // Si es la primera dirección, marcarla como primaria
+        if (address.getZipCode() == null) {
+            address.setZipCode(""); 
+        }
+
         if (addressRepository.countActiveAddressesByUser(customer.getId()) == 0) {
             address.setIsPrimary(true);
         }
@@ -64,18 +58,15 @@ public class AddressService {
         Address address = addressRepository.findByIdAndUserId(addressId, customer.getId())
                 .orElseThrow(() -> new RuntimeException("Dirección no encontrada"));
 
-        // Validar la dirección actualizada
-        AddressValidationResponse validation = addressValidationService.validateAddress(addressDetails);
-        if (!validation.isValid()) {
-            throw new RuntimeException(validation.getMessage());
-        }
-
+        // Actualizar campos
         address.setAddressLine1(addressDetails.getAddressLine1());
         address.setAddressLine2(addressDetails.getAddressLine2());
         address.setLandmark(addressDetails.getLandmark());
         address.setCity(addressDetails.getCity());
         address.setDepartment(addressDetails.getDepartment());
-        address.setZipCode(addressDetails.getZipCode());
+
+        address.setZipCode(addressDetails.getZipCode() != null ? addressDetails.getZipCode() : "");
+
         address.setAddressType(addressDetails.getAddressType());
         address.setContactName(addressDetails.getContactName());
         address.setContactPhone(addressDetails.getContactPhone());

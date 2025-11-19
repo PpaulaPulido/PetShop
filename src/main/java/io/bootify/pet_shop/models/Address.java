@@ -25,29 +25,28 @@ public class Address {
     // Información de la dirección
     @NotBlank
     @Column(name = "address_line1", nullable = false)
-    private String addressLine1; // Calle y número
+    private String addressLine1;
 
     @Column(name = "address_line2")
-    private String addressLine2; // Barrio, complemento
+    private String addressLine2;
 
     @Column(name = "landmark")
-    private String landmark; // Punto de referencia
+    private String landmark;
 
     @NotBlank
     @Column(nullable = false)
-    private String city; // Ciudad/Municipio
+    private String city;
 
     @NotBlank
     @Column(name = "department", nullable = false)
-    private String department; // Departamento
+    private String department;
 
     @NotBlank
     @Column(nullable = false)
-    private String country = "Colombia"; // Siempre Colombia
+    private String country = "Colombia";
 
-    @NotBlank
-    @Column(name = "zip_code", nullable = false)
-    private String zipCode; // Código postal
+    @Column(name = "zip_code")
+    private String zipCode; 
 
     // Tipo de dirección
     @Enumerated(EnumType.STRING)
@@ -60,14 +59,13 @@ public class Address {
     @Column(name = "is_active")
     private Boolean isActive = true;
 
-    // Información de contacto en esta dirección
+    // Información de contacto
     @Column(name = "contact_name")
     private String contactName;
 
     @Column(name = "contact_phone")
     private String contactPhone;
 
-    // Instrucciones de entrega
     @Column(name = "delivery_instructions", length = 500)
     private String deliveryInstructions;
 
@@ -83,16 +81,14 @@ public class Address {
     // Constructores
     public Address() {}
 
-    public Address(User user, String addressLine1, String city, String department, String zipCode) {
+    public Address(User user, String addressLine1, String city, String department) {
         this.user = user;
         this.addressLine1 = addressLine1;
         this.city = city;
         this.department = department;
-        this.zipCode = zipCode;
         this.country = "Colombia";
     }
 
-    // Método para obtener dirección completa
     public String getFullAddress() {
         StringBuilder sb = new StringBuilder();
         sb.append(addressLine1);
@@ -102,7 +98,9 @@ public class Address {
         sb.append(", ").append(city);
         sb.append(", ").append(department);
         sb.append(", ").append(country);
-        sb.append(" - ").append(zipCode);
+        if (zipCode != null && !zipCode.isEmpty()) {
+            sb.append(" - ").append(zipCode);
+        }
         return sb.toString();
     }
 }
