@@ -296,8 +296,6 @@ class UsersManager {
     formatDateOfBirthForDisplay(dateString) {
         if (!dateString) return 'No especificado';
 
-        console.log('📅 Fecha recibida para mostrar en modal:', dateString);
-
         // Método 1: Parsear manualmente sin usar new Date()
         const dateParts = dateString.split('-');
         if (dateParts.length === 3) {

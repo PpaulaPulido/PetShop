@@ -654,9 +654,7 @@ class CustomerProfileValidations {
 
         if (!isValid && firstErrorField) {
             this.scrollToField(firstErrorField);
-        } else if (isValid) {
-            console.log(`Formulario ${formId} es válido`);
-        }
+        } 
 
         return isValid;
     }

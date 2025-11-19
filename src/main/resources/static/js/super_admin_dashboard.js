@@ -14,27 +14,22 @@ class DashboardManager {
 
     async loadDashboardStats() {
         try {
-            console.log('Cargando estadísticas del dashboard...');
             const response = await fetch('/api/reports/dashboard-stats');
             
             if (!response.ok) {
                 throw new Error(`Error HTTP: ${response.status}`);
             }
             
-            const stats = await response.json();
-            console.log('Estadísticas recibidas:', stats);
-            
+            const stats = await response.json();            
             this.updateStatsDisplay(stats);
             this.generateAlerts(stats);
             
         } catch (error) {
-            console.error('Error cargando estadísticas:', error);
             this.showError('Error al cargar las estadísticas del dashboard');
         }
     }
 
     updateStatsDisplay(stats) {
-        console.log('Actualizando display con stats:', stats);
         
         const elementsMap = {
             'total-products': stats.totalProducts || 0,
@@ -48,7 +43,6 @@ class DashboardManager {
         Object.entries(elementsMap).forEach(([elementId, value]) => {
             const element = document.getElementById(elementId);
             if (element) {
-                console.log(`Actualizando ${elementId}: ${value}`);
                 this.animateValue(element, 0, value, ADMIN_CONFIG.ANIMATION_DURATION);
             } else {
                 console.warn(`Elemento no encontrado: ${elementId}`);
@@ -201,9 +195,7 @@ function showReports() {
     window.location.href = '/super-admin/reports';
 }
 
-// Inicializar dashboard cuando se carga la página
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Inicializando Dashboard Manager...');
     window.dashboardManager = new DashboardManager();
 });
 

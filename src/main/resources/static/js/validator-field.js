@@ -397,8 +397,6 @@ class FieldValidator {
                 });
             }
         });
-
-        console.log(`✅ Validación en tiempo real configurada para ${formId}`);
     }
 
     // ========== MÉTODOS DE UI ==========
@@ -616,7 +614,6 @@ class FieldValidator {
     // ========== MÉTODO DE PRUEBA ==========
     testValidation(fieldType, value, isRequired = true) {
         const result = this.validateField(fieldType, value, isRequired);
-        console.log(`🔍 Validando "${value}" como ${fieldType}:`, result);
         return result;
     }
 }

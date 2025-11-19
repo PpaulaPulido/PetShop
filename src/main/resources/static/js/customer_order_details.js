@@ -358,13 +358,11 @@ class CustomerOrderDetails {
 
     async confirmCancelOrder() {
         try {
-            // CORREGIDO: Eliminada la referencia al textarea que ya no existe
             const response = await fetch(`/api/customer/orders/${this.orderId}/cancel`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 }
-                // CORREGIDO: Eliminado el body que enviaba el motivo
             });
 
             if (response.ok) {

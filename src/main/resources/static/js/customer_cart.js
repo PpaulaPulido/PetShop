@@ -97,7 +97,6 @@ class CustomerCart {
         });
     }
 
-    // SISTEMA DE PARTÍCULAS MEJORADO
     initParticles() {
         const cartHeader = document.querySelector('.cart-page-header');
         if (!cartHeader) return;

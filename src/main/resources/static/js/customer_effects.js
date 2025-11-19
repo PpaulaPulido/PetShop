@@ -381,7 +381,7 @@ class PetLuzEffects {
         });
     }
 
-    // Efecto de hover en cards de producto mejorado
+    // Efecto de hover en cards de producto
     setupProductCardEffects() {
         const productCards = document.querySelectorAll('.product-card');
 

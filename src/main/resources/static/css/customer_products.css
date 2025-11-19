@@ -10,10 +10,10 @@ ul {
     background: var(--dashboard-bg);
     padding: 2rem 0;
     margin-top: var(--header-height);
-    overflow-x: hidden; /* Prevenir scroll horizontal */
+    overflow-x: hidden; 
 }
 
-/* Header de productos mejorado */
+/* Header de productos*/
 .products-header {
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
     color: var(--white);
@@ -119,7 +119,6 @@ ul {
     transform: translateY(-50%) scale(1.05);
 }
 
-/* Sort Options Mejorado */
 .sort-options select {
     padding: 0.875rem 1rem;
     border: none;
@@ -148,7 +147,6 @@ ul {
     align-items: start;
 }
 
-/* Sidebar de Filtros Mejorado */
 .filters-sidebar {
     background: var(--card-bg);
     border-radius: 16px;
@@ -283,7 +281,6 @@ ul {
     font-size: 0.9rem;
 }
 
-/* Rango de Precio Mejorado */
 .price-range {
     display: flex;
     flex-direction: column;
@@ -342,7 +339,6 @@ ul {
     margin-top: 1.5rem;
 }
 
-/* Contenido Principal Mejorado */
 .products-main {
     background: var(--card-bg);
     border-radius: 16px;
@@ -400,7 +396,7 @@ ul {
     color: var(--primary-color);
 }
 
-/* Grid de Productos Mejorado */
+/* Grid de Productos*/
 .products-view {
     min-height: 400px;
 }
@@ -547,7 +543,7 @@ ul {
     margin-bottom: 0.5rem;
 }
 
-/* Estado de Stock Mejorado */
+/* Estado de Stock*/
 .product-stock {
     font-size: 0.8rem;
     font-weight: 500;
@@ -673,7 +669,7 @@ ul {
     font-size: 0.9rem;
 }
 
-/* Estado Vacío Mejorado */
+/* Estado Vacío*/
 .empty-state {
     text-align: center;
     padding: 3rem 1rem;

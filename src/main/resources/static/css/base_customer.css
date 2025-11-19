@@ -1031,13 +1031,13 @@ body.dropdown-open {
     color: var(--yellow);
 }
 
-/* CONTENIDO PRINCIPAL CON SCROLL CORREGIDO */
+/* CONTENIDO PRINCIPAL CON SCROLL*/
 .cart-content {
     flex: 1;
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* Contiene el scroll interno */
-    min-height: 0; /* Importante para flexbox */
+    overflow: hidden; 
+    min-height: 0; 
 }
 
 /* Los items deben hacer scroll */

@@ -1,4 +1,3 @@
-/* reports.css - Estilos mejorados para reportes */
 :root {
     --primary-color: #6A2FB4;
     --secondary-color: #8E44FF;
@@ -187,7 +186,6 @@
     margin: 0;
 }
 
-/* Gráficos mejorados */
 .charts-section {
     margin-bottom: 2rem;
 }
@@ -285,7 +283,7 @@
     font-size: 0.95rem;
 }
 
-/* Report section mejorado */
+/* Report section*/
 .report-section {
     margin-bottom: 2rem;
 }
@@ -416,7 +414,7 @@
     transform: scale(1.01);
 }
 
-/* Métricas grid mejorado */
+/* Métricas grid*/
 .metrics-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -476,7 +474,7 @@
     margin: 0;
 }
 
-/* Botones mejorados */
+/* Botones*/
 .btn-action {
     display: inline-flex;
     align-items: center;
@@ -525,7 +523,6 @@
     box-shadow: var(--shadow-hover);
 }
 
-/* Responsive mejorado */
 @media (max-width: 1200px) {
     .stats-grid {
         grid-template-columns: repeat(3, 1fr);
@@ -596,7 +593,7 @@
     transform: translateY(0);
 }
 
-/* Efectos de carga mejorados */
+/* Efectos de carga*/
 .loading-state {
     display: flex;
     flex-direction: column;

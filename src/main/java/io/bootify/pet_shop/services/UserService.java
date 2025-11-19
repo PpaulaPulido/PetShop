@@ -81,8 +81,6 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        System.out.println("✏️ SYSTEM_ADMIN " + currentUser.getEmail() + " está editando usuario: " + user.getEmail());
-
         // SYSTEM_ADMIN no puede modificar otros SYSTEM_ADMIN
         if (user.getRole() == Role.SYSTEM_ADMIN) {
             throw new RuntimeException("No tiene permisos para modificar usuarios SYSTEM_ADMIN");
@@ -158,7 +156,6 @@ public class UserService {
 
     public List<UserResponseDTO> getAllUsers() {
         User currentUser = getCurrentUser();
-        System.out.println("🔍 SYSTEM_ADMIN " + currentUser.getEmail() + " está listando usuarios");
         return userRepository.findAllExceptSystemAdmin()
                 .stream()
                 .map(this::convertToDTO)
@@ -179,8 +176,6 @@ public class UserService {
         User currentUser = getCurrentUser();
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
-        System.out.println("🔘 SYSTEM_ADMIN " + currentUser.getEmail() + " está cambiando estado de: " + user.getEmail());
 
         if (user.getRole() == Role.SYSTEM_ADMIN) {
             throw new RuntimeException("No tiene permisos para desactivar usuarios SYSTEM_ADMIN");

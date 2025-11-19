@@ -531,7 +531,6 @@ class CustomerProfile {
         }, 100);
     }
 
-    // MÉTODO CORREGIDO: Ahora existe updatePasswordRequirements
     updatePasswordRequirements(password = '') {
         // Este método actualiza los requisitos visuales de la contraseña
         const requirements = {
@@ -559,7 +558,6 @@ class CustomerProfile {
         }
     }
 
-    // MÉTODO CORREGIDO: clearPasswordFields ahora llama a updatePasswordRequirements
     clearPasswordFields() {
         const passwordFields = ['currentPassword', 'newPassword', 'confirmPassword'];
 

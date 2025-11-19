@@ -33,7 +33,6 @@ public class AdminUserLoader implements CommandLineRunner {
             systemAdmin.setDisplayName("System Admin");
             
             userRepository.save(systemAdmin);
-            System.out.println("✅ Usuario SYSTEM_ADMIN creado: system@petshop.com");
         }
     }
 }

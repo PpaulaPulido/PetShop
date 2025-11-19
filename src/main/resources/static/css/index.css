@@ -1165,7 +1165,6 @@ body {
     }
 }
 
-/* Efectos hover mejorados */
 .category-card:hover .category-image::after {
     content: '';
     position: absolute;

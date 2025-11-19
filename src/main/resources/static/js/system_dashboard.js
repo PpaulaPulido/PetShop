@@ -236,11 +236,6 @@ function showCreateUserModal() {
     window.location.href = '/system-admin/users/create';
 }
 
-function createQuickUser() {
-    // Esta función ya no se usa en el nuevo diseño
-    console.log('Función createQuickUser no disponible en el nuevo diseño');
-}
-
 function loadUserReports() {
     alert('Funcionalidad de reportes en desarrollo');
 }

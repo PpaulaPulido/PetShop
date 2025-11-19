@@ -36,7 +36,6 @@ public class ProductService {
     @Transactional
     public ProductResponseDTO createProduct(ProductRequestDTO request) {
         User currentUser = getCurrentUser();
-        System.out.println("🛍️ SUPER_ADMIN " + currentUser.getEmail() + " creando producto: " + request.getName());
 
         if (productRepository.existsByNameIgnoreCase(request.getName())) {
             throw new RuntimeException("Ya existe un producto con el nombre: " + request.getName());
@@ -96,8 +95,6 @@ public class ProductService {
             throw new RuntimeException("Ya existe otro producto con el nombre: " + request.getName());
         }
 
-        System.out.println("✏️ SUPER_ADMIN " + currentUser.getEmail() + " actualizando producto: " + product.getName());
-
         Category category = null;
         if (request.getCategoryId() != null) {
             category = categoryRepository.findById(request.getCategoryId())
@@ -133,10 +130,6 @@ public class ProductService {
         User currentUser = getCurrentUser();
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
-
-        System.out.println("📦 SUPER_ADMIN " + currentUser.getEmail() +
-                " actualizando stock de " + product.getName() + ": " + request.getOperation() +
-                " " + request.getQuantity());
 
         switch (request.getOperation().toUpperCase()) {
             case "ADD":

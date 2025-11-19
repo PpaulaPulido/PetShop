@@ -509,8 +509,6 @@
     color: var(--dark-gray);
 }
 
-/* ===== ESTILOS MEJORADOS PARA MODALES ===== */
-
 /* Fondo del modal con efecto glassmorphism */
 .modal-backdrop {
     background: rgba(74, 74, 74, 0.7);
@@ -533,7 +531,7 @@
     opacity: 1;
 }
 
-/* Modal de Cambio de Estado - Diseño Mejorado */
+/* Modal de Cambio de Estado*/
 #statusModal .modal-dialog {
     max-width: 480px;
 }
@@ -788,7 +786,6 @@
     box-shadow: 0 0 0 4px rgba(244, 67, 54, 0.2);
 }
 
-/* ===== MODAL DE CONFIRMACIÓN DE CANCELACIÓN - DISEÑO MEJORADO ===== */
 #cancelModal .modal-dialog {
     max-width: 420px;
 }
@@ -881,7 +878,7 @@
     gap: 0.75rem;
 }
 
-/* ===== BOTONES MEJORADOS ===== */
+/* ===== BOTONES===== */
 .btn-action {
     display: inline-flex;
     align-items: center;

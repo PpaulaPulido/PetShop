@@ -1,4 +1,3 @@
-// Sistema de partículas mejorado
 class ParticleSystem {
     constructor(canvasId) {
         this.canvas = document.getElementById(canvasId);
@@ -205,7 +204,6 @@ class TipsManager {
             </div>
         `).join('');
 
-        console.log('Tips renderizados correctamente');
     }
 
     setupTipInteractions() {
@@ -615,7 +613,6 @@ class PetLuzApp {
 
     init() {
         try {
-            console.log('Inicializando PetLuz App...');
             
             // Inicializar sistema de partículas
             this.initParticleSystem();
@@ -630,7 +627,6 @@ class PetLuzApp {
             // Configurar eventos globales
             this.setupGlobalEvents();
             
-            console.log('PetLuz App inicializada correctamente');
         } catch (error) {
             console.error('Error inicializando la app:', error);
         }
@@ -717,7 +713,6 @@ class PetLuzApp {
     }
 
     onAllImagesLoaded() {
-        console.log('Todas las imágenes cargadas');
         document.body.classList.add('images-loaded');
     }
 

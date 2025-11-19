@@ -134,19 +134,15 @@ class ReportsManager {
 
     async loadChartsData() {
         try {
-            console.log('🔄 Cargando datos para gráficos...');
             const response = await fetch('/api/reports/charts-data');
-            
             if (!response.ok) {
                 throw new Error(`Error HTTP: ${response.status}`);
             }
             
             const chartsData = await response.json();
-            console.log('📊 Datos recibidos del backend:', chartsData);
             this.createAllCharts(chartsData);
             
         } catch (error) {
-            console.error('Error cargando datos para gráficos:', error);
             this.createAllCharts(this.getDefaultChartsData());
         }
     }
@@ -275,7 +271,6 @@ class ReportsManager {
     }
 
     createAllCharts(chartsData) {
-        console.log('🎨 Creando gráficos con datos:', chartsData);
         this.createSalesByStatusChart(chartsData);
         this.createInventoryStatusChart(chartsData);
         this.createSalesTrendChart(chartsData);
@@ -295,7 +290,6 @@ class ReportsManager {
         }
 
         const salesData = chartsData.salesByStatus || {};
-        console.log('📊 Datos para gráfico de ventas por estado:', salesData);
 
         const labels = ['Pendientes', 'Confirmadas', 'Pagadas', 'Entregadas', 'Canceladas'];
         const data = [
@@ -383,8 +377,6 @@ class ReportsManager {
             chartsData.outOfStockProducts || 0 // Sin stock
         ];
 
-        console.log('📦 Datos para gráfico de inventario:', inventoryData);
-
         const hasData = inventoryData.some(value => value > 0);
 
         if (hasData) {
@@ -458,8 +450,6 @@ class ReportsManager {
         const data = Object.values(monthlySales).map(value => 
             typeof value === 'number' ? value : parseFloat(value) || 0
         );
-
-        console.log('📈 Datos para gráfico de tendencia:', { labels, data });
 
         const hasData = data.some(value => value > 0);
 
@@ -538,9 +528,7 @@ class ReportsManager {
             this.charts.topProducts.destroy();
         }
 
-        // ✅ USAR DATOS REALES del backend
         const topProductsData = chartsData.topProducts || [];
-        console.log('🏆 Datos para gráfico de productos top:', topProductsData);
 
         if (topProductsData.length > 0) {
             const labels = topProductsData.map(item => {

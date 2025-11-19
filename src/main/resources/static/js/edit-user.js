@@ -377,7 +377,6 @@ class EditUserForm {
     }
 
     populateUserData(user) {
-        console.log('🔍 Datos del usuario recibidos:', user);
 
         // Llenar información de display
         document.getElementById('userIdDisplay').textContent = user.id;

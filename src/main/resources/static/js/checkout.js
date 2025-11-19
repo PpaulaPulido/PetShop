@@ -160,7 +160,6 @@ class CheckoutManager {
 
     async loadCheckoutData() {
         try {
-            console.log('Cargando datos de checkout...');
 
             // Cargar carrito
             const cartResponse = await fetch('/api/customer/cart');
@@ -187,10 +186,7 @@ class CheckoutManager {
             this.selectShippingMethod('STANDARD');
             this.selectPaymentMethod(this.checkoutData.selectedPayment);
 
-            console.log('Datos de checkout cargados:', this.checkoutData);
-
         } catch (error) {
-            console.error('Error loading checkout data:', error);
             throw error;
         }
     }
@@ -390,7 +386,6 @@ class CheckoutManager {
         this.setTextContent('summaryTax', `$${this.formatPrice(taxAmount)}`);
         this.setTextContent('summaryTotal', `$${this.formatPrice(finalTotal)}`);
 
-        console.log('Montos calculados para backend:', this.calculatedAmounts);
     }
 
     formatPrice(price) {
@@ -469,8 +464,6 @@ class CheckoutManager {
                 taxAmount: this.calculatedAmounts.taxAmount,
                 totalAmount: this.calculatedAmounts.finalTotal
             };
-
-            console.log('Creando orden con datos completos:', orderData);
 
             const response = await fetch('/api/customer/orders', {
                 method: 'POST',

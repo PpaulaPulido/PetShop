@@ -43,10 +43,6 @@ class RegisterForm {
         // Convertir el checkbox "on" a boolean
         data.acceptTerms = data.acceptTerms === 'on';
         
-        // IMPORTANTE: El teléfono debe enviarse solo con los 10 dígitos
-        // Tu DTO espera el formato: "3001234567" sin +57
-        // El +57 se agrega en el servicio con normalizePhone()
-        
         return data;
     }
 
@@ -54,7 +50,6 @@ class RegisterForm {
         this.setLoadingState(true);
 
         try {
-            console.log('Enviando datos:', data); // Para debug
             
             const response = await fetch('/api/auth/register', {
                 method: 'POST',
@@ -65,7 +60,6 @@ class RegisterForm {
             });
 
             const result = await response.json();
-            console.log('Respuesta del servidor:', result); // Para debug
             
             if (result.success) {
                 this.handleSuccess(result);

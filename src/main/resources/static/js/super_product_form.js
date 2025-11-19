@@ -1,4 +1,3 @@
-// super_product_form.js 
 class ProductFormManager {
     constructor() {
         this.categories = [];
@@ -12,13 +11,12 @@ class ProductFormManager {
     init() {
         this.setupEventListeners();
         this.setupRealTimeValidation();
-        this.setupFormSubmission(); 
+        this.setupFormSubmission();
         this.loadCategories();
         this.checkEditMode();
     }
 
     setupEventListeners() {
-        // Animaciones para elementos interactivos
         const cards = document.querySelectorAll('.form-section');
         cards.forEach(card => {
             card.addEventListener('mouseenter', () => {
@@ -32,23 +30,18 @@ class ProductFormManager {
             });
         });
 
-        // Inicializar animaciones de scroll
         initializeScrollAnimations();
     }
 
-    // Configurar envío seguro del formulario
     setupFormSubmission() {
         const form = document.getElementById('productForm');
         const saveButton = document.querySelector('.btn-action.primary');
         
         if (form && saveButton) {
-            // Prevenir envío por defecto del formulario
             form.addEventListener('submit', (event) => {
                 event.preventDefault();
-                console.log('🛑 Formulario prevenido - usando validación personalizada');
             });
 
-            // Manejar clic en botón guardar
             saveButton.addEventListener('click', () => {
                 this.saveProduct();
             });
@@ -68,7 +61,6 @@ class ProductFormManager {
 
         this.validator.initializeRealTimeValidation('productForm', fieldConfigs);
 
-        // Validación adicional para descripción (contador de caracteres)
         const description = document.getElementById('description');
         description.addEventListener('input', () => {
             this.updateDescriptionCounter();
@@ -92,12 +84,7 @@ class ProductFormManager {
         }
     }
 
-    // ========== VALIDACIÓN DE FORMULARIO==========
-
     validateForm() {
-        console.log('🔍 Iniciando validación completa del formulario...');
-        
-        // Limpiar validaciones previas
         this.validator.clearAllValidations('productForm');
 
         const formData = {
@@ -123,9 +110,6 @@ class ProductFormManager {
         const validationResult = this.validator.validateForm(formData, fieldRules);
         
         if (!validationResult.isValid) {
-            console.log('❌ Errores de validación encontrados:', validationResult.errors);
-            
-            // Mostrar errores en los campos específicos
             validationResult.errors.forEach(error => {
                 const fieldId = this.getFieldId(error.field);
                 const fieldElement = document.getElementById(fieldId);
@@ -134,17 +118,14 @@ class ProductFormManager {
                 }
             });
             
-            // Hacer scroll al primer error
             this.scrollToFirstError();
             
             return false;
         }
 
-        console.log('✅ Validación del formulario exitosa');
         return true;
     }
 
-    //Scroll al primer error
     scrollToFirstError() {
         const firstErrorField = document.querySelector('.is-invalid');
         if (firstErrorField) {
@@ -169,37 +150,24 @@ class ProductFormManager {
         return fieldMap[fieldName] || fieldName;
     }
 
-    // ========== MÉTODO saveProduct==========
-
     async saveProduct() {
-        console.log('💾 Intentando guardar producto...');
-        
-        // ⚠️ PREVENIR ENVÍOS MÚLTIPLES
         if (this.isSubmitting) {
-            console.log('🛑 Envío múltiple prevenido');
             return false;
         }
 
-        // 1. VALIDACIÓN ESTRICTA DEL FORMULARIO
-        console.log('🔍 Realizando validación previa...');
         const isValid = this.validateForm();
         
         if (!isValid) {
-            console.log('❌ Validación fallida - cancelando envío');
             this.showError('❌ Por favor corrige todos los errores en el formulario antes de enviar.');
-            return false; // ⚠️ SALIR INMEDIATAMENTE SI HAY ERRORES
+            return false;
         }
 
-        console.log('✅ Validación pasada - preparando datos...');
-
-        // 2. PREPARAR DATOS SOLO SI LA VALIDACIÓN PASA
         this.isSubmitting = true;
         
         try {
             const formData = new FormData();
             const productId = document.getElementById('productId').value;
 
-            // Agregar campos básicos
             formData.append('name', document.getElementById('name').value.trim());
             formData.append('description', document.getElementById('description').value.trim());
             formData.append('price', document.getElementById('price').value);
@@ -208,7 +176,6 @@ class ProductFormManager {
             formData.append('type', document.getElementById('type').value);
             formData.append('active', document.getElementById('active').checked);
 
-            // Manejo correcto de categoría
             const categoryId = document.getElementById('categoryId').value;
             if (categoryId) {
                 formData.append('categoryId', categoryId);
@@ -216,7 +183,6 @@ class ProductFormManager {
                 formData.append('categoryId', '');
             }
 
-            // Manejo de imágenes
             const imageFile = document.getElementById('imageFile').files[0];
             const imageUrl = document.getElementById('imageUrl').value;
 
@@ -232,13 +198,7 @@ class ProductFormManager {
             
             const method = this.isEditing ? 'PUT' : 'POST';
 
-            // 3. ENVIAR DATOS AL SERVIDOR
             this.showLoading(true);
-            console.log('🔄 Enviando datos al servidor...', {
-                url: url,
-                method: method,
-                isEditing: this.isEditing
-            });
 
             const response = await fetch(url, {
                 method: method,
@@ -247,11 +207,9 @@ class ProductFormManager {
 
             if (response.ok) {
                 const result = await response.json();
-                console.log('✅ Producto guardado exitosamente:', result);
                 
                 this.showSuccess(`🎉 Producto ${this.isEditing ? 'actualizado' : 'creado'} correctamente`);
                 
-                // Redirigir después de éxito
                 setTimeout(() => {
                     location.href = '/super-admin/products';
                 }, 1500);
@@ -260,7 +218,6 @@ class ProductFormManager {
                 
             } else {
                 const errorText = await response.text();
-                console.error('❌ Error del servidor:', errorText);
                 
                 const errorMessages = this.validator.handleServerError(errorText, {
                     name: document.getElementById('name'),
@@ -275,23 +232,17 @@ class ProductFormManager {
             }
             
         } catch (error) {
-            console.error('💥 Error crítico guardando producto:', error);
             this.showError('🚨 Error al guardar el producto: ' + error.message);
             return false;
             
         } finally {
-            // 4. REINICIAR ESTADO DE ENVÍO
             this.isSubmitting = false;
             this.showLoading(false);
-            console.log('🔄 Estado de envío reiniciado');
         }
     }
 
-    // ========== MÉTODOS EXISTENTES (SIN CAMBIOS) ==========
-
     async loadCategories() {
         try {
-            console.log('Cargando categorías...');
             const response = await fetch('/api/super-admin/categories');
             
             if (!response.ok) {
@@ -302,7 +253,6 @@ class ProductFormManager {
             this.populateCategorySelect();
             
         } catch (error) {
-            console.error('Error cargando categorías:', error);
             this.showError('Error al cargar las categorías');
         }
     }
@@ -310,7 +260,6 @@ class ProductFormManager {
     populateCategorySelect() {
         const categorySelect = document.getElementById('categoryId');
         
-        // Limpiar opciones excepto la primera
         while (categorySelect.children.length > 1) {
             categorySelect.removeChild(categorySelect.lastChild);
         }
@@ -321,8 +270,6 @@ class ProductFormManager {
             option.textContent = category.name;
             categorySelect.appendChild(option);
         });
-
-        console.log(`✅ Cargadas ${this.categories.length} categorías`);
     }
 
     async checkEditMode() {
@@ -353,7 +300,6 @@ class ProductFormManager {
 
     async loadProductData(productId) {
         try {
-            console.log(`Cargando producto con ID: ${productId}`);
             const response = await fetch(`/api/super-admin/products/${productId}`);
             
             if (!response.ok) {
@@ -361,12 +307,9 @@ class ProductFormManager {
             }
             
             this.currentProduct = await response.json();
-            console.log('📥 Producto cargado para edición:', this.currentProduct);
-            
             this.populateForm();
             
         } catch (error) {
-            console.error('Error cargando producto:', error);
             this.showError('Error al cargar el producto');
             setTimeout(() => location.href = '/super-admin/products', 2000);
         }
@@ -377,7 +320,6 @@ class ProductFormManager {
 
         const product = this.currentProduct;
 
-        // Llenar campos básicos
         document.getElementById('productId').value = product.id;
         document.getElementById('name').value = product.name;
         document.getElementById('description').value = product.description || '';
@@ -387,25 +329,19 @@ class ProductFormManager {
         document.getElementById('imageUrl').value = product.imageUrl || '';
         document.getElementById('type').value = product.type;
 
-        // Manejo correcto de categoría
         if (product.categoryId) {
             document.getElementById('categoryId').value = product.categoryId;
         } else {
             document.getElementById('categoryId').value = '';
         }
 
-        // Estado activo
         document.getElementById('active').checked = product.active !== false;
 
-        // Información de creación
         document.getElementById('createdAt').textContent = this.formatDate(product.createdAt);
         document.getElementById('updatedAt').textContent = this.formatDate(product.updatedAt);
         document.getElementById('createdBy').textContent = product.createdBy || 'Sistema';
 
-        // Manejo de imágenes
         this.handleProductImage(product);
-
-        // Actualizar contador de descripción
         this.updateDescriptionCounter();
     }
 
@@ -428,14 +364,12 @@ class ProductFormManager {
         if (input.files && input.files[0]) {
             const file = input.files[0];
             
-            // Validar tamaño del archivo (10MB máximo)
             if (file.size > 10 * 1024 * 1024) {
                 this.showError('La imagen es demasiado grande. Máximo 10MB.');
                 input.value = '';
                 return;
             }
 
-            // Validar tipo de archivo
             if (!file.type.match('image.*')) {
                 this.showError('Por favor selecciona un archivo de imagen válido.');
                 input.value = '';
@@ -461,7 +395,6 @@ class ProductFormManager {
         document.getElementById('imagePreview').classList.remove('has-image');
     }
 
-    // Utilidades
     formatDate(dateString) {
         if (!dateString) return 'N/A';
         try {
@@ -499,8 +432,6 @@ class ProductFormManager {
     }
 }
 
-// ========== FUNCIONES GLOBALES==========
-
 function previewImage(input) {
     if (window.productFormManager) {
         window.productFormManager.previewImage(input);
@@ -514,21 +445,15 @@ function removeImage() {
 }
 
 function saveProduct() {
-    console.log('🎯 Función saveProduct() llamada');
-    
     if (window.productFormManager) {
-        // ⚠️ CAPTURAR Y RETORNAR EL RESULTADO PARA PREVENIR COMPORTAMIENTO POR DEFECTO
         const result = window.productFormManager.saveProduct();
-        console.log('📊 Resultado de saveProduct:', result);
-        return result; // ⚠️ IMPORTANTE: retornar el resultado
+        return result;
     } else {
-        console.error('❌ ProductFormManager no está inicializado');
         showAlert('Error: El sistema de validación no está disponible', 'danger');
-        return false; // ⚠️ SIEMPRE RETORNAR false EN CASO DE ERROR
+        return false;
     }
 }
 
-// Inicializar product form manager cuando se carga la página
 document.addEventListener('DOMContentLoaded', function() {
     window.productFormManager = new ProductFormManager();
 });

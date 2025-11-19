@@ -1,4 +1,3 @@
-/* ===== ORDERS STYLES - CORREGIDO ===== */
 
 /* Contenedor principal */
 .orders-container {
@@ -124,7 +123,7 @@
     letter-spacing: 0.5px;
 }
 
-/* Filtros mejorados */
+/* Filtros*/
 .orders-filters {
     margin-bottom: 2rem;
     animation: slideInUp 0.8s ease 0.2s both;
@@ -337,7 +336,7 @@
     border-color: var(--primary-color);
 }
 
-/* Grid de órdenes mejorado */
+/* Grid de órdenes*/
 .orders-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
@@ -345,7 +344,7 @@
     margin-bottom: 2rem;
 }
 
-/* Tarjeta de orden con efectos mejorados - CORREGIDO */
+/* Tarjeta de orden con efectos*/
 .order-card {
     background: var(--white);
     border-radius: 20px;
@@ -383,7 +382,7 @@
     border-color: var(--primary-light);
 }
 
-/* Header de la orden mejorado */
+/* Header de la orden*/
 .order-header {
     display: flex;
     justify-content: space-between;
@@ -423,7 +422,7 @@
     padding: 0.25rem 0;
 }
 
-/* Estados de orden mejorados */
+/* Estados de orden*/
 .order-status {
     padding: 0.75rem 1.25rem;
     border-radius: 25px;
@@ -470,7 +469,7 @@
     border: 2px solid rgba(244, 67, 54, 0.3);
 }
 
-/* Detalles de la orden mejorados - CORREGIDO */
+/* Detalles de la order*/
 .order-details {
     display: grid;
     grid-template-columns: repeat(1, 1fr);
@@ -685,7 +684,7 @@
     box-shadow: 0 6px 20px rgba(244, 67, 54, 0.3);
 }
 
-/* Estados de carga y vacío mejorados */
+/* Estados de carga y vacío*/
 .orders-state {
     text-align: center;
     padding: 4rem 2rem;
@@ -796,7 +795,7 @@
     font-size: 1rem;
 }
 
-/* Modales mejorados */
+/* Modales*/
 .order-modal-overlay {
     position: fixed;
     top: 0;
@@ -1118,7 +1117,7 @@
 .orders-grid .order-card:nth-child(5) { animation-delay: 0.3s; }
 .orders-grid .order-card:nth-child(6) { animation-delay: 0.35s; }
 
-/* Responsive mejorado */
+/* Responsive*/
 @media (max-width: 1200px) {
     .orders-grid {
         grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));

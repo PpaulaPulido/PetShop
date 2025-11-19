@@ -19,7 +19,6 @@ class InventoryManager {
     async loadInventory() {
         try {
             showLoading(true);
-            console.log('Cargando inventario...');
             
             const response = await fetch('/api/super-admin/products');
             if (!response.ok) {
@@ -657,6 +656,5 @@ function applyBulkStockUpdate() {
 
 // Inicializar cuando se carga la página
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Inicializando Inventory Manager...');
     window.inventoryManager = new InventoryManager();
 });

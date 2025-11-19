@@ -51,7 +51,6 @@ class SalesManager {
 
     async loadSalesStats() {
         try {
-            console.log('Cargando estadísticas de ventas...');
             const response = await fetch('/api/super-admin/sales/stats');
 
             if (!response.ok) {
@@ -59,8 +58,6 @@ class SalesManager {
             }
 
             const stats = await response.json();
-            console.log('Estadísticas recibidas:', stats);
-
             this.updateSalesStats(stats);
 
         } catch (error) {
@@ -152,16 +149,12 @@ class SalesManager {
             }
 
             this.showLoading(true);
-            console.log('Cargando ventas desde:', url);
-
             const response = await fetch(url);
-
             if (!response.ok) {
                 throw new Error(`Error HTTP: ${response.status}`);
             }
 
             let data = await response.json();
-            console.log('Ventas recibidas:', data);
 
             // Si hay búsqueda, filtrar en el frontend
             if (filters.search && Array.isArray(data)) {
@@ -633,8 +626,6 @@ function exportSales() {
     }
 }
 
-// Inicializar sales manager cuando se carga la página
 document.addEventListener('DOMContentLoaded', function () {
-    console.log('Inicializando Sales Manager...');
     window.salesManager = new SalesManager();
 });

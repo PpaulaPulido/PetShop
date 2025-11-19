@@ -246,7 +246,7 @@
     }
 }
 
-/* Grupos de formulario mejorados */
+/* Grupos de formulario*/
 .form-group {
     position: relative;
     overflow: visible !important;
@@ -1310,7 +1310,7 @@ input[readonly]:focus {
     backdrop-filter: blur(20px) !important;
 }
 
-/* Header de resultados mejorado */
+/* Header de resultados*/
 .search-results-header {
     position: sticky !important;
     top: 0 !important;
@@ -1356,7 +1356,7 @@ input[readonly]:focus {
     content: '💡' !important;
 }
 
-/* Botón de cerrar mejorado */
+/* Botón de cerrar*/
 .search-close-btn {
     background: rgba(255, 255, 255, 0.15) !important;
     border: 2px solid rgba(255, 255, 255, 0.3) !important;
@@ -1381,7 +1381,7 @@ input[readonly]:focus {
     box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2) !important;
 }
 
-/* Contenido de resultados mejorado */
+/* Contenido de resultados*/
 .search-results-content {
     padding: 2rem !important;
     max-height: calc(75vh - 100px) !important;
@@ -1389,7 +1389,7 @@ input[readonly]:focus {
     background: transparent !important;
 }
 
-/* Items de resultados mejorados */
+/* Items de resultados*/
 .search-result-item {
     padding: 1.5rem !important;
     border: 2px solid var(--light-gray) !important;
@@ -1606,7 +1606,7 @@ input[readonly]:focus {
     animation: modalSlideOut 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
 }
 
-/* Scrollbar mejorado */
+/* Scrollbar*/
 .search-results-content::-webkit-scrollbar {
     width: 8px;
 }
@@ -1628,7 +1628,7 @@ input[readonly]:focus {
     box-shadow: 0 4px 12px rgba(106, 47, 180, 0.3);
 }
 
-/* Responsive mejorado */
+/* Responsive */
 @media (max-width: 768px) {
     .search-results {
         width: 95vw !important;

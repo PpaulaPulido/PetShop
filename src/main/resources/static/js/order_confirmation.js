@@ -36,8 +36,6 @@ class OrderConfirmation {
                 this.showErrorState('No se encontró información del pedido');
                 return;
             }
-
-            console.log('Cargando datos del pedido:', this.orderId);
             
             const response = await fetch(`/api/customer/orders/${this.orderId}`);
             

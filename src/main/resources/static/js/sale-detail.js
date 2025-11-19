@@ -5,12 +5,9 @@ class SaleDetailManager {
         this.init();
     }
 
-    getSaleIdFromContext() {
-        console.log('Buscando saleId...');
-        
+    getSaleIdFromContext() {        
         // 1. Primero intentar desde la variable Thymeleaf
         if (typeof pageSaleId !== 'undefined' && pageSaleId !== null) {
-            console.log('SaleId encontrado desde Thymeleaf:', pageSaleId);
             return pageSaleId;
         }
         
@@ -18,7 +15,6 @@ class SaleDetailManager {
         const pathParts = window.location.pathname.split('/');
         const possibleId = pathParts[pathParts.length - 1];
         if (possibleId && !isNaN(possibleId)) {
-            console.log('SaleId encontrado desde URL:', possibleId);
             return parseInt(possibleId);
         }
         
@@ -26,17 +22,13 @@ class SaleDetailManager {
         const urlParams = new URLSearchParams(window.location.search);
         const idFromUrl = urlParams.get('id');
         if (idFromUrl && !isNaN(idFromUrl)) {
-            console.log('SaleId encontrado desde parámetros:', idFromUrl);
             return parseInt(idFromUrl);
         }
         
-        console.log('No se pudo encontrar saleId');
         return null;
     }
 
     init() {
-        console.log('Inicializando SaleDetailManager con saleId:', this.saleId);
-        
         if (!this.saleId) {
             this.showError('No se pudo identificar la venta. Verifica que la URL sea correcta.');
             return;
@@ -93,9 +85,7 @@ class SaleDetailManager {
 
     async loadSaleDetail() {
         try {
-            this.showLoading(true);
-            console.log('Cargando detalle para saleId:', this.saleId);
-            
+            this.showLoading(true);            
             const response = await fetch(`/api/super-admin/sales/${this.saleId}`);
             
             if (!response.ok) {
@@ -103,7 +93,6 @@ class SaleDetailManager {
             }
             
             const sale = await response.json();
-            console.log('Datos recibidos:', sale);
             this.currentSale = sale;
             
             await this.displaySaleDetail(sale);
@@ -611,8 +600,6 @@ class SaleDetailManager {
     }
 }
 
-// Inicializar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM cargado, inicializando SaleDetailManager...');
     window.saleDetailManager = new SaleDetailManager();
 });
