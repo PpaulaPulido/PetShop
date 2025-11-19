@@ -37,7 +37,7 @@ public class SaleService {
     }
 
     // ========== MÉTODOS DE CONSULTA ==========
-    
+
     @Transactional(readOnly = true)
     public List<SaleResponseDTO> getAllSales() {
         User currentUser = getCurrentUser();
@@ -215,38 +215,77 @@ public class SaleService {
 
     private void validateStatusTransition(SaleStatus currentStatus, SaleStatus newStatus) {
         // Lógica de validación de transiciones de estado
-        if (currentStatus == SaleStatus.CANCELLED && newStatus != SaleStatus.CANCELLED) {
-            throw new RuntimeException("No se puede reactivar una venta cancelada");
+        if (currentStatus == SaleStatus.CANCELLED) {
+            throw new RuntimeException("No se puede modificar una venta cancelada");
         }
 
-        if (currentStatus == SaleStatus.DELIVERED && newStatus != SaleStatus.DELIVERED) {
+        if (currentStatus == SaleStatus.DELIVERED) {
             throw new RuntimeException("No se puede modificar una venta ya entregada");
         }
-        
-        // Validación adicional: no se puede cambiar a un estado anterior
-        if (isStatusDowngrade(currentStatus, newStatus)) {
-            throw new RuntimeException("No se puede retroceder el estado de la venta");
+
+        // No se puede cancelar una venta ya entregada
+        if (newStatus == SaleStatus.CANCELLED && currentStatus == SaleStatus.DELIVERED) {
+            throw new RuntimeException("No se puede cancelar una venta ya entregada");
         }
+
+        switch (currentStatus) {
+            case PENDING:
+                // Desde PENDING se puede ir a CONFIRMED o CANCELLED libremente
+                // Pero no directamente a PAID, SHIPPED o DELIVERED
+                if (newStatus != SaleStatus.CONFIRMED && newStatus != SaleStatus.CANCELLED) {
+                    throw new RuntimeException("Desde PENDIENTE solo se puede cambiar a CONFIRMADO o CANCELADO");
+                }
+                break;
+
+            case CONFIRMED:
+                // Desde CONFIRMED se puede ir a PENDING, PAID o CANCELLED
+                if (newStatus != SaleStatus.PENDING && newStatus != SaleStatus.PAID
+                        && newStatus != SaleStatus.CANCELLED) {
+                    throw new RuntimeException(
+                            "Desde CONFIRMADO solo se puede cambiar a PENDIENTE, PAGADO o CANCELADO");
+                }
+                break;
+
+            case PAID:
+                // Desde PAID solo se puede avanzar a SHIPPED o CANCELLED 
+                if (newStatus != SaleStatus.SHIPPED && newStatus != SaleStatus.CANCELLED) {
+                    throw new RuntimeException("Desde PAGADO solo se puede avanzar a ENVIADO o CANCELADO");
+                }
+                break;
+
+            case SHIPPED:
+                // Desde SHIPPED solo se puede avanzar a DELIVERED o CANCELLED 
+                if (newStatus != SaleStatus.DELIVERED && newStatus != SaleStatus.CANCELLED) {
+                    throw new RuntimeException("Desde ENVIADO solo se puede avanzar a ENTREGADO o CANCELADO");
+                }
+                break;
+
+            default:
+                break;
+        }
+
     }
-    
+
     private boolean isStatusDowngrade(SaleStatus current, SaleStatus newStatus) {
         // Definir el orden de los estados
         SaleStatus[] statusOrder = {
-            SaleStatus.PENDING,
-            SaleStatus.CONFIRMED, 
-            SaleStatus.PAID,
-            SaleStatus.SHIPPED,
-            SaleStatus.DELIVERED
+                SaleStatus.PENDING,
+                SaleStatus.CONFIRMED,
+                SaleStatus.PAID,
+                SaleStatus.SHIPPED,
+                SaleStatus.DELIVERED
         };
-        
+
         int currentIndex = -1;
         int newIndex = -1;
-        
+
         for (int i = 0; i < statusOrder.length; i++) {
-            if (statusOrder[i] == current) currentIndex = i;
-            if (statusOrder[i] == newStatus) newIndex = i;
+            if (statusOrder[i] == current)
+                currentIndex = i;
+            if (statusOrder[i] == newStatus)
+                newIndex = i;
         }
-        
+
         return currentIndex != -1 && newIndex != -1 && newIndex < currentIndex;
     }
 
@@ -263,7 +302,7 @@ public class SaleService {
             int newStock = product.getStock() + item.getQuantity();
             product.setStock(newStock);
             productRepository.save(product);
-            log.info("🔄 Stock liberado: producto {} +{} unidades", 
+            log.info("🔄 Stock liberado: producto {} +{} unidades",
                     product.getName(), item.getQuantity());
         }
         log.info("🔄 Stock liberado para venta cancelada {}", sale.getInvoiceNumber());
@@ -274,13 +313,13 @@ public class SaleService {
         SaleResponseDTO dto = new SaleResponseDTO();
         dto.setId(sale.getId());
         dto.setInvoiceNumber(sale.getInvoiceNumber());
-        
+
         // Acceder al usuario dentro de la transacción
         User user = sale.getUser();
         dto.setUserId(user.getId());
         dto.setUserEmail(user.getEmail());
         dto.setUserFullName(user.getFullName());
-        
+
         dto.setTotalAmount(sale.getTotalAmount());
         dto.setStatus(sale.getStatus());
         dto.setPaymentMethod(sale.getPaymentMethod());
@@ -307,13 +346,13 @@ public class SaleService {
     private SaleItemResponseDTO convertItemToDTO(SaleItem item) {
         SaleItemResponseDTO dto = new SaleItemResponseDTO();
         dto.setId(item.getId());
-        
+
         // Acceder al producto dentro de la transacción
         Product product = item.getProduct();
         dto.setProductId(product.getId());
         dto.setProductName(product.getName());
         dto.setProductImage(product.getDisplayImage());
-        
+
         dto.setQuantity(item.getQuantity());
         dto.setUnitPrice(item.getUnitPrice());
         dto.setSubtotal(item.getSubtotal());

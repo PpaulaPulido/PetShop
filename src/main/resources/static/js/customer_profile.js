@@ -1,8 +1,15 @@
-// customer_profile.js
 class CustomerProfile {
     constructor() {
         this.userData = null;
         this.originalData = {};
+        this.isLoading = false;
+
+        setTimeout(() => {
+            if (window.customerProfileValidations) {
+                window.customerProfileValidations.hasUserInteracted = true;
+            }
+        }, 500);
+
         this.init();
     }
 
@@ -11,48 +18,67 @@ class CustomerProfile {
             await this.setupEventListeners();
             await this.loadUserProfile();
             this.setupFormSubmissions();
+            this.setupPasswordStrength();
             this.calculateProfileCompletion();
+            this.setupFileUpload();
         } catch (error) {
-            console.error('Error initializing profile:', error);
+            this.showNotification('Error al inicializar el perfil', 'error');
         }
     }
 
     async setupEventListeners() {
-        // Navegación entre tabs
         const navItems = document.querySelectorAll('.nav-item');
-        if (navItems.length === 0) {
-            console.warn('No se encontraron elementos de navegación');
-            return;
-        }
-
         navItems.forEach(item => {
             item.addEventListener('click', (e) => {
-                this.switchTab(e.target.dataset.tab);
+                e.preventDefault();
+                this.switchTab(e.currentTarget.dataset.tab);
             });
         });
 
-        // Cambio de foto de perfil
-        const profilePictureFile = document.getElementById('profilePictureFile');
-        if (profilePictureFile) {
-            profilePictureFile.addEventListener('change', (e) => {
-                this.uploadProfilePicture(e.target.files[0]);
+        const changePictureBtn = document.getElementById('changePictureBtn');
+        const deletePictureBtn = document.getElementById('deletePictureBtn');
+        const currentAvatar = document.querySelector('.current-avatar');
+
+        if (changePictureBtn) {
+            changePictureBtn.addEventListener('click', () => {
+                document.getElementById('profilePictureFile').click();
             });
         }
 
-        // Auto-generar display name
+        if (deletePictureBtn) {
+            deletePictureBtn.addEventListener('click', () => {
+                this.deleteProfilePicture();
+            });
+        }
+
+        if (currentAvatar) {
+            currentAvatar.addEventListener('click', () => {
+                document.getElementById('profilePictureFile').click();
+            });
+        }
+
         const firstName = document.getElementById('firstName');
         const lastName = document.getElementById('lastName');
-        
+
         if (firstName) {
-            firstName.addEventListener('input', this.suggestDisplayName.bind(this));
+            firstName.addEventListener('input', this.debounce(this.suggestDisplayName.bind(this), 300));
         }
         if (lastName) {
-            lastName.addEventListener('input', this.suggestDisplayName.bind(this));
+            lastName.addEventListener('input', this.debounce(this.suggestDisplayName.bind(this), 300));
+        }
+
+        const resetPersonalBtn = document.getElementById('resetPersonalBtn');
+        const resetContactBtn = document.getElementById('resetContactBtn');
+
+        if (resetPersonalBtn) {
+            resetPersonalBtn.addEventListener('click', () => this.resetForm('personalInfoForm'));
+        }
+        if (resetContactBtn) {
+            resetContactBtn.addEventListener('click', () => this.resetForm('contactInfoForm'));
         }
     }
 
     setupFormSubmissions() {
-        // Verificar que los formularios existan antes de agregar event listeners
         const forms = [
             { id: 'personalInfoForm', handler: (e) => this.updatePersonalInfo(e) },
             { id: 'contactInfoForm', handler: (e) => this.updateContactInfo(e) },
@@ -63,73 +89,122 @@ class CustomerProfile {
         forms.forEach(({ id, handler }) => {
             const form = document.getElementById(id);
             if (form) {
+                form.removeEventListener('submit', handler);
                 form.addEventListener('submit', handler);
-            } else {
-                console.warn(`Formulario no encontrado: ${id}`);
             }
         });
     }
 
+    setupPasswordStrength() {
+        const newPassword = document.getElementById('newPassword');
+        if (newPassword) {
+            newPassword.addEventListener('input', (e) => {
+                this.updatePasswordStrength(e.target.value);
+            });
+        }
+    }
+
+    setupFileUpload() {
+        const fileInput = document.getElementById('profilePictureFile');
+        if (fileInput) {
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files && e.target.files[0]) {
+                    this.previewProfilePicture(e.target.files[0]);
+                    this.uploadProfilePicture(e.target.files[0]);
+                }
+            });
+        }
+    }
+
+    debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
     async loadUserProfile() {
+        if (this.isLoading) return;
+
+        this.isLoading = true;
+        this.showLoadingState(true);
+
         try {
-            console.log('Cargando perfil del usuario...');
             const response = await fetch('/api/customer/profile');
-            
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
+
             this.userData = await response.json();
-            console.log('Datos del usuario cargados:', this.userData);
-            
             this.populateForms();
             this.updateSecurityInfo();
-            this.showNotification('Perfil cargado correctamente', 'success');
-            
+            this.calculateProfileCompletion();
+
         } catch (error) {
-            console.error('Error loading profile:', error);
             this.showNotification('Error al cargar el perfil. Verifica tu conexión.', 'error');
+        } finally {
+            this.isLoading = false;
+            this.showLoadingState(false);
+        }
+    }
+
+    showLoadingState(show) {
+        const forms = document.querySelectorAll('.profile-form');
+        const buttons = document.querySelectorAll('.btn');
+
+        if (show) {
+            forms.forEach(form => form.style.opacity = '0.6');
+            buttons.forEach(btn => btn.disabled = true);
+        } else {
+            forms.forEach(form => form.style.opacity = '1');
+            buttons.forEach(btn => btn.disabled = false);
         }
     }
 
     populateForms() {
-        if (!this.userData) {
-            console.warn('No hay datos de usuario para poblar formularios');
-            return;
-        }
+        if (!this.userData) return;
 
-        try {
-            // Información Personal
-            this.setValue('firstName', this.userData.firstName);
-            this.setValue('lastName', this.userData.lastName);
-            this.setValue('displayName', this.userData.displayName);
-            this.setValue('dateOfBirth', this.formatDateForInput(this.userData.dateOfBirth));
-            this.setValue('gender', this.userData.gender);
+        this.setValue('firstName', this.userData.firstName);
+        this.setValue('lastName', this.userData.lastName);
+        this.setValue('displayName', this.userData.displayName);
+        this.setValue('dateOfBirth', this.formatDateForInput(this.userData.dateOfBirth));
+        this.setValue('gender', this.userData.gender);
 
-            // Información de Contacto
-            this.setValue('email', this.userData.email);
-            this.setValue('phone', this.userData.phone);
-            this.setValue('alternatePhone', this.userData.alternatePhone);
+        this.setValue('email', this.userData.email);
+        this.setValue('phone', this.userData.phone);
+        this.setValue('alternatePhone', this.userData.alternatePhone);
 
-            // Preferencias
-            this.setChecked('emailNotifications', this.userData.emailNotifications !== false);
-            this.setChecked('smsNotifications', this.userData.smsNotifications || false);
-            this.setChecked('newsletterSubscription', this.userData.newsletterSubscription !== false);
+        this.setChecked('emailNotifications', this.userData.emailNotifications !== false);
+        this.setChecked('smsNotifications', this.userData.smsNotifications || false);
+        this.setChecked('newsletterSubscription', this.userData.newsletterSubscription !== false);
 
-            // Foto de perfil
-            if (this.userData.profilePicture) {
-                const profilePic = document.getElementById('currentProfilePicture');
-                if (profilePic) {
-                    profilePic.src = this.userData.profilePicture;
-                }
+        if (this.userData.profilePicture) {
+            const profilePic = document.getElementById('currentProfilePicture');
+            if (profilePic) {
+                profilePic.src = this.userData.profilePicture + '?' + new Date().getTime();
             }
-
-            // Guardar datos originales para comparación
-            this.originalData = { ...this.userData };
-            
-        } catch (error) {
-            console.error('Error populating forms:', error);
         }
+
+        this.originalData = { ...this.userData };
+
+        setTimeout(() => {
+            if (window.customerProfileValidations) {
+                window.customerProfileValidations.hasUserInteracted = true;
+
+                Object.keys(window.customerProfileValidations.validators).forEach(fieldName => {
+                    const field = document.getElementById(fieldName);
+                    if (field && field.value) {
+                        window.customerProfileValidations.validateField(fieldName, field.value, field);
+                    }
+                });
+            }
+        }, 300);
     }
 
     setValue(elementId, value) {
@@ -148,12 +223,10 @@ class CustomerProfile {
 
     formatDateForInput(dateString) {
         if (!dateString) return '';
-        
         try {
             const date = new Date(dateString);
             return date.toISOString().split('T')[0];
         } catch (error) {
-            console.warn('Error formatting date:', error);
             return '';
         }
     }
@@ -184,159 +257,205 @@ class CustomerProfile {
     }
 
     switchTab(tabName) {
-        try {
-            // Remover clase active de todos los tabs y nav items
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
+        const currentTab = document.querySelector('.tab-content.active');
+        if (currentTab) {
+            currentTab.style.opacity = '0';
+            currentTab.style.transform = 'translateY(20px)';
 
-            // Activar tab seleccionado
-            const tabElement = document.getElementById(`${tabName}-tab`);
-            const navElement = document.querySelector(`[data-tab="${tabName}"]`);
-            
-            if (tabElement) tabElement.classList.add('active');
-            if (navElement) navElement.classList.add('active');
-            
-        } catch (error) {
-            console.error('Error switching tab:', error);
+            setTimeout(() => {
+                currentTab.classList.remove('active');
+                this.showTab(tabName);
+            }, 300);
+        } else {
+            this.showTab(tabName);
+        }
+
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+    }
+
+    showTab(tabName) {
+        const tabElement = document.getElementById(`${tabName}-tab`);
+        if (tabElement) {
+            tabElement.classList.add('active');
+            setTimeout(() => {
+                tabElement.style.opacity = '1';
+                tabElement.style.transform = 'translateY(0)';
+            }, 50);
         }
     }
 
     suggestDisplayName() {
-        try {
-            const firstName = document.getElementById('firstName');
-            const lastName = document.getElementById('lastName');
-            const displayName = document.getElementById('displayName');
+        const firstName = document.getElementById('firstName');
+        const lastName = document.getElementById('lastName');
+        const displayName = document.getElementById('displayName');
 
-            if (!firstName || !lastName || !displayName) return;
+        if (!firstName || !lastName || !displayName) return;
 
-            const firstNameValue = firstName.value || '';
-            const lastNameValue = lastName.value || '';
-            
-            if (firstNameValue && lastNameValue && (!displayName.value || displayName.value === this.originalData.displayName)) {
-                displayName.value = `${firstNameValue} ${lastNameValue}`;
-            }
-        } catch (error) {
-            console.error('Error suggesting display name:', error);
+        const firstNameValue = firstName.value || '';
+        const lastNameValue = lastName.value || '';
+
+        if (firstNameValue && lastNameValue && (!displayName.value || displayName.value === this.originalData.displayName)) {
+            displayName.value = `${firstNameValue} ${lastNameValue}`;
         }
+    }
+
+    updatePasswordStrength(password) {
+        const strengthBar = document.querySelector('.strength-bar');
+        const strengthText = document.querySelector('.strength-text');
+
+        if (!strengthBar || !strengthText) return;
+
+        let strength = 0;
+        let text = 'Muy débil';
+        let color = '#dc3545';
+
+        if (password.length >= 8) strength += 25;
+        if (/[A-Z]/.test(password)) strength += 25;
+        if (/[0-9]/.test(password)) strength += 25;
+        if (/[^A-Za-z0-9]/.test(password)) strength += 25;
+
+        if (strength >= 75) {
+            text = 'Muy fuerte';
+            color = '#28a745';
+        } else if (strength >= 50) {
+            text = 'Fuerte';
+            color = '#20c997';
+        } else if (strength >= 25) {
+            text = 'Moderada';
+            color = '#ffc107';
+        }
+
+        strengthBar.style.setProperty('--strength-width', `${strength}%`);
+        strengthBar.style.setProperty('--strength-color', color);
+        strengthText.textContent = text;
+        strengthText.style.color = color;
+    }
+
+    // NUEVO MÉTODO: Validar si la nueva contraseña es igual a la actual
+    validateNewPasswordNotSame(currentPassword, newPassword) {
+        return currentPassword !== newPassword;
     }
 
     async updatePersonalInfo(e) {
         e.preventDefault();
-        
-        try {
-            const formData = new FormData();
-            formData.append('firstName', document.getElementById('firstName').value);
-            formData.append('lastName', document.getElementById('lastName').value);
-            formData.append('displayName', document.getElementById('displayName').value);
-            
-            const dateOfBirth = document.getElementById('dateOfBirth').value;
-            if (dateOfBirth) {
-                formData.append('dateOfBirth', dateOfBirth);
-            }
-            
-            const gender = document.getElementById('gender').value;
-            if (gender) {
-                formData.append('gender', gender);
-            }
-
-            const response = await fetch('/api/customer/profile', {
-                method: 'PUT',
-                body: formData
-            });
-
-            if (response.ok) {
-                await this.loadUserProfile();
-                this.showNotification('Información personal actualizada correctamente', 'success');
-            } else {
-                const errorText = await response.text();
-                throw new Error(errorText || 'Error al actualizar información personal');
-            }
-        } catch (error) {
-            console.error('Error updating personal info:', error);
-            this.showNotification(error.message || 'Error al actualizar información personal', 'error');
-        }
+        await this.submitForm('personalInfoForm', '/api/customer/profile', 'PUT',
+            'Información personal actualizada correctamente',
+            'Error al actualizar información personal');
     }
 
     async updateContactInfo(e) {
         e.preventDefault();
-        
-        try {
-            const formData = new FormData();
-            formData.append('phone', document.getElementById('phone').value);
-            
-            const alternatePhone = document.getElementById('alternatePhone').value;
-            if (alternatePhone) {
-                formData.append('alternatePhone', alternatePhone);
-            }
-
-            const response = await fetch('/api/customer/profile', {
-                method: 'PUT',
-                body: formData
-            });
-
-            if (response.ok) {
-                await this.loadUserProfile();
-                this.showNotification('Información de contacto actualizada correctamente', 'success');
-            } else {
-                const errorText = await response.text();
-                throw new Error(errorText || 'Error al actualizar información de contacto');
-            }
-        } catch (error) {
-            console.error('Error updating contact info:', error);
-            this.showNotification(error.message || 'Error al actualizar información de contacto', 'error');
-        }
+        await this.submitForm('contactInfoForm', '/api/customer/profile', 'PUT',
+            'Información de contacto actualizada correctamente',
+            'Error al actualizar información de contacto');
     }
 
     async updatePreferences(e) {
         e.preventDefault();
-        
-        try {
-            const formData = new FormData();
-            formData.append('emailNotifications', document.getElementById('emailNotifications').checked);
-            formData.append('smsNotifications', document.getElementById('smsNotifications').checked);
-            formData.append('newsletterSubscription', document.getElementById('newsletterSubscription').checked);
+        await this.submitForm('preferencesForm', '/api/customer/profile', 'PUT',
+            'Preferencias actualizadas correctamente',
+            'Error al actualizar preferencias');
+    }
 
-            const response = await fetch('/api/customer/profile', {
-                method: 'PUT',
+    async submitForm(formId, url, method, successMessage, errorMessage) {
+        const form = document.getElementById(formId);
+        const submitBtn = form?.querySelector('button[type="submit"]');
+        const btnText = submitBtn?.querySelector('.btn-text');
+        const btnLoading = submitBtn?.querySelector('.btn-loading');
+
+        if (!form || !submitBtn) return;
+
+        if (window.customerProfileValidations) {
+            const isValid = window.customerProfileValidations.validateForm(formId);
+            if (!isValid) {
+                this.showNotification('Por favor corrige los errores en el formulario', 'error');
+                return;
+            }
+        }
+
+        submitBtn.disabled = true;
+        if (btnText) btnText.style.display = 'none';
+        if (btnLoading) btnLoading.style.display = 'inline';
+
+        try {
+            const formData = new FormData(form);
+
+            const response = await fetch(url, {
+                method: method,
                 body: formData
             });
 
             if (response.ok) {
                 await this.loadUserProfile();
-                this.showNotification('Preferencias actualizadas correctamente', 'success');
+                this.showNotification(successMessage, 'success');
             } else {
-                const errorText = await response.text();
-                throw new Error(errorText || 'Error al actualizar preferencias');
+                let errorText;
+                try {
+                    const errorData = await response.json();
+                    errorText = errorData.message || await response.text();
+                } catch {
+                    errorText = await response.text();
+                }
+                throw new Error(errorText || errorMessage);
             }
         } catch (error) {
-            console.error('Error updating preferences:', error);
-            this.showNotification(error.message || 'Error al actualizar preferencias', 'error');
+            this.showNotification(error.message || errorMessage, 'error');
+        } finally {
+            submitBtn.disabled = false;
+            if (btnText) btnText.style.display = 'inline';
+            if (btnLoading) btnLoading.style.display = 'none';
         }
     }
-
+    
     async changePassword(e) {
         e.preventDefault();
-        
+
+        const form = document.getElementById('changePasswordForm');
+        const submitBtn = form?.querySelector('button[type="submit"]');
+        const btnText = submitBtn?.querySelector('.btn-text');
+        const btnLoading = submitBtn?.querySelector('.btn-loading');
+
+        if (!form || !submitBtn) return;
+
+        // Validación de formulario
+        if (window.customerProfileValidations) {
+            const isValid = window.customerProfileValidations.validateForm('changePasswordForm');
+            if (!isValid) {
+                this.showNotification('Por favor corrige los errores en el formulario', 'error');
+                return;
+            }
+        }
+
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        // VALIDACIÓN CRÍTICA: Verificar que la nueva contraseña no sea igual a la actual
+        if (!this.validateNewPasswordNotSame(currentPassword, newPassword)) {
+            this.showNotification('La nueva contraseña no puede ser igual a la contraseña actual', 'error');
+            this.showPasswordError('newPassword', 'La nueva contraseña debe ser diferente a la actual');
+            return;
+        }
+
+        // Validaciones adicionales
+        if (newPassword !== confirmPassword) {
+            this.showNotification('Las contraseñas no coinciden', 'error');
+            return;
+        }
+
+        if (newPassword.length < 8) {
+            this.showNotification('La contraseña debe tener al menos 8 caracteres', 'error');
+            return;
+        }
+
+        submitBtn.disabled = true;
+        if (btnText) btnText.style.display = 'none';
+        if (btnLoading) btnLoading.style.display = 'inline';
+
         try {
-            const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-
-            // Validaciones
-            if (newPassword !== confirmPassword) {
-                this.showNotification('Las contraseñas no coinciden', 'error');
-                return;
-            }
-
-            if (newPassword.length < 8) {
-                this.showNotification('La contraseña debe tener al menos 8 caracteres', 'error');
-                return;
-            }
-
             const formData = new URLSearchParams();
             formData.append('currentPassword', currentPassword);
             formData.append('newPassword', newPassword);
@@ -350,23 +469,141 @@ class CustomerProfile {
             });
 
             if (response.ok) {
-                document.getElementById('changePasswordForm').reset();
+                form.reset();
                 this.showNotification('Contraseña cambiada correctamente', 'success');
+                this.clearPasswordFields();
             } else {
-                const errorText = await response.text();
-                throw new Error(errorText || 'Error al cambiar contraseña');
+                const errorData = await response.json();
+
+                if (errorData.message && errorData.message.includes('contraseña actual es incorrecta')) {
+                    throw new Error('La contraseña actual es incorrecta');
+                } else if (errorData.message) {
+                    throw new Error(errorData.message);
+                } else {
+                    throw new Error('Error al cambiar contraseña');
+                }
             }
         } catch (error) {
-            console.error('Error changing password:', error);
-            this.showNotification(error.message || 'Error al cambiar contraseña', 'error');
+
+            if (error.message.includes('contraseña actual es incorrecta')) {
+                this.showPasswordError('currentPassword', 'La contraseña actual es incorrecta');
+                this.showNotification('La contraseña actual es incorrecta', 'error');
+            } else {
+                this.showNotification(error.message || 'Error al cambiar contraseña', 'error');
+            }
+        } finally {
+            submitBtn.disabled = false;
+            if (btnText) btnText.style.display = 'inline';
+            if (btnLoading) btnLoading.style.display = 'none';
         }
+    }
+
+    showPasswordError(fieldId, errorMessage) {
+        const field = document.getElementById(fieldId);
+        if (!field) return;
+
+        const formGroup = field.closest('.form-group');
+        if (!formGroup) return;
+
+        formGroup.classList.remove('success', 'error');
+        const existingErrors = formGroup.querySelectorAll('.validation-error');
+        existingErrors.forEach(error => error.remove());
+
+        formGroup.classList.add('error');
+
+        const errorElement = document.createElement('div');
+        errorElement.className = 'validation-error';
+        errorElement.innerHTML = `<div class="error-item">${errorMessage}</div>`;
+        formGroup.appendChild(errorElement);
+
+        const statusIcon = formGroup.querySelector('.validation-status');
+        if (statusIcon) {
+            statusIcon.textContent = '⚠';
+        }
+
+        setTimeout(() => {
+            field.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+                inline: 'nearest'
+            });
+            field.focus();
+        }, 100);
+    }
+
+    // MÉTODO CORREGIDO: Ahora existe updatePasswordRequirements
+    updatePasswordRequirements(password = '') {
+        // Este método actualiza los requisitos visuales de la contraseña
+        const requirements = {
+            length: document.querySelector('[data-requirement="length"]'),
+            uppercase: document.querySelector('[data-requirement="uppercase"]'),
+            lowercase: document.querySelector('[data-requirement="lowercase"]'),
+            number: document.querySelector('[data-requirement="number"]'),
+            special: document.querySelector('[data-requirement="special"]')
+        };
+
+        if (requirements.length) {
+            requirements.length.classList.toggle('met', password.length >= 8);
+        }
+        if (requirements.uppercase) {
+            requirements.uppercase.classList.toggle('met', /[A-Z]/.test(password));
+        }
+        if (requirements.lowercase) {
+            requirements.lowercase.classList.toggle('met', /[a-z]/.test(password));
+        }
+        if (requirements.number) {
+            requirements.number.classList.toggle('met', /[0-9]/.test(password));
+        }
+        if (requirements.special) {
+            requirements.special.classList.toggle('met', /[^A-Za-z0-9]/.test(password));
+        }
+    }
+
+    // MÉTODO CORREGIDO: clearPasswordFields ahora llama a updatePasswordRequirements
+    clearPasswordFields() {
+        const passwordFields = ['currentPassword', 'newPassword', 'confirmPassword'];
+
+        passwordFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.value = '';
+
+                const formGroup = field.closest('.form-group');
+                if (formGroup) {
+                    formGroup.classList.remove('success', 'error');
+                    const existingErrors = formGroup.querySelectorAll('.validation-error');
+                    existingErrors.forEach(error => error.remove());
+
+                    const statusIcon = formGroup.querySelector('.validation-status');
+                    if (statusIcon) {
+                        statusIcon.textContent = '';
+                    }
+                }
+            }
+        });
+
+        // Limpiar indicadores de contraseña
+        this.updatePasswordStrength('');
+        this.updatePasswordRequirements('');
+    }
+
+    previewProfilePicture(file) {
+        if (!file || !file.type.startsWith('image/')) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const profilePic = document.getElementById('currentProfilePicture');
+            if (profilePic) {
+                profilePic.src = e.target.result;
+            }
+        };
+        reader.readAsDataURL(file);
     }
 
     async uploadProfilePicture(file) {
         if (!file) return;
 
         try {
-            // Validar tipo y tamaño
             if (!file.type.startsWith('image/')) {
                 this.showNotification('Solo se permiten archivos de imagen', 'error');
                 return;
@@ -389,7 +626,7 @@ class CustomerProfile {
                 const updatedProfile = await response.json();
                 const profilePicture = document.getElementById('currentProfilePicture');
                 if (profilePicture && updatedProfile.profilePicture) {
-                    profilePicture.src = updatedProfile.profilePicture;
+                    profilePicture.src = updatedProfile.profilePicture + '?' + new Date().getTime();
                 }
                 this.showNotification('Foto de perfil actualizada correctamente', 'success');
             } else {
@@ -397,12 +634,15 @@ class CustomerProfile {
                 throw new Error(errorText || 'Error al actualizar foto de perfil');
             }
         } catch (error) {
-            console.error('Error uploading profile picture:', error);
             this.showNotification(error.message || 'Error al actualizar foto de perfil', 'error');
         }
     }
 
     async deleteProfilePicture() {
+        if (!confirm('¿Estás seguro de que quieres eliminar tu foto de perfil?')) {
+            return;
+        }
+
         try {
             const response = await fetch('/api/customer/profile/profile-picture', {
                 method: 'DELETE'
@@ -419,136 +659,70 @@ class CustomerProfile {
                 throw new Error(errorText || 'Error al eliminar foto de perfil');
             }
         } catch (error) {
-            console.error('Error deleting profile picture:', error);
             this.showNotification(error.message || 'Error al eliminar foto de perfil', 'error');
+        }
+    }
+
+    resetForm(formId) {
+        const form = document.getElementById(formId);
+        if (form) {
+            form.reset();
+            this.populateForms();
         }
     }
 
     calculateProfileCompletion() {
         if (!this.userData) return 0;
 
-        try {
-            const fields = [
-                this.userData.firstName,
-                this.userData.lastName,
-                this.userData.email,
-                this.userData.phone,
-                this.userData.dateOfBirth,
-                this.userData.gender
-            ];
+        const fields = [
+            this.userData.firstName,
+            this.userData.lastName,
+            this.userData.email,
+            this.userData.phone,
+            this.userData.dateOfBirth,
+            this.userData.gender
+        ];
 
-            const completed = fields.filter(field => {
-                if (typeof field === 'boolean') return field;
-                return field && field.toString().trim().length > 0;
-            }).length;
+        const completed = fields.filter(field => {
+            if (typeof field === 'boolean') return field;
+            return field && field.toString().trim().length > 0;
+        }).length;
 
-            const percentage = Math.round((completed / fields.length) * 100);
-            
-            this.setTextContent('completionPercent', `${percentage}%`);
-            
-            const completionBar = document.getElementById('completionBar');
-            if (completionBar) {
-                completionBar.style.width = `${percentage}%`;
-            }
+        const percentage = Math.round((completed / fields.length) * 100);
 
-            return percentage;
-        } catch (error) {
-            console.error('Error calculating profile completion:', error);
-            return 0;
+        this.setTextContent('completionPercent', `${percentage}%`);
+
+        const completionBar = document.getElementById('completionBar');
+        if (completionBar) {
+            completionBar.style.transition = 'width 1.2s cubic-bezier(0.4, 0, 0.2, 1)';
+            completionBar.style.width = `${percentage}%`;
         }
+
+        return percentage;
     }
 
     showNotification(message, type = 'info') {
-        try {
-            const notification = document.createElement('div');
-            notification.className = `notification notification-${type}`;
-            notification.textContent = message;
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                padding: 1rem 1.5rem;
-                border-radius: 6px;
-                color: white;
-                z-index: 2000;
-                font-weight: 500;
-                max-width: 300px;
-                transition: all 0.3s ease;
-            `;
-            
-            if (type === 'success') {
-                notification.style.background = '#28a745';
-            } else if (type === 'error') {
-                notification.style.background = '#dc3545';
-            } else {
-                notification.style.background = '#17a2b8';
-            }
-            
-            const container = document.getElementById('notificationContainer');
-            if (container) {
-                container.appendChild(notification);
-                
-                setTimeout(() => {
-                    if (notification.parentNode) {
-                        notification.parentNode.removeChild(notification);
-                    }
-                }, 5000);
-            }
-        } catch (error) {
-            console.error('Error showing notification:', error);
-        }
-    }
-}
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.textContent = message;
 
-// Funciones globales para los botones
-function resetPersonalForm() {
-    try {
-        const form = document.getElementById('personalInfoForm');
-        if (form) {
-            form.reset();
-        }
-        if (window.customerProfile && window.customerProfile.userData) {
-            window.customerProfile.populateForms();
-        }
-    } catch (error) {
-        console.error('Error resetting personal form:', error);
-    }
-}
+        const container = document.getElementById('notificationContainer') || document.body;
+        container.appendChild(notification);
 
-function resetContactForm() {
-    try {
-        const form = document.getElementById('contactInfoForm');
-        if (form) {
-            form.reset();
-        }
-        if (window.customerProfile && window.customerProfile.userData) {
-            window.customerProfile.populateForms();
-        }
-    } catch (error) {
-        console.error('Error resetting contact form:', error);
-    }
-}
+        setTimeout(() => notification.classList.add('show'), 10);
 
-function deleteProfilePicture() {
-    try {
-        if (window.customerProfile) {
-            window.customerProfile.deleteProfilePicture();
-        }
-    } catch (error) {
-        console.error('Error deleting profile picture:', error);
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+        }, 5000);
     }
 }
 
 // Inicializar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
-    try {
-        window.customerProfile = new CustomerProfile();
-    } catch (error) {
-        console.error('Error initializing customer profile:', error);
-    }
-});
-
-// Manejar errores no capturados
-window.addEventListener('error', (event) => {
-    console.error('Error no capturado:', event.error);
+    window.customerProfile = new CustomerProfile();
 });

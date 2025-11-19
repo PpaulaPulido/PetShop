@@ -10,18 +10,22 @@
 </head>
 
 <body>
-    <!-- Header -->
     <div th:replace="shared/header :: header"></div>
-
-    <!-- Sidebar del carrito -->
     <div th:replace="shared/cart-sidebar :: cart-sidebar"></div>
 
     <main class="profile-container">
         <div class="container">
-            <!-- Header del perfil -->
             <section class="profile-header">
+                <!-- Partículas flotantes -->
+                <div class="floating-particles">
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                </div>
+
                 <div class="header-content">
-                    <h1>Mi Perfil 👤</h1>
+                    <h1>Mi Perfil</h1>
                     <p>Gestiona tu información personal y preferencias</p>
                 </div>
                 <div class="profile-completion">
@@ -39,20 +43,20 @@
                 <aside class="profile-sidebar">
                     <nav class="sidebar-nav">
                         <button class="nav-item active" data-tab="personal-info">
-                            <span>👤</span>
-                            Información Personal
+                            <span class="nav-icon">👤</span>
+                            <span class="nav-text">Información Personal</span>
                         </button>
                         <button class="nav-item" data-tab="contact-info">
-                            <span>📞</span>
-                            Información de Contacto
+                            <span class="nav-icon">📞</span>
+                            <span class="nav-text">Información de Contacto</span>
                         </button>
                         <button class="nav-item" data-tab="preferences">
-                            <span>⚙️</span>
-                            Preferencias
+                            <span class="nav-icon">⚙️</span>
+                            <span class="nav-text">Preferencias</span>
                         </button>
                         <button class="nav-item" data-tab="security">
-                            <span>🔒</span>
-                            Seguridad
+                            <span class="nav-icon">🔒</span>
+                            <span class="nav-text">Seguridad</span>
                         </button>
                     </nav>
                 </aside>
@@ -70,18 +74,21 @@
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="firstName">Nombre *</label>
-                                    <input type="text" id="firstName" name="firstName" required>
+                                    <input type="text" id="firstName" name="firstName" required placeholder="Tu nombre"
+                                        minlength="3" maxlength="50">
                                 </div>
                                 <div class="form-group">
                                     <label for="lastName">Apellido *</label>
-                                    <input type="text" id="lastName" name="lastName" required>
+                                    <input type="text" id="lastName" name="lastName" required placeholder="Tu apellido"
+                                        minlength="3" maxlength="50">
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label for="displayName">Nombre para mostrar</label>
-                                <input type="text" id="displayName" name="displayName"
-                                    placeholder="Como quieres que te llamemos">
+                                <input type="text" id="displayName" name="displayName" readonly
+                                    placeholder="Como quieres que te llamemos" class="readonly-input">
+                                <div class="input-note">Se genera automáticamente desde nombre y apellido</div>
                             </div>
 
                             <div class="form-row">
@@ -102,8 +109,11 @@
                             </div>
 
                             <div class="form-actions">
-                                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                                <button type="button" class="btn btn-secondary" onclick="resetPersonalForm()">
+                                <button type="submit" class="btn btn-primary">
+                                    <span class="btn-text">Guardar Cambios</span>
+                                    <span class="btn-loading" style="display: none;">⌛</span>
+                                </button>
+                                <button type="button" class="btn btn-secondary" id="resetPersonalBtn">
                                     Cancelar
                                 </button>
                             </div>
@@ -120,23 +130,29 @@
                         <form class="profile-form" id="contactInfoForm">
                             <div class="form-group">
                                 <label for="email">Correo Electrónico *</label>
-                                <input type="email" id="email" name="email" readonly>
+                                <input type="email" id="email" name="email" readonly class="readonly-input">
+                                <div class="input-note">El correo electrónico no se puede modificar</div>
                             </div>
 
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="phone">Teléfono Principal *</label>
-                                    <input type="tel" id="phone" name="phone" required>
+                                    <input type="tel" id="phone" name="phone" required placeholder="3001234567"
+                                        pattern="[0-9]{10}" maxlength="10" title="10 dígitos sin espacios">
                                 </div>
                                 <div class="form-group">
                                     <label for="alternatePhone">Teléfono Alternativo</label>
-                                    <input type="tel" id="alternatePhone" name="alternatePhone">
+                                    <input type="tel" id="alternatePhone" name="alternatePhone" placeholder="Opcional"
+                                        pattern="[0-9]{10}" maxlength="10" title="10 dígitos sin espacios">
                                 </div>
                             </div>
 
                             <div class="form-actions">
-                                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                                <button type="button" class="btn btn-secondary" onclick="resetContactForm()">
+                                <button type="submit" class="btn btn-primary">
+                                    <span class="btn-text">Guardar Cambios</span>
+                                    <span class="btn-loading" style="display: none;">⌛</span>
+                                </button>
+                                <button type="button" class="btn btn-secondary" id="resetContactBtn">
                                     Cancelar
                                 </button>
                             </div>
@@ -188,7 +204,10 @@
                             </div>
 
                             <div class="form-actions">
-                                <button type="submit" class="btn btn-primary">Guardar Preferencias</button>
+                                <button type="submit" class="btn btn-primary">
+                                    <span class="btn-text">Guardar Preferencias</span>
+                                    <span class="btn-loading" style="display: none;">⌛</span>
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -203,43 +222,56 @@
                         <div class="security-sections">
                             <!-- Cambio de contraseña -->
                             <section class="security-section">
-                                <h3>Cambiar Contraseña</h3>
+                                <div class="section-header">
+                                    <h3>Cambiar Contraseña</h3>
+                                    <div class="section-icon">🔑</div>
+                                </div>
                                 <form class="security-form" id="changePasswordForm">
                                     <div class="form-group">
                                         <label for="currentPassword">Contraseña Actual</label>
-                                        <input type="password" id="currentPassword" name="currentPassword" required>
+                                        <input type="password" id="currentPassword" name="currentPassword" required
+                                            placeholder="Ingresa tu contraseña actual">
                                     </div>
                                     <div class="form-group">
                                         <label for="newPassword">Nueva Contraseña</label>
                                         <input type="password" id="newPassword" name="newPassword" required
                                             minlength="8" placeholder="Mínimo 8 caracteres">
+                                        <!-- Los requisitos de contraseña se generan automáticamente -->
                                     </div>
                                     <div class="form-group">
                                         <label for="confirmPassword">Confirmar Nueva Contraseña</label>
-                                        <input type="password" id="confirmPassword" name="confirmPassword" required>
+                                        <input type="password" id="confirmPassword" name="confirmPassword" required
+                                            placeholder="Repite la nueva contraseña">
                                     </div>
-                                    <button type="submit" class="btn btn-primary">Cambiar Contraseña</button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <span class="btn-text">Cambiar Contraseña</span>
+                                        <span class="btn-loading" style="display: none;">⌛</span>
+                                    </button>
                                 </form>
                             </section>
 
                             <!-- Foto de perfil -->
                             <section class="security-section">
-                                <h3>Foto de Perfil</h3>
+                                <div class="section-header">
+                                    <h3>Foto de Perfil</h3>
+                                    <div class="section-icon">🖼️</div>
+                                </div>
                                 <div class="profile-picture-section">
                                     <div class="current-avatar">
                                         <img id="currentProfilePicture" src="/images/default-avatar.png"
                                             alt="Foto de perfil actual">
+                                        <div class="avatar-overlay">
+                                            <span class="edit-icon">✏️</span>
+                                        </div>
                                     </div>
                                     <div class="avatar-actions">
                                         <form id="profilePictureForm" enctype="multipart/form-data">
                                             <input type="file" id="profilePictureFile" name="file" accept="image/*"
-                                                style="display: none;">
-                                            <button type="button" class="btn btn-secondary"
-                                                onclick="document.getElementById('profilePictureFile').click()">
+                                                class="file-input">
+                                            <button type="button" class="btn btn-secondary" id="changePictureBtn">
                                                 Cambiar Foto
                                             </button>
-                                            <button type="button" class="btn btn-outline"
-                                                onclick="deleteProfilePicture()">
+                                            <button type="button" class="btn btn-outline" id="deletePictureBtn">
                                                 Eliminar Foto
                                             </button>
                                         </form>
@@ -250,19 +282,28 @@
 
                             <!-- Información de seguridad -->
                             <section class="security-section">
-                                <h3>Información de Seguridad</h3>
+                                <div class="section-header">
+                                    <h3>Información de Seguridad</h3>
+                                    <div class="section-icon">📊</div>
+                                </div>
                                 <div class="security-info">
                                     <div class="info-item">
-                                        <span class="info-label">Último acceso:</span>
-                                        <span id="lastLoginInfo">Cargando...</span>
-                                    </div>
-                                    <div class="info-item">
                                         <span class="info-label">Cuenta creada:</span>
-                                        <span id="accountCreatedInfo">Cargando...</span>
+                                        <span id="accountCreatedInfo" class="info-value">Cargando...</span>
                                     </div>
                                     <div class="info-item">
                                         <span class="info-label">Estado de la cuenta:</span>
-                                        <span class="status-badge verified">Activa</span>
+                                        <span class="status-badge verified">
+                                            <span class="status-dot"></span>
+                                            Activa
+                                        </span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Verificación de email:</span>
+                                        <span class="status-badge verified">
+                                            <span class="status-dot"></span>
+                                            Verificado
+                                        </span>
                                     </div>
                                 </div>
                             </section>
@@ -273,18 +314,12 @@
         </div>
     </main>
 
-    <!-- Footer -->
     <div th:replace="shared/footer :: footer-pedLUz"></div>
-
-    <!-- Notificaciones -->
     <div id="notificationContainer"></div>
 
-    <script th:src="@{/js/customer_profile.js}"></script>
-    <!-- En profile.html y confirmation.html, agrega esto antes del </body> -->
     <script>
         // Forzar actualización del carrito cuando se carga estas páginas específicas
         document.addEventListener('DOMContentLoaded', function () {
-            console.log('🔄 Página de perfil/confirmación - Actualizando carrito...');
 
             // Esperar a que el CartSidebar se inicialice
             setTimeout(() => {
@@ -298,7 +333,6 @@
             // También actualizar cuando la página gana foco
             document.addEventListener('visibilitychange', function () {
                 if (!document.hidden) {
-                    console.log('📄 Página visible - Actualizando carrito...');
                     setTimeout(() => {
                         if (window.cartSidebar) {
                             window.cartSidebar.loadCartItems();
@@ -310,6 +344,11 @@
             });
         });
     </script>
+
+    <script th:src="@{/js/customer_header.js}"></script>
+    <script th:src="@{/js/patterns-dictionary.js}"></script>
+    <script th:src="@{/js/customer_profile.js}"></script>
+    <script th:src="@{/js/customer_profile_validations.js}"></script>
 </body>
 
 </html>
