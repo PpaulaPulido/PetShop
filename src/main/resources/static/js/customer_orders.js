@@ -27,7 +27,6 @@ class CustomerOrders {
     }
 
     setupEventListeners() {
-        console.log('🔧 Configurando event listeners...');
 
         // Filtros
         this.setupFilterListeners();
@@ -35,10 +34,8 @@ class CustomerOrders {
         // Paginación
         this.setupPaginationListeners();
         
-        // Modal de cancelación
+        // Modal de cancelación 
         this.setupCancelModalListeners();
-
-        console.log('✅ Event listeners configurados correctamente');
     }
 
     setupFilterListeners() {
@@ -63,6 +60,15 @@ class CustomerOrders {
         if (clearFiltersBtn) {
             clearFiltersBtn.addEventListener('click', () => this.clearFilters());
         }
+
+        // Búsqueda en tiempo real
+        const searchInput = document.getElementById('searchOrders');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                this.filters.search = e.target.value;
+                this.applyFilters();
+            });
+        }
     }
 
     setupPaginationListeners() {
@@ -74,7 +80,8 @@ class CustomerOrders {
     }
 
     setupCancelModalListeners() {
-        const cancelConfirmBtn = document.getElementById('cancelConfirmBtn');
+        // IDs actualizados para coincidir con el HTML
+        const cancelConfirmBtn = document.getElementById('confirmCancelBtn');
         const cancelCancelBtn = document.getElementById('cancelCancelBtn');
         const closeCancelModal = document.getElementById('closeCancelModal');
         const cancelModalOverlay = document.getElementById('cancelModalOverlay');
@@ -91,17 +98,12 @@ class CustomerOrders {
 
     async loadOrderStats() {
         try {
-            console.log('📊 Cargando estadísticas de órdenes...');
             const response = await fetch('/api/customer/orders/stats');
-
             if (!response.ok) throw new Error('Error al cargar las estadísticas');
-
             this.stats = await response.json();
-            console.log('✅ Estadísticas cargadas:', this.stats);
             this.updateStatsUI();
 
         } catch (error) {
-            console.error('❌ Error loading order stats:', error);
             this.stats = { totalOrders: 0, pendingOrders: 0, deliveredOrders: 0, cancelledOrders: 0 };
             this.updateStatsUI();
         }
@@ -110,17 +112,14 @@ class CustomerOrders {
     async loadOrders() {
         try {
             this.showLoadingState();
-            console.log('🔄 Cargando órdenes...');
             
             const response = await fetch('/api/customer/orders');
             if (!response.ok) throw new Error('Error al cargar las órdenes');
 
             this.orders = await response.json();
-            console.log(`✅ ${this.orders.length} órdenes cargadas`);
             this.applyFilters();
 
         } catch (error) {
-            console.error('❌ Error loading orders:', error);
             this.showErrorState('Error al cargar las órdenes');
         }
     }
@@ -211,7 +210,7 @@ class CustomerOrders {
         }
 
         this.hideStates();
-        ordersGrid.style.display = 'block';
+        ordersGrid.style.display = 'grid';
 
         const startIndex = (this.currentPage - 1) * this.ordersPerPage;
         const endIndex = startIndex + this.ordersPerPage;
@@ -225,6 +224,7 @@ class CustomerOrders {
         document.getElementById('ordersGrid').style.display = 'none';
         document.getElementById('emptyOrders').style.display = 'block';
         document.getElementById('ordersState').style.display = 'none';
+        document.getElementById('pagination').style.display = 'none';
     }
 
     hideStates() {
@@ -235,7 +235,7 @@ class CustomerOrders {
     createOrderCard(order) {
         const statusClass = `status-${order.status.toLowerCase()}`;
         const statusText = this.getStatusText(order.status);
-        const canCancel = order.status === 'PENDING' || order.status === 'CONFIRMED';
+        const canCancel = order.status === 'PENDING';
 
         return `
             <div class="order-card ${order.status.toLowerCase()}" data-order-id="${order.id}">
@@ -244,18 +244,12 @@ class CustomerOrders {
                         <h3>Pedido #${order.invoiceNumber}</h3>
                         <div class="order-meta">
                             <span>Fecha: ${this.formatDate(order.createdAt)}</span>
-                            <span>Total: $${order.totalAmount.toFixed(2)}</span>
-                            <span>Método: ${this.getPaymentMethodText(order.paymentMethod)}</span>
                         </div>
                     </div>
                     <div class="order-status ${statusClass}">${statusText}</div>
                 </div>
                 
                 <div class="order-details">
-                    <div class="detail-item">
-                        <span class="detail-label">Estado</span>
-                        <span class="detail-value ${statusClass}">${statusText}</span>
-                    </div>
                     <div class="detail-item">
                         <span class="detail-label">Total</span>
                         <span class="detail-value">$${order.totalAmount.toFixed(2)}</span>
@@ -274,18 +268,18 @@ class CustomerOrders {
                 
                 <div class="order-actions">
                     <button class="btn btn-outline btn-sm view-order-btn" data-order-id="${order.id}">
-                        👁️ Ver Detalles
+                        Ver Detalles
                     </button>
                     ${canCancel ? `
                         <button class="btn btn-danger btn-sm cancel-order-btn" 
                                 data-order-id="${order.id}" 
                                 data-order-number="${order.invoiceNumber}">
-                            🗑️ Cancelar
+                            Cancelar
                         </button>
                     ` : ''}
                     ${order.status === 'SHIPPED' ? `
                         <button class="btn btn-primary btn-sm track-order-btn" data-order-id="${order.id}">
-                            📍 Rastrear
+                            📍Rastrear
                         </button>
                     ` : ''}
                 </div>
@@ -358,10 +352,8 @@ class CustomerOrders {
 
     viewOrderDetails(orderId) {
         try {
-            console.log(`🔄 Redirigiendo a detalles del pedido ${orderId}...`);
             window.location.href = `/user/order-details/${orderId}`;
         } catch (error) {
-            console.error('Error redirigiendo a detalles del pedido:', error);
             this.showNotification('Error al acceder a los detalles del pedido', 'error');
         }
     }
@@ -374,11 +366,17 @@ class CustomerOrders {
         this.orderToCancel = orderId;
         document.getElementById('cancelOrderNumber').textContent = orderNumber;
         document.getElementById('cancelModalOverlay').style.display = 'flex';
+        
+        // Agregar animación de entrada
+        setTimeout(() => {
+            document.getElementById('cancelModal').style.transform = 'translateY(0) scale(1)';
+        }, 10);
     }
 
     hideCancelModal() {
         this.orderToCancel = null;
         document.getElementById('cancelModalOverlay').style.display = 'none';
+        document.getElementById('cancelModal').style.transform = 'translateY(-30px) scale(0.9)';
     }
 
     async confirmCancelOrder() {
@@ -393,11 +391,11 @@ class CustomerOrders {
                 this.showNotification('Pedido cancelado exitosamente', 'success');
                 this.hideCancelModal();
                 await this.loadOrders();
+                await this.loadOrderStats(); // Actualizar estadísticas
             } else {
                 throw new Error('Error al cancelar el pedido');
             }
         } catch (error) {
-            console.error('Error cancelling order:', error);
             this.showNotification('Error al cancelar el pedido', 'error');
         }
     }
@@ -424,6 +422,7 @@ class CustomerOrders {
             this.currentPage--;
             this.displayOrders();
             this.updatePagination();
+            this.scrollToTop();
         }
     }
 
@@ -433,7 +432,15 @@ class CustomerOrders {
             this.currentPage++;
             this.displayOrders();
             this.updatePagination();
+            this.scrollToTop();
         }
+    }
+
+    scrollToTop() {
+        window.scrollTo({
+            top: document.querySelector('.orders-list-section').offsetTop - 100,
+            behavior: 'smooth'
+        });
     }
 
     clearFilters() {
@@ -451,6 +458,7 @@ class CustomerOrders {
         document.getElementById('sortOrders').value = 'NEWEST';
 
         this.applyFilters();
+        this.showNotification('Filtros limpiados correctamente', 'success');
     }
 
     showLoadingState() {
@@ -538,31 +546,27 @@ class CustomerOrders {
     showNotification(message, type = 'info') {
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
-        notification.textContent = message;
-        
-        const colors = {
-            success: '#28a745',
-            error: '#dc3545',
-            info: '#17a2b8'
-        };
-
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 1rem 1.5rem;
-            border-radius: 6px;
-            color: white;
-            z-index: 2000;
-            font-weight: 500;
-            max-width: 300px;
-            background: ${colors[type] || colors.info};
+        notification.innerHTML = `
+            <div class="notification-content">
+                <span class="notification-message">${message}</span>
+                <button class="notification-close">×</button>
+            </div>
         `;
-
+        
         const container = document.getElementById('notificationContainer');
         if (container) {
             container.appendChild(notification);
-            setTimeout(() => notification.remove(), 5000);
+            
+            // Auto-remover después de 5 segundos
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
+            
+            notification.querySelector('.notification-close').addEventListener('click', () => {
+                notification.remove();
+            });
         }
     }
 }

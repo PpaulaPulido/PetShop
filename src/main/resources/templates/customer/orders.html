@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,19 +8,16 @@
     <link rel="stylesheet" th:href="@{/css/base_customer.css}">
     <link rel="stylesheet" th:href="@{/css/customer_orders.css}">
 </head>
-<body>
-    <!-- Header -->
-    <div th:replace="shared/header :: header"></div>
 
-    <!-- Sidebar del carrito -->
+<body>
+    <div th:replace="shared/header :: header"></div>
     <div th:replace="shared/cart-sidebar :: cart-sidebar"></div>
 
     <main class="orders-container">
         <div class="container">
-            <!-- Header de la página -->
             <section class="orders-header">
                 <div class="header-content">
-                    <h1>📋 Mis Pedidos</h1>
+                    <h1>Mis Pedidos</h1>
                     <p>Gestiona y revisa el estado de todos tus pedidos</p>
                 </div>
                 <div class="header-stats">
@@ -43,9 +41,12 @@
                 <div class="filters-container">
                     <div class="search-box">
                         <input type="text" id="searchOrders" placeholder="Buscar por número de pedido...">
-                        <button class="search-btn">🔍</button>
+                        <button class="search-btn">
+                            <span class="search-icon">🔍</span>
+                            Buscar
+                        </button>
                     </div>
-                    
+
                     <div class="filter-group">
                         <label for="statusFilter">Filtrar por estado:</label>
                         <select id="statusFilter">
@@ -71,6 +72,7 @@
                     </div>
 
                     <button class="btn btn-outline" id="clearFilters">
+                        <span class="btn-icon"></span>
                         Limpiar Filtros
                     </button>
                 </div>
@@ -107,7 +109,7 @@
                 <!-- Estado vacío -->
                 <div class="empty-orders" id="emptyOrders" style="display: none;">
                     <div class="empty-state">
-                        <div class="empty-icon">📦</div>
+                        <div class="empty-icon"></div>
                         <h3>No tienes pedidos aún</h3>
                         <p>¡Descubre nuestros productos y realiza tu primer pedido!</p>
                         <a href="/customer/products" class="btn btn-primary">
@@ -129,86 +131,37 @@
                     </button>
                 </div>
             </section>
-
-            <!-- Información adicional -->
-            <section class="orders-info">
-                <div class="info-cards">
-                    <div class="info-card">
-                        <div class="info-icon">📞</div>
-                        <div class="info-content">
-                            <h4>¿Necesitas ayuda con un pedido?</h4>
-                            <p>Nuestro equipo de soporte está disponible 24/7 para ayudarte</p>
-                            <a href="/contact" class="btn btn-outline btn-sm">Contactar Soporte</a>
-                        </div>
-                    </div>
-                    
-                    <div class="info-card">
-                        <div class="info-icon">🔄</div>
-                        <div class="info-content">
-                            <h4>Política de Devoluciones</h4>
-                            <p>Tienes 30 días para devolver tu pedido si no estás satisfecho</p>
-                            <a href="/returns" class="btn btn-outline btn-sm">Saber Más</a>
-                        </div>
-                    </div>
-                    
-                    <div class="info-card">
-                        <div class="info-icon">🚚</div>
-                        <div class="info-content">
-                            <h4>Seguimiento de Pedidos</h4>
-                            <p>Rastrea tu pedido en tiempo real desde el momento del envío</p>
-                            <a href="/tracking" class="btn btn-outline btn-sm">Cómo Rastrear</a>
-                        </div>
-                    </div>
-                </div>
-            </section>
         </div>
     </main>
 
-    <!-- Modal de detalles de orden -->
-    <div class="modal-overlay" id="orderModalOverlay" style="display: none;">
-        <div class="modal modal-lg" id="orderModal">
-            <div class="modal-header">
-                <h3>Detalles del Pedido</h3>
-                <button type="button" class="modal-close" id="closeOrderModal">✕</button>
-            </div>
-            <div class="modal-body">
-                <div class="order-modal-content" id="orderModalContent">
-                    <!-- Los detalles se cargarán aquí -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de cancelación -->
-    <div class="modal-overlay" id="cancelModalOverlay" style="display: none;">
-        <div class="modal" id="cancelModal">
-            <div class="modal-header">
+    <!-- Modal de cancelación - CLASES CORREGIDAS -->
+    <div class="order-modal-overlay" id="cancelModalOverlay" style="display: none;">
+        <div class="order-modal" id="cancelModal">
+            <div class="order-modal-header">
                 <h3>Cancelar Pedido</h3>
-                <button type="button" class="modal-close" id="closeCancelModal">✕</button>
+                <button type="button" class="order-modal-close" id="closeCancelModal">✕</button>
             </div>
-            <div class="modal-body">
+            <div class="order-modal-body">
                 <p>¿Estás seguro de que quieres cancelar el pedido <strong id="cancelOrderNumber"></strong>?</p>
-                <div class="cancel-warning">
+                <div class="order-cancel-warning">
                     <p>⚠️ Esta acción no se puede deshacer. El stock de los productos será liberado.</p>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="cancelCancelModal">
+            <div class="order-modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelCancelBtn">
                     Mantener Pedido
                 </button>
-                <button type="button" class="btn btn-danger" id="confirmCancelOrder">
+                <button type="button" class="btn btn-danger" id="confirmCancelBtn">
                     Sí, Cancelar Pedido
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Footer -->
     <div th:replace="shared/footer :: footer-pedLUz"></div>
-
-    <!-- Notificaciones -->
     <div id="notificationContainer"></div>
-
+    <script th:src="@{/js/customer_header.js}"></script>
     <script th:src="@{/js/customer_orders.js}"></script>
 </body>
+
 </html>
