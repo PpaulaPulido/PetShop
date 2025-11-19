@@ -3,10 +3,8 @@
 
 <body>
     <div th:fragment="cart-sidebar">
-        <!-- Overlay -->
         <div class="cart-overlay" id="cartOverlay"></div>
 
-        <!-- Sidebar del carrito -->
         <aside class="cart-sidebar" id="cartSidebar">
             <div class="cart-header">
                 <h3>🛒 Mi Carrito</h3>
@@ -15,7 +13,6 @@
 
             <div class="cart-content">
                 <div class="cart-items" id="cartItems">
-                    <!-- Los items del carrito se cargarán aquí -->
                     <div class="empty-cart">
                         <p>Tu carrito está vacío</p>
                         <a href="/customer/products" class="btn btn-primary">Comenzar a comprar</a>
@@ -48,251 +45,6 @@
             </div>
         </aside>
 
-        <style>
-            .cart-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.5);
-                z-index: 1998;
-                opacity: 0;
-                visibility: hidden;
-                transition: all 0.3s ease;
-            }
-
-            .cart-overlay.active {
-                opacity: 1;
-                visibility: visible;
-            }
-
-            .cart-sidebar {
-                position: fixed;
-                top: 0;
-                right: -400px;
-                width: 100%;
-                max-width: 400px;
-                height: 100%;
-                background: white;
-                z-index: 1999;
-                transition: right 0.3s ease;
-                display: flex;
-                flex-direction: column;
-                box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
-            }
-
-            .cart-sidebar.active {
-                right: 0;
-            }
-
-            .cart-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 1.5rem;
-                border-bottom: 1px solid #e9ecef;
-            }
-
-            .cart-header h3 {
-                margin: 0;
-                color: #333;
-            }
-
-            .cart-close {
-                background: none;
-                border: none;
-                font-size: 1.5rem;
-                cursor: pointer;
-                padding: 0.5rem;
-                transition: color 0.3s ease;
-            }
-
-            .cart-close:hover {
-                color: #ff4444;
-            }
-
-            .cart-content {
-                flex: 1;
-                overflow-y: auto;
-                padding: 1rem;
-            }
-
-            .cart-items {
-                min-height: 200px;
-            }
-
-            .empty-cart {
-                text-align: center;
-                padding: 2rem 1rem;
-                color: #666;
-            }
-
-            .empty-cart .btn {
-                margin-top: 1rem;
-            }
-
-            .cart-item {
-                display: flex;
-                gap: 1rem;
-                padding: 1rem;
-                border-bottom: 1px solid #f0f0f0;
-                align-items: center;
-            }
-
-            .cart-item:last-child {
-                border-bottom: none;
-            }
-
-            .cart-item-image {
-                width: 60px;
-                height: 60px;
-                border-radius: 8px;
-                overflow: hidden;
-                flex-shrink: 0;
-            }
-
-            .cart-item-image img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-            }
-
-            .cart-item-details {
-                flex: 1;
-            }
-
-            .cart-item-name {
-                font-weight: 500;
-                margin-bottom: 0.25rem;
-                color: #333;
-            }
-
-            .cart-item-price {
-                color: #667eea;
-                font-weight: 600;
-                margin-bottom: 0.5rem;
-            }
-
-            .cart-item-actions {
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-            }
-
-            .quantity-btn {
-                width: 30px;
-                height: 30px;
-                border: 1px solid #ddd;
-                background: white;
-                border-radius: 4px;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                transition: all 0.3s ease;
-            }
-
-            .quantity-btn:hover {
-                background: #f5f5f5;
-            }
-
-            .quantity-display {
-                min-width: 30px;
-                text-align: center;
-                font-weight: 500;
-            }
-
-            .remove-btn {
-                background: none;
-                border: none;
-                color: #ff4444;
-                cursor: pointer;
-                padding: 0.5rem;
-                margin-left: 0.5rem;
-                transition: color 0.3s ease;
-            }
-
-            .remove-btn:hover {
-                color: #cc0000;
-            }
-
-            .cart-summary {
-                padding: 1.5rem;
-                border-top: 1px solid #e9ecef;
-                background: #f8f9fa;
-                border-radius: 8px;
-                margin-top: 1rem;
-            }
-
-            .summary-row {
-                display: flex;
-                justify-content: space-between;
-                margin-bottom: 0.5rem;
-            }
-
-            .summary-row.total {
-                font-weight: 600;
-                font-size: 1.1rem;
-                color: #333;
-                border-top: 1px solid #ddd;
-                padding-top: 0.5rem;
-                margin-top: 0.5rem;
-            }
-
-            .cart-footer {
-                padding: 1.5rem;
-                border-top: 1px solid #e9ecef;
-                display: flex;
-                flex-direction: column;
-                gap: 0.75rem;
-            }
-
-            .btn-block {
-                width: 100%;
-                text-align: center;
-            }
-
-            .btn {
-                display: inline-block;
-                padding: 0.75rem 1.5rem;
-                border: none;
-                border-radius: 6px;
-                text-decoration: none;
-                text-align: center;
-                font-weight: 500;
-                cursor: pointer;
-                transition: all 0.3s ease;
-            }
-
-            .btn-primary {
-                background: #667eea;
-                color: white;
-            }
-
-            .btn-primary:hover {
-                background: #5a6fd8;
-                transform: translateY(-1px);
-            }
-
-            .btn-secondary {
-                background: #6c757d;
-                color: white;
-            }
-
-            .btn-secondary:hover {
-                background: #5a6268;
-                transform: translateY(-1px);
-            }
-
-            /* Responsive */
-            @media (max-width: 480px) {
-                .cart-sidebar {
-                    max-width: 100%;
-                }
-            }
-        </style>
-
         <script>
             class CartSidebar {
                 constructor() {
@@ -307,7 +59,6 @@
                     this.loadCartItems();
                     this.initialized = true;
 
-                    console.log('🛒 CartSidebar inicializado');
                 }
 
                 setupEventListeners() {
@@ -328,27 +79,24 @@
                         this.closeSidebar();
                     });
 
-                    // Escuchar actualizaciones del carrito - MEJORADO
+                    // Escuchar actualizaciones del carrito 
                     window.addEventListener('cartUpdated', () => {
-                        console.log('🔄 CartSidebar recibió evento cartUpdated');
                         this.loadCartItems();
                     });
 
-                    // NUEVO: Escuchar evento específico de orden creada
+                    // Escuchar evento específico de orden creada
                     window.addEventListener('orderCreated', () => {
-                        console.log('🔄 CartSidebar recibió evento orderCreated');
                         this.loadCartItems();
                     });
 
-                    // NUEVO: Actualizar cuando la página gana foco (cuando el usuario vuelve de otra pestaña)
+                    //Actualizar cuando la página gana foco (cuando el usuario vuelve de otra pestaña)
                     document.addEventListener('visibilitychange', () => {
                         if (!document.hidden) {
-                            console.log('📄 Página visible, actualizando carrito...');
                             this.loadCartItems();
                         }
                     });
 
-                    // NUEVO: Actualizar periódicamente (cada 30 segundos) por si hay cambios
+                    //Actualizar periódicamente (cada 30 segundos) por si hay cambios
                     setInterval(() => {
                         this.loadCartItems();
                     }, 30000);
@@ -382,22 +130,18 @@
 
                 async loadCartItems() {
                     try {
-                        console.log('🔄 CartSidebar cargando items...');
                         const response = await fetch('/api/customer/cart');
 
                         if (response.ok) {
                             const cartData = await response.json();
-                            console.log('✅ Carrito cargado:', cartData);
                             this.displayCartItems(cartData);
 
-                            // NUEVO: Actualizar también el contador del header
+                            //Actualizar también el contador del header
                             this.updateHeaderCartCount(cartData);
                         } else {
-                            console.warn('⚠️ Error en respuesta del carrito');
                             this.displayCartItems({ items: [] });
                         }
                     } catch (error) {
-                        console.error('❌ Error loading cart:', error);
                         this.displayCartItems({ items: [] });
                     }
                 }
@@ -418,12 +162,10 @@
                         cartSummary.style.display = 'none';
                         cartFooter.style.display = 'none';
 
-                        // Asegurar que el header también se actualice
                         this.updateHeaderCartCount({ items: [] });
                         return;
                     }
 
-                    console.log(`🛒 Mostrando ${cartData.items.length} items en el carrito`);
 
                     // Mostrar items
                     cartItemsContainer.innerHTML = cartData.items.map(item => `
@@ -462,7 +204,7 @@
                         sum + (item.productPrice * item.quantity), 0
                     );
 
-                    const shipping = subtotal > 50 ? 0 : 5.99; // Envío gratis sobre $50
+                    const shipping = subtotal > 50000 ? 0 : 15000; // Envío gratis sobre $50
                     const total = subtotal + shipping;
 
                     document.getElementById('cartSubtotal').textContent = `$${subtotal.toFixed(2)}`;
@@ -470,7 +212,7 @@
                     document.getElementById('cartTotal').textContent = `$${total.toFixed(2)}`;
                 }
 
-                // NUEVO: Método para actualizar el contador del header
+                //Método para actualizar el contador del header
                 updateHeaderCartCount(cartData) {
                     const totalItems = cartData.items ?
                         cartData.items.reduce((sum, item) => sum + item.quantity, 0) : 0;
@@ -542,7 +284,6 @@
                             throw new Error('Error al actualizar cantidad');
                         }
                     } catch (error) {
-                        console.error('Error updating cart item:', error);
                         this.showNotification('Error al actualizar cantidad', 'error');
                     }
                 }
@@ -560,7 +301,6 @@
                             throw new Error('Error al eliminar producto');
                         }
                     } catch (error) {
-                        console.error('Error removing cart item:', error);
                         this.showNotification('Error al eliminar producto', 'error');
                     }
                 }
@@ -601,21 +341,18 @@
                 // Crear instancia global para acceso desde otras páginas
                 window.cartSidebar = new CartSidebar();
 
-                // NUEVO: Forzar una actualización después de un tiempo por si la página se cargó después de crear una orden
+                // Forzar una actualización después de un tiempo por si la página se cargó después de crear una orden
                 setTimeout(() => {
-                    console.log('⏰ Actualización programada del carrito');
                     window.cartSidebar?.loadCartItems();
                 }, 1000);
 
-                // NUEVO: Actualizar también cuando la página se carga completamente
+                //Actualizar también cuando la página se carga completamente
                 window.addEventListener('load', () => {
-                    console.log('📄 Página completamente cargada, actualizando carrito...');
                     window.cartSidebar?.loadCartItems();
                 });
             });
 
             window.refreshCart = function () {
-                console.log('🔄 Forzando actualización del carrito...');
                 window.cartSidebar?.loadCartItems();
             };
         </script>
