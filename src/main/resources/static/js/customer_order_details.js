@@ -58,8 +58,6 @@ class CustomerOrderDetails {
     async loadOrderDetails() {
         try {
             this.showLoadingState();
-
-            console.log(`🔄 Cargando detalles del pedido ${this.orderId}...`);
             const response = await fetch(`/api/customer/orders/${this.orderId}`);
 
             if (!response.ok) {
@@ -67,12 +65,9 @@ class CustomerOrderDetails {
             }
 
             this.order = await response.json();
-            console.log('✅ Detalles del pedido cargados:', this.order);
-
             this.renderOrderDetails();
 
         } catch (error) {
-            console.error('❌ Error loading order details:', error);
             this.showError('Error al cargar los detalles del pedido');
         }
     }
@@ -117,7 +112,7 @@ class CustomerOrderDetails {
         const timelineSteps = [
             {
                 id: 'PENDING',
-                title: 'Pedido Recibido',
+                title: 'Pedido Pendiente',
                 description: 'Hemos recibido tu pedido y lo estamos procesando',
                 completed: ['PENDING', 'CONFIRMED', 'PAID', 'SHIPPED', 'DELIVERED'].includes(status),
                 current: status === 'PENDING',
@@ -204,7 +199,7 @@ class CustomerOrderDetails {
                     </div>
                 </div>
                 <div class="product-subtotal">
-                    $${item.subtotal.toFixed(2)}
+                    $${(item.unitPrice * item.quantity).toFixed(2)}
                 </div>
             </div>
         `).join('');
@@ -246,8 +241,8 @@ class CustomerOrderDetails {
     renderOrderSummary() {
         const summaryContainer = document.getElementById('orderSummary');
         const subtotal = this.order.totalAmount;
-        const shipping = 0; // Podrías calcular esto basado en el método de envío
-        const tax = 0; // Podrías calcular impuestos
+        const shipping = this.order.shippingCost || 0;
+        const tax = this.order.taxAmount || 0;
         const total = subtotal + shipping + tax;
 
         summaryContainer.innerHTML = `
@@ -255,14 +250,18 @@ class CustomerOrderDetails {
                 <span>Subtotal</span>
                 <span>$${subtotal.toFixed(2)}</span>
             </div>
-            <div class="summary-row">
-                <span>Envío</span>
-                <span>${shipping > 0 ? `$${shipping.toFixed(2)}` : 'Gratis'}</span>
-            </div>
-            <div class="summary-row">
-                <span>Impuestos</span>
-                <span>$${tax.toFixed(2)}</span>
-            </div>
+            ${shipping > 0 ? `
+                <div class="summary-row">
+                    <span>Envío</span>
+                    <span>$${shipping.toFixed(2)}</span>
+                </div>
+            ` : ''}
+            ${tax > 0 ? `
+                <div class="summary-row">
+                    <span>Impuestos</span>
+                    <span>$${tax.toFixed(2)}</span>
+                </div>
+            ` : ''}
             <div class="summary-row total">
                 <span>Total</span>
                 <span>$${total.toFixed(2)}</span>
@@ -338,15 +337,6 @@ class CustomerOrderDetails {
             `;
         }
 
-        actionsHTML += `
-            <button class="btn btn-outline btn-block" onclick="customerOrderDetails.contactSupport()">
-                💬 Contactar Soporte
-            </button>
-            <button class="btn btn-outline btn-block" onclick="customerOrderDetails.downloadInvoice()">
-                📄 Descargar Factura
-            </button>
-        `;
-
         actionsContainer.innerHTML = actionsHTML;
     }
 
@@ -354,23 +344,27 @@ class CustomerOrderDetails {
     showCancelModal() {
         document.getElementById('cancelOrderNumber').textContent = this.order.invoiceNumber;
         document.getElementById('cancelModalOverlay').style.display = 'flex';
+        
+        // Agregar animación de entrada
+        setTimeout(() => {
+            document.getElementById('cancelModal').style.transform = 'translateY(0) scale(1)';
+        }, 10);
     }
 
     hideCancelModal() {
         document.getElementById('cancelModalOverlay').style.display = 'none';
-        document.getElementById('cancelReason').value = '';
+        document.getElementById('cancelModal').style.transform = 'translateY(-30px) scale(0.9)';
     }
 
     async confirmCancelOrder() {
-        const reason = document.getElementById('cancelReason').value;
-        
         try {
+            // CORREGIDO: Eliminada la referencia al textarea que ya no existe
             const response = await fetch(`/api/customer/orders/${this.orderId}/cancel`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ reason })
+                    'Content-Type': 'application/json'
+                }
+                // CORREGIDO: Eliminado el body que enviaba el motivo
             });
 
             if (response.ok) {
@@ -379,21 +373,18 @@ class CustomerOrderDetails {
                 // Recargar los detalles del pedido
                 await this.loadOrderDetails();
             } else {
-                throw new Error('Error al cancelar el pedido');
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Error al cancelar el pedido');
             }
         } catch (error) {
             console.error('Error cancelling order:', error);
-            this.showNotification('Error al cancelar el pedido', 'error');
+            this.showNotification(error.message || 'Error al cancelar el pedido', 'error');
         }
     }
 
     trackPackage() {
         // Aquí integrarías con el servicio de tracking
         this.showNotification('Funcionalidad de rastreo en desarrollo', 'info');
-    }
-
-    contactSupport() {
-        window.location.href = '/contact?order=' + this.order.invoiceNumber;
     }
 
     downloadInvoice() {
@@ -507,47 +498,29 @@ class CustomerOrderDetails {
     showNotification(message, type = 'info') {
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
-        notification.textContent = message;
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 1rem 1.5rem;
-            border-radius: 6px;
-            color: white;
-            z-index: 2000;
-            font-weight: 500;
-            max-width: 300px;
+        notification.innerHTML = `
+            <div class="notification-content">
+                <span class="notification-message">${message}</span>
+                <button class="notification-close">×</button>
+            </div>
         `;
-
-        if (type === 'success') {
-            notification.style.background = '#28a745';
-        } else if (type === 'error') {
-            notification.style.background = '#dc3545';
-        } else {
-            notification.style.background = '#17a2b8';
-        }
-
+        
         const container = document.getElementById('notificationContainer');
         if (container) {
             container.appendChild(notification);
-
+            
+            // Auto-remover después de 5 segundos
             setTimeout(() => {
                 if (notification.parentNode) {
-                    notification.parentNode.removeChild(notification);
+                    notification.remove();
                 }
             }, 5000);
+            
+            notification.querySelector('.notification-close').addEventListener('click', () => {
+                notification.remove();
+            });
         }
     }
-}
-
-// Funciones globales para los botones
-function contactSupport() {
-    window.customerOrderDetails.contactSupport();
-}
-
-function trackPackage() {
-    window.customerOrderDetails.trackPackage();
 }
 
 // Inicializar cuando el DOM esté listo
