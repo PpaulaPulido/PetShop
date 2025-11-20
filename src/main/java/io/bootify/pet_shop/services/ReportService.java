@@ -34,7 +34,9 @@ public class ReportService {
         Map<String, Object> stats = new HashMap<>();
 
         try {
-            // Estadísticas de productos - con manejo seguro de nulos
+            log.info("📊 Generando estadísticas del dashboard...");
+
+            // Estadísticas de productos
             stats.put("totalProducts", safeCount(productRepository::count));
             stats.put("activeProducts", safeCount(productRepository::countActiveProducts));
             stats.put("lowStockProducts", safeCount(productRepository::countLowStockProducts));
@@ -53,22 +55,18 @@ public class ReportService {
             stats.put("deliveredSales", safeCount(() -> saleRepository.countByStatus(SaleStatus.DELIVERED)));
             stats.put("cancelledSales", safeCount(() -> saleRepository.countByStatus(SaleStatus.CANCELLED)));
 
-            // Ingresos
-            LocalDateTime todayStart = LocalDate.now().atStartOfDay();
-            LocalDateTime todayEnd = LocalDate.now().atTime(LocalTime.MAX);
-
-            BigDecimal totalRevenue = safeBigDecimal(() -> saleRepository.getTotalRevenueByDateRange(
-                    LocalDateTime.of(2020, 1, 1, 0, 0),
-                    LocalDateTime.now()));
+            // Solo ventas PAGADAS
+            BigDecimal totalRevenue = safeBigDecimal(saleRepository::getTotalRevenue);
             stats.put("totalRevenue", totalRevenue);
 
+            // Ingresos de hoy - Solo ventas PAGADAS de hoy
+            LocalDateTime todayStart = LocalDate.now().atStartOfDay();
+            LocalDateTime todayEnd = LocalDate.now().atTime(LocalTime.MAX);
             BigDecimal todayRevenue = safeBigDecimal(
                     () -> saleRepository.getTotalRevenueByDateRange(todayStart, todayEnd));
             stats.put("todayRevenue", todayRevenue);
 
         } catch (Exception e) {
-            log.error("Error generating dashboard stats", e);
-            // Set default values on error
             setDefaultStats(stats);
         }
 
@@ -154,21 +152,30 @@ public class ReportService {
 
     public Map<String, Object> getChartsData() {
         Map<String, Object> chartsData = new HashMap<>();
-        log.info("🔄 Generando datos para gráficos...");
 
         try {
-            // Distribución de stock por niveles
+            // 1. DISTRIBUCIÓN DE STOCK - CORREGIDO
             Map<String, Long> stockDistribution = new HashMap<>();
-            stockDistribution.put("Sin Stock", safeCount(productRepository::countOutOfStockProducts));
-            stockDistribution.put("Stock Crítico", safeCount(productRepository::countCriticalStockProducts));
-            stockDistribution.put("Stock Bajo", safeCount(productRepository::countLowStockProducts));
-            stockDistribution.put("Stock Normal", safeCount(productRepository::countNormalStockProducts));
-            stockDistribution.put("Stock Excelente", safeCount(productRepository::countExcellentStockProducts));
+
+            // Obtener datos REALES del repositorio
+            Long sinStock = safeCount(productRepository::countOutOfStockProducts);
+            Long stockCritico = safeCount(productRepository::countCriticalStockProducts);
+            Long stockBajo = safeCount(productRepository::countLowStockProducts);
+            Long stockNormal = safeCount(productRepository::countNormalStockProducts);
+            Long stockExcelente = safeCount(productRepository::countExcellentStockProducts);
+
+            stockDistribution.put("Sin Stock", sinStock);
+            stockDistribution.put("Stock Crítico", stockCritico);
+            stockDistribution.put("Stock Bajo", stockBajo);
+            stockDistribution.put("Stock Normal", stockNormal);
+            stockDistribution.put("Stock Excelente", stockExcelente);
+
             chartsData.put("stockDistribution", stockDistribution);
 
-            // Ventas por mes (últimos 6 meses)
+            // 2. TENDENCIA DE VENTAS MENSUALES - CORREGIDO
             Map<String, BigDecimal> monthlySales = new HashMap<>();
             LocalDate now = LocalDate.now();
+
             for (int i = 5; i >= 0; i--) {
                 LocalDate monthStart = now.minusMonths(i).withDayOfMonth(1);
                 LocalDate monthEnd = monthStart.withDayOfMonth(monthStart.lengthOfMonth());
@@ -176,13 +183,16 @@ public class ReportService {
                 LocalDateTime start = monthStart.atStartOfDay();
                 LocalDateTime end = monthEnd.atTime(LocalTime.MAX);
 
+                // Usar el método CORREGIDO que solo cuenta ventas PAGADAS
                 BigDecimal monthlyRevenue = safeBigDecimal(() -> saleRepository.getTotalRevenueByDateRange(start, end));
-                String monthKey = monthStart.getMonth().toString().substring(0, 3) + " " + monthStart.getYear();
+
+                // Formatear el mes en español
+                String monthKey = getMonthNameInSpanish(monthStart.getMonthValue()) + " " + monthStart.getYear();
                 monthlySales.put(monthKey, monthlyRevenue);
             }
             chartsData.put("monthlySalesTrend", monthlySales);
 
-            // Productos por categoría
+            // 3. PRODUCTOS POR CATEGORÍA
             Map<String, Long> productsByCategory = new HashMap<>();
             try {
                 List<Object[]> categoryResults = productRepository.countProductsByCategory();
@@ -194,12 +204,12 @@ public class ReportService {
                     }
                 }
             } catch (Exception e) {
-                log.error("Error processing products by category", e);
+                log.error("Error procesando productos por categoría", e);
                 productsByCategory.put("Sin Categoría", 0L);
             }
             chartsData.put("productsByCategory", productsByCategory);
 
-            // Estado de productos
+            // 4. ESTADO DE PRODUCTOS
             Map<String, Long> productStatus = new HashMap<>();
             Long totalProducts = safeCount(productRepository::count);
             Long activeProducts = safeCount(productRepository::countActiveProducts);
@@ -207,14 +217,16 @@ public class ReportService {
             productStatus.put("Inactivos", totalProducts - activeProducts);
             chartsData.put("productStatus", productStatus);
 
-            // Ventas por estado
+            // 5. VENTAS POR ESTADO
             Map<String, Long> salesByStatus = new HashMap<>();
-            for (SaleStatus status : SaleStatus.values()) {
-                Long count = safeCount(() -> saleRepository.countByStatus(status));
-                salesByStatus.put(status.name(), count);
-            }
+            salesByStatus.put("PENDING", safeCount(() -> saleRepository.countByStatus(SaleStatus.PENDING)));
+            salesByStatus.put("CONFIRMED", safeCount(() -> saleRepository.countByStatus(SaleStatus.CONFIRMED)));
+            salesByStatus.put("PAID", safeCount(() -> saleRepository.countByStatus(SaleStatus.PAID)));
+            salesByStatus.put("DELIVERED", safeCount(() -> saleRepository.countByStatus(SaleStatus.DELIVERED)));
+            salesByStatus.put("CANCELLED", safeCount(() -> saleRepository.countByStatus(SaleStatus.CANCELLED)));
             chartsData.put("salesByStatus", salesByStatus);
 
+            // 6. PRODUCTOS MÁS VENDIDOS
             List<Map<String, Object>> topProducts = new ArrayList<>();
             try {
                 List<Object[]> topProductsResults = saleItemRepository.findTopSellingProducts();
@@ -224,24 +236,44 @@ public class ReportService {
                         String productName = result[1] != null ? result[1].toString() : "Producto Desconocido";
                         Long totalSold = result[2] != null ? ((Number) result[2]).longValue() : 0L;
 
-                        Map<String, Object> productData = new HashMap<>();
-                        productData.put("name", productName);
-                        productData.put("sales", totalSold);
-                        topProducts.add(productData);
+                        // Solo incluir productos que realmente se han vendido
+                        if (totalSold > 0) {
+                            Map<String, Object> productData = new HashMap<>();
+                            productData.put("name", productName);
+                            productData.put("sales", totalSold);
+                            topProducts.add(productData);
+
+                            // Limitar a 10 productos
+                            if (topProducts.size() >= 10)
+                                break;
+                        }
                     }
                 }
+
+                // Si no hay datos reales de ventas, usar datos de ejemplo
+                if (topProducts.isEmpty()) {
+                    topProducts = getSampleTopProducts();
+                }
+
             } catch (Exception e) {
-                // En caso de error, usar datos de ejemplo como fallback
                 topProducts = getSampleTopProducts();
             }
             chartsData.put("topProducts", topProducts);
 
         } catch (Exception e) {
-            // Devolver datos vacíos en caso de error
             setDefaultChartsData(chartsData);
         }
 
         return chartsData;
+    }
+
+    // Método auxiliar para nombres de meses en español
+    private String getMonthNameInSpanish(int month) {
+        String[] months = {
+                "Ene", "Feb", "Mar", "Abr", "May", "Jun",
+                "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"
+        };
+        return months[month - 1];
     }
 
     public Map<String, Object> getSalesByCategory(LocalDate startDate, LocalDate endDate) {
@@ -370,4 +402,5 @@ public class ReportService {
         chartsData.put("salesByStatus", new HashMap<>());
         chartsData.put("topProducts", getSampleTopProducts());
     }
+
 }

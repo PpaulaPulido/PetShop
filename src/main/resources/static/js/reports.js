@@ -14,15 +14,15 @@ class ReportsManager {
 
     init() {
         if (this.isInitialized) return;
-        
+
         this.setupEventListeners();
         this.setDefaultDates();
         this.loadQuickStats();
         this.loadChartsData();
         this.initializeScrollAnimations();
-        
+
         this.isInitialized = true;
-                
+
         // Actualizar cada 60 segundos
         setInterval(() => {
             this.loadQuickStats();
@@ -76,11 +76,11 @@ class ReportsManager {
             const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
             const formatDate = (date) => date.toISOString().split('T')[0];
-            
+
             const startDate = document.getElementById('startDate');
             const endDate = document.getElementById('endDate');
             const month = document.getElementById('month');
-            
+
             if (startDate) startDate.value = formatDate(firstDay);
             if (endDate) endDate.value = formatDate(lastDay);
             if (month) month.value = today.toISOString().substring(0, 7);
@@ -115,14 +115,14 @@ class ReportsManager {
         try {
             this.showLoading(true, 'Cargando estadísticas...');
             const response = await fetch('/api/reports/quick-stats');
-            
+
             if (!response.ok) {
                 throw new Error(`Error HTTP: ${response.status}`);
             }
-            
+
             const stats = await response.json();
             this.displayQuickStats(stats);
-            
+
         } catch (error) {
             console.error('Error cargando estadísticas:', error);
             this.displayQuickStats(this.getDefaultStats());
@@ -138,10 +138,10 @@ class ReportsManager {
             if (!response.ok) {
                 throw new Error(`Error HTTP: ${response.status}`);
             }
-            
+
             const chartsData = await response.json();
             this.createAllCharts(chartsData);
-            
+
         } catch (error) {
             this.createAllCharts(this.getDefaultChartsData());
         }
@@ -162,7 +162,7 @@ class ReportsManager {
     getDefaultChartsData() {
         const currentDate = new Date();
         const months = [];
-        
+
         // Generar últimos 6 meses
         for (let i = 5; i >= 0; i--) {
             const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
@@ -208,7 +208,7 @@ class ReportsManager {
             console.error('Quick stats container not found');
             return;
         }
-        
+
         const statsData = [
             {
                 icon: 'shopping-cart',
@@ -336,7 +336,7 @@ class ReportsManager {
                         },
                         tooltip: {
                             callbacks: {
-                                label: function(context) {
+                                label: function (context) {
                                     const label = context.label || '';
                                     const value = context.raw || 0;
                                     const total = context.dataset.data.reduce((a, b) => a + b, 0);
@@ -361,7 +361,6 @@ class ReportsManager {
     createInventoryStatusChart(chartsData) {
         const canvas = document.getElementById('inventoryStatusChart');
         if (!canvas) {
-            console.warn('Inventory status chart canvas not found');
             return;
         }
 
@@ -369,30 +368,38 @@ class ReportsManager {
             this.charts.inventoryStatus.destroy();
         }
 
-        // Obtener datos del dashboard stats en lugar de chartsData
-        const inventoryData = [
-            chartsData.totalProducts || 0,  // Total de productos
-            chartsData.activeProducts || 0, // Productos activos
-            chartsData.lowStockProducts || 0, // Stock bajo
-            chartsData.outOfStockProducts || 0 // Sin stock
-        ];
+        const stockData = chartsData.stockDistribution || {};
 
-        const hasData = inventoryData.some(value => value > 0);
+        const labels = Object.keys(stockData);
+        const data = Object.values(stockData).map(value =>
+            typeof value === 'number' ? value : parseInt(value) || 0
+        );
+
+        const hasData = data.some(value => value > 0);
+        console.log('¿Tiene datos de inventario?', hasData, 'Datos:', data);
 
         if (hasData) {
             const ctx = canvas.getContext('2d');
             this.charts.inventoryStatus = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['Total', 'Activos', 'Stock Bajo', 'Sin Stock'],
+                    labels: labels,
                     datasets: [{
                         label: 'Cantidad de Productos',
-                        data: inventoryData,
+                        data: data,
                         backgroundColor: [
-                            '#6A2FB4', '#4CAF50', '#FF9800', '#f44336'
+                            '#dc3545', // Sin Stock - Rojo
+                            '#ff6b35', // Stock Crítico - Naranja
+                            '#ffc107', // Stock Bajo - Amarillo
+                            '#17a2b8', // Stock Normal - Azul
+                            '#28a745'  // Stock Excelente - Verde
                         ],
                         borderColor: [
-                            '#5A2A9D', '#45a049', '#f57c00', '#e53935'
+                            '#c82333',
+                            '#e55a2b',
+                            '#e0a800',
+                            '#138496',
+                            '#218838'
                         ],
                         borderWidth: 2,
                         borderRadius: 8,
@@ -421,6 +428,13 @@ class ReportsManager {
                     plugins: {
                         legend: {
                             display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return `Productos: ${context.raw}`;
+                                }
+                            }
                         }
                     },
                     animation: {
@@ -437,7 +451,6 @@ class ReportsManager {
     createSalesTrendChart(chartsData) {
         const canvas = document.getElementById('salesTrendChart');
         if (!canvas) {
-            console.warn('Sales trend chart canvas not found');
             return;
         }
 
@@ -447,7 +460,7 @@ class ReportsManager {
 
         const monthlySales = chartsData.monthlySalesTrend || {};
         const labels = Object.keys(monthlySales);
-        const data = Object.values(monthlySales).map(value => 
+        const data = Object.values(monthlySales).map(value =>
             typeof value === 'number' ? value : parseFloat(value) || 0
         );
 
@@ -565,7 +578,7 @@ class ReportsManager {
                             },
                             ticks: {
                                 precision: 0,
-                                callback: function(value) {
+                                callback: function (value) {
                                     return value.toLocaleString(); // Formato con separadores de miles
                                 }
                             }
@@ -661,7 +674,7 @@ class ReportsManager {
             this.currentReportData = data;
             this.displayReportData(data, reportType);
             this.showAlert('Reporte generado exitosamente', 'success');
-            
+
         } catch (error) {
             console.error('Error cargando reporte:', error);
             this.showAlert('Error generando el reporte', 'danger');
@@ -946,7 +959,7 @@ class ReportsManager {
     showLoading(show, message = 'Cargando...') {
         // Buscar o crear elemento de loading
         let loadingEl = document.getElementById('reports-loading');
-        
+
         if (show) {
             if (!loadingEl) {
                 loadingEl = document.createElement('div');
@@ -969,7 +982,7 @@ class ReportsManager {
     showAlert(message, type = 'info') {
         // Buscar o crear contenedor de alertas
         let alertContainer = document.getElementById('reports-alert-container');
-        
+
         if (!alertContainer) {
             alertContainer = document.createElement('div');
             alertContainer.id = 'reports-alert-container';
@@ -991,7 +1004,7 @@ class ReportsManager {
             ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
-        
+
         alertContainer.appendChild(alertEl);
 
         // Auto-remover después de 5 segundos
@@ -1026,7 +1039,7 @@ class ReportsManager {
 }
 
 // Inicializar cuando el DOM esté listo
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     window.reportsManager = new ReportsManager();
 });
 

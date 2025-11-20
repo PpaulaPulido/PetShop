@@ -33,7 +33,7 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
         @Query("SELECT COUNT(s) FROM Sale s WHERE s.status = :status")
         Long countByStatus(@Param("status") SaleStatus status);
 
-        @Query("SELECT SUM(s.totalAmount) FROM Sale s WHERE s.status = 'PAID' AND s.createdAt BETWEEN :startDate AND :endDate")
+        @Query("SELECT COALESCE(SUM(s.totalAmount), 0) FROM Sale s WHERE s.status = 'PAID' AND s.createdAt BETWEEN :startDate AND :endDate")
         BigDecimal getTotalRevenueByDateRange(@Param("startDate") LocalDateTime startDate,
                         @Param("endDate") LocalDateTime endDate);
 
@@ -83,5 +83,8 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
         @Query("SELECT s.status, COUNT(s) FROM Sale s WHERE s.createdAt BETWEEN :startDate AND :endDate GROUP BY s.status")
         List<Object[]> countSalesByStatusInDateRange(@Param("startDate") LocalDateTime startDate,
                         @Param("endDate") LocalDateTime endDate);
+
+        @Query("SELECT COALESCE(SUM(s.totalAmount), 0) FROM Sale s WHERE s.status = 'PAID'")
+        BigDecimal getTotalRevenue();
 
 }

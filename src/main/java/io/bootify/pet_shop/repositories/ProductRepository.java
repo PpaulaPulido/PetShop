@@ -78,4 +78,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("SELECT p FROM Product p WHERE p.stock <= p.minStock AND p.active = true")
     List<Product> findByStockLessThanEqualMinStock();
+
+    @Query("SELECT COUNT(p) FROM Product p WHERE p.stock BETWEEN :min AND :max")
+    Long countProductsByStockRange(@Param("min") Integer min, @Param("max") Integer max);
 }
