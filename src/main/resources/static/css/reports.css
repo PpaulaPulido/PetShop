@@ -99,7 +99,7 @@
 
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 1.25rem;
 }
 
@@ -168,7 +168,7 @@
 }
 
 .stat-number {
-    font-size: 1.75rem;
+    font-size: 1.2rem;
     font-weight: 800;
     margin-bottom: 0.25rem;
     line-height: 1;
