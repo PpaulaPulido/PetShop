@@ -188,10 +188,6 @@ function createProductCard(product, index) {
                         <span class="detail-value">${categoryName}</span>
                     </div>
                     <div class="product-detail-item">
-                        <span class="detail-label">SKU</span>
-                        <span class="detail-value">${product.sku || 'N/A'}</span>
-                    </div>
-                    <div class="product-detail-item">
                         <span class="detail-label">Precio</span>
                         <span class="detail-value product-price">$${price.toLocaleString()}</span>
                     </div>
