@@ -23,20 +23,35 @@ public class EmailService {
 
     public void sendVerificationEmail(User user) {
         try {
+            // DEBUG DETALLADO
+            System.out.println("🚀 === EMAIL DEBUG INICIADO ===");
+            System.out.println("📧 Base URL: " + baseUrl);
+            System.out.println("📨 From Email: " + fromEmail);
+            System.out.println("👤 User Email: " + user.getEmail());
+            System.out.println("🔑 Verification Token: " + user.getVerificationToken());
+
+            String verificationUrl = baseUrl + "/auth/verify-email?token=" + user.getVerificationToken();
+            System.out.println("🔗 Full URL: " + verificationUrl);
 
             String subject = "Verifica tu cuenta de PetShop";
-            String verificationUrl = baseUrl + "/api/auth/verify-email?token=" + user.getVerificationToken();
-
-            // Crear contenido del email simple (sin template por ahora)
             String htmlContent = createSimpleVerificationEmail(user, verificationUrl);
             String textContent = createVerificationEmailText(user, verificationUrl);
 
-            // Enviar email
+            System.out.println("📤 Attempting to send email to: " + user.getEmail());
+
             sendEmail(user.getEmail(), subject, htmlContent, textContent);
 
+            System.out.println("✅ Email sent successfully to: " + user.getEmail());
+
         } catch (Exception e) {
+            System.err.println("❌ ERROR sending email: " + e.getMessage());
+            System.err.println("🔍 Error type: " + e.getClass().getName());
             e.printStackTrace();
-            // No lanzar excepción para no bloquear el registro
+
+            // Log adicional para problemas de conexión
+            if (e.getMessage().contains("connect") || e.getMessage().contains("timeout")) {
+                System.err.println("🌐 Problema de conexión de red detectado");
+            }
         }
     }
 
