@@ -28,10 +28,10 @@ EXPOSE 8080
 
 # Health check para Render
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
+    CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT:-8080}/actuator/health || exit 1
 
 # Comando para ejecutar con optimizaciones para producción
 ENTRYPOINT ["java", "-jar", \
             "-Djava.security.egd=file:/dev/./urandom", \
-            "-Dspring.profiles.active=prod", \
+            "-Dserver.port=${PORT:-8080}", \
             "app.jar"]
