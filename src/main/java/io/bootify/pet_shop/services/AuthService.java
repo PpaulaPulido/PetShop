@@ -76,20 +76,22 @@ public class AuthService {
         
         // Todos los nuevos registros son CUSTOMER por defecto
         user.setRole(Role.CUSTOMER);
-        user.setEmailVerified(false);
+        user.setEmailVerified(true);
         user.setIsActive(true);
         user.setPhoneVerified(false);
 
         // Generar token de verificación
-        String verificationToken = UUID.randomUUID().toString();
-        user.setVerificationToken(verificationToken);
-        user.setVerificationTokenExpires(LocalDateTime.now().plusHours(24));
+        // String verificationToken = UUID.randomUUID().toString();
+        // user.setVerificationToken(verificationToken);
+        // user.setVerificationTokenExpires(LocalDateTime.now().plusHours(24));
+        user.setVerificationToken(null);
+        user.setVerificationTokenExpires(null);
 
         // Guardar usuario
         User savedUser = userRepository.save(user);
 
         // Enviar email de verificación
-        emailService.sendVerificationEmail(savedUser);
+        // emailService.sendVerificationEmail(savedUser);
 
         return savedUser;
     }

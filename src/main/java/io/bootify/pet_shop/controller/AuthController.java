@@ -35,9 +35,10 @@ public class AuthController {
             User savedUser = authService.registerUser(registerRequest);
 
             response.put("success", true);
-            response.put("message", "Usuario registrado exitosamente. Por favor verifica tu email.");
+            response.put("message", "Usuario registrado exitosamente");
             response.put("email", savedUser.getEmail());
-
+            response.put("redirect", true);
+            response.put("redirectUrl", "/auth/login?registered=true");
             return ResponseEntity.ok(response);
 
         } catch (RuntimeException e) {

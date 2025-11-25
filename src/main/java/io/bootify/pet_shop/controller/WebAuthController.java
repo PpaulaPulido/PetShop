@@ -21,9 +21,10 @@ public class WebAuthController {
 
     @GetMapping("/auth/login")
     public String showLoginForm(@RequestParam(value = "error", required = false) String error,
-                               @RequestParam(value = "logout", required = false) String logout,
-                               @RequestParam(value = "verified", required = false) String verified,
-                               Model model) {
+            @RequestParam(value = "logout", required = false) String logout,
+            @RequestParam(value = "verified", required = false) String verified,
+            @RequestParam(value = "registered", required = false) String registered,
+            Model model) {
         if (error != null) {
             model.addAttribute("errorMessage", "Email o contraseña incorrectos.");
         }
@@ -32,6 +33,10 @@ public class WebAuthController {
         }
         if (verified != null) {
             model.addAttribute("successMessage", "¡Email verificado exitosamente! Ya puedes iniciar sesión.");
+        }
+        // NUEVO: Mensaje para registro exitoso
+        if (registered != null) {
+            model.addAttribute("successMessage", "¡Registro exitoso! Ya puedes iniciar sesión.");
         }
         model.addAttribute("pageTitle", "Iniciar Sesión - PetShop");
         return "login";
@@ -46,9 +51,9 @@ public class WebAuthController {
     @GetMapping("/auth/verify-email")
     public String verifyEmail(@RequestParam String token, Model model) {
         try {
-            
+
             boolean verified = authService.verifyEmail(token);
-            
+
             if (verified) {
                 return "redirect:/auth/login?verified=true";
             } else {
@@ -56,7 +61,7 @@ public class WebAuthController {
                 model.addAttribute("error", "Error al verificar el email.");
                 return "login";
             }
-            
+
         } catch (RuntimeException e) {
             model.addAttribute("pageTitle", "Error de Verificación - PetShop");
             model.addAttribute("error", e.getMessage());

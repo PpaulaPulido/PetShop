@@ -87,8 +87,8 @@ class RegisterForm {
         
         // Redirigir después de 3 segundos
         setTimeout(() => {
-            window.location.href = `/auth/verification-sent?email=${encodeURIComponent(response.email)}`;
-        }, 3000);
+            window.location.href = '/auth/login?registered=true';
+        }, 1500);
     }
 
     handleError(errorMessage) {
