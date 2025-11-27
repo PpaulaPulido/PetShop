@@ -531,7 +531,12 @@ class PatternsDictionary {
             sameVowelPattern: /^[bcdfghjklmnpqrstvwxyz]*([aeiou])\1*[bcdfghjklmnpqrstvwxyz]*$/i,
 
             // Patrones repetitivos generales
-            repeatedSequence: /(.{2,})\1{2,}/gi
+            repeatedSequence: /(.{2,})\1{2,}/gi,
+
+            // Nuevos patrones para detectar texto sin sentido
+            nonSenseText: /^[bcdfghjklmnpqrstvwxyz]*[aeiouáéíóú]?[bcdfghjklmnpqrstvwxyz]*$/i,
+            excessiveConsonants: /[bcdfghjklmnpqrstvwxyz]{5,}/gi,
+            minimalVowels: /^[^aeiouáéíóú]*[aeiouáéíóú][^aeiouáéíóú]*$/i
         };
 
         this.thresholds = {
@@ -539,18 +544,22 @@ class PatternsDictionary {
             maxKeyboardSequence: 5,
             maxEntropy: 4.2,
             minWordLength: 3,
-            maxRepetitionLength: 3 // Máximo 3 repeticiones del mismo patrón
+            maxRepetitionLength: 3, // Máximo 3 repeticiones del mismo patrón
+            maxConsecutiveConsonants: 4, // Máximo 4 consonantes seguidas
+            minVowelRatio: 0.2, // Mínimo 20% de vocales en palabras largas
+            maxConsecutiveSameType: 3 // Máximo 3 caracteres del mismo tipo seguidos
         };
 
     }
 
-    // ========== MÉTODO PRINCIPAL==========
+    // ========== MÉTODO PRINCIPAL ==========
     isValidText(text, options = {}) {
         const defaults = {
             minLength: 1,
             maxLength: 100,
             strictMode: false,
-            rejectRepetitive: true
+            rejectRepetitive: true,
+            allowAccented: true
         };
 
         const config = { ...defaults, ...options };
@@ -575,9 +584,28 @@ class PatternsDictionary {
                 if (!hasVowel || !hasConsonant) {
                     return false;
                 }
+
+                // Verificar ratio de vocales en palabras largas
+                if (cleanWord.length >= 6) {
+                    const vowelCount = (cleanWord.match(/[aeiouáéíóú]/gi) || []).length;
+                    const vowelRatio = vowelCount / cleanWord.length;
+                    if (vowelRatio < this.thresholds.minVowelRatio) {
+                        return false;
+                    }
+                }
+
+                // Verificar consonantes consecutivas excesivas
+                if (this.hasExcessiveConsecutiveConsonants(cleanWord)) {
+                    return false;
+                }
             }
 
             if (config.rejectRepetitive && this.isRepetitiveWord(cleanWord.toLowerCase())) {
+                return false;
+            }
+
+            // Verificar patrones de texto sin sentido
+            if (this.isNonSenseText(cleanWord)) {
                 return false;
             }
         }
@@ -592,6 +620,88 @@ class PatternsDictionary {
 
         // Evaluar resultados
         return this.evaluateResults(checks, config, cleanText, words);
+    }
+
+    // ========== NUEVOS MÉTODOS PARA DETECTAR TEXTO SIN SENTIDO ==========
+    hasExcessiveConsecutiveConsonants(word) {
+        const consecutiveConsonants = /[bcdfghjklmnpqrstvwxyz]{5,}/gi;
+        return consecutiveConsonants.test(word);
+    }
+
+    isNonSenseText(word) {
+        if (word.length < 4) return false;
+
+        const cleanWord = word.toLowerCase();
+        
+        // Verificar patrones con muchas consonantes y pocas vocales
+        const consonantCount = (cleanWord.match(/[bcdfghjklmnpqrstvwxyz]/g) || []).length;
+        const vowelCount = (cleanWord.match(/[aeiouáéíóú]/g) || []).length;
+        
+        // Si tiene 4+ consonantes y solo 1 vocal
+        if (consonantCount >= 4 && vowelCount <= 1) {
+            return true;
+        }
+
+        // Verificar secuencias de caracteres del mismo tipo
+        if (this.hasLongSameTypeSequence(cleanWord)) {
+            return true;
+        }
+
+        // Verificar patrones aleatorios
+        if (this.hasRandomPattern(cleanWord)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    hasLongSameTypeSequence(word) {
+        let currentType = null;
+        let currentCount = 0;
+        
+        for (let char of word) {
+            const isVowel = /[aeiouáéíóú]/.test(char);
+            const currentCharType = isVowel ? 'vowel' : 'consonant';
+            
+            if (currentType === currentCharType) {
+                currentCount++;
+                if (currentCount > this.thresholds.maxConsecutiveSameType) {
+                    return true;
+                }
+            } else {
+                currentType = currentCharType;
+                currentCount = 1;
+            }
+        }
+        
+        return false;
+    }
+
+    hasRandomPattern(word) {
+        // Detectar patrones como "hfhgjdhunchd", "qfyfdsnjghus", etc.
+        if (word.length < 6) return false;
+
+        // Verificar cambios bruscos entre consonantes y vocales
+        let changes = 0;
+        let lastType = null;
+        
+        for (let char of word) {
+            const isVowel = /[aeiouáéíóú]/.test(char);
+            const currentType = isVowel ? 'vowel' : 'consonant';
+            
+            if (lastType && lastType !== currentType) {
+                changes++;
+            }
+            lastType = currentType;
+        }
+
+        // Si hay demasiados cambios para el tamaño de la palabra
+        const changeRatio = changes / word.length;
+        if (changeRatio > 0.8) {
+            return true;
+        }
+
+        return false;
     }
 
     // ========== MÉTODO PARA DETECTAR PALABRAS REPETITIVAS ==========
@@ -640,7 +750,7 @@ class PatternsDictionary {
 
     // ========== MÉTODO hasRepetitionPatterns ==========
     hasRepetitionPatterns(text) {
-        const cleanText = text.toLowerCase().replace(/[^a-z]/g, '');
+        const cleanText = text.toLowerCase().replace(/[^a-záéíóúñ]/g, '');
 
         if (cleanText.length < 4) return false;
 
@@ -654,7 +764,7 @@ class PatternsDictionary {
         // 2. Verificar palabras individuales
         const words = text.split(/\s+/);
         for (let word of words) {
-            const cleanWord = word.replace(/[^a-z]/g, '');
+            const cleanWord = word.replace(/[^a-záéíóúñ]/g, '');
             if (this.isRepetitiveWord(cleanWord)) {
                 return true;
             }
@@ -663,7 +773,6 @@ class PatternsDictionary {
         return false;
     }
 
-    // En basicValidation, actualizar:
     basicValidation(text, config) {
         if (!text || text.length < config.minLength || text.length > config.maxLength) {
             return false;
@@ -695,8 +804,18 @@ class PatternsDictionary {
             hasVowelClusters: this.hasVowelClusters(cleanText),
             hasAlphabetSequence: this.hasAlphabetSequence(cleanText),
             hasRandomMixed: this.hasRandomMixed(cleanText),
-            isTooRandom: this.isTooRandom(cleanText)
+            isTooRandom: this.isTooRandom(cleanText),
+            hasNonSenseText: this.hasNonSenseText(words),
+            hasExcessiveConsonants: this.hasExcessiveConsonantsInWords(words)
         };
+    }
+
+    hasNonSenseText(words) {
+        return words.some(word => this.isNonSenseText(word));
+    }
+
+    hasExcessiveConsonantsInWords(words) {
+        return words.some(word => this.hasExcessiveConsecutiveConsonants(word));
     }
 
     evaluateResults(checks, config, text, words) {
@@ -706,7 +825,9 @@ class PatternsDictionary {
             checks.hasSequencePatterns,
             checks.hasOnlyConsonants,
             checks.hasOnlyVowels,
-            checks.hasRandomMixed
+            checks.hasRandomMixed,
+            checks.hasNonSenseText,
+            checks.hasExcessiveConsonants
         ];
 
         // Fallos de advertencia - evaluar según contexto
@@ -823,7 +944,7 @@ class PatternsDictionary {
     }
 
     hasRepetitionPatterns(text) {
-        const cleanText = text.replace(/[^a-z]/g, '');
+        const cleanText = text.replace(/[^a-záéíóúñ]/g, '');
 
         if (this.repetitionPatterns.some(pattern =>
             pattern.length >= 4 && cleanText.includes(pattern))) {
@@ -866,7 +987,7 @@ class PatternsDictionary {
     }
 
     isTooRandom(text) {
-        const cleanText = text.replace(/[^a-z]/g, '');
+        const cleanText = text.replace(/[^a-záéíóúñ]/g, '');
         if (cleanText.length < 8) return false;
 
         const entropy = this.calculateEntropy(cleanText);
@@ -922,6 +1043,8 @@ class PatternsDictionary {
         if (checks.hasOnlyConsonants) suggestions.push('Las palabras deben tener vocales');
         if (checks.hasOnlyVowels) suggestions.push('Las palabras deben tener consonantes');
         if (checks.hasRepetitionPatterns) suggestions.push('Evite patrones repetitivos');
+        if (checks.hasNonSenseText) suggestions.push('El texto parece no tener sentido');
+        if (checks.hasExcessiveConsonants) suggestions.push('Demasiadas consonantes consecutivas');
 
         return suggestions.length > 0 ? suggestions : ['Texto válido'];
     }
@@ -930,8 +1053,30 @@ class PatternsDictionary {
 // ========== PRUEBAS ==========
 const detector = new PatternsDictionary();
 
+// Ejemplos de prueba
+const testCases = [
+    "hola mundo", // válido
+    "ndsh siygf ayygfds", // inválido
+    "wqhff sahvjrehds", // inválido  
+    "hfhgjdhunchd qfyfdsnjghus", // inválido
+    "as hjfa ifnvnr", // inválido
+    "ayewyewpif mfkkijsa", // inválido
+    "satwqtnv uhjebc", // inválido
+    "aiufhuebfhqd futeu", // inválido
+    "bhh n ewijrf", // inválido
+    "inuwba ihs", // inválido
+    "casa árbol música", // válido
+    "producto 2 4kg", // válido
+    "qué día más bonito" // válido
+];
+
+console.log("=== PRUEBAS DE VALIDACIÓN ===");
+testCases.forEach(testCase => {
+    const isValid = detector.isValidText(testCase);
+    console.log(`"${testCase}" -> ${isValid ? '✅ VÁLIDO' : '❌ INVÁLIDO'}`);
+});
+
 // Crear instancia global
 if (typeof window !== 'undefined' && typeof window.patternsDictionary === 'undefined') {
     window.patternsDictionary = new PatternsDictionary();
 }
-
